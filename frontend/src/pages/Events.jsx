@@ -4,7 +4,6 @@ import { AuthContext } from '../context/AuthContext';
 
 const Events = () => {
     const [events, setEvents] = useState([]);
-
     const { user } = useContext(AuthContext);
 
     useEffect(() => {
@@ -12,53 +11,62 @@ const Events = () => {
     }, []);
 
     const handleDeleteEvent = async (id) => {
-        if (!window.confirm("Delete this event?")) return;
+        if (!window.confirm("Are you sure you want to permanently remove this event from the portal?")) return;
         try {
             await api.delete(`/events/${id}`);
             setEvents(events.filter(e => e._id !== id));
         } catch (err) {
             console.error(err);
-            alert("Failed to delete event");
+            alert("Error: Unable to delete the event. Please try again later.");
         }
     };
 
     return (
         <div className="events-page">
-            {/* Header */}
+            {/* Header - Refined for professional tone */}
             <header className="events-header">
-                <h2>Chapter Events</h2>
-                <p>
-                    Official workshops, hackathons, seminars, and academic activities
-                    organized by the ACM Student Chapter under the ACM-XIM-ENVOY platform.
+                <h2 className="section-title">Chapter Events & Technical Engagements</h2>
+                <p className="section-subtitle">
+                    Explore high-impact workshops, hackathons, and seminars curated by the
+                    <strong> ACM Student Chapter of XIM University</strong>. Stay informed
+                    and registered through the central Envoy platform.
                 </p>
             </header>
 
-            {/* Content */}
+            {/* Content - Proper Empty State */}
             {events.length === 0 ? (
-                <p className="no-events">
-                    There are no upcoming events at the moment. Please check back soon.
-                </p>
+                <div className="empty-state-container">
+                    <p className="no-events">
+                        No scheduled engagements found. Follow our announcements for upcoming
+                        technical sessions and chapter activities.
+                    </p>
+                </div>
             ) : (
                 <section className="events-grid">
                     {events.map(event => (
                         <article key={event._id} className="event-card">
                             <div className="event-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                                <h3>{event.title}</h3>
+                                <h3 className="event-title">{event.title}</h3>
                                 {user && user.role === 'admin' && (
                                     <button
                                         onClick={() => handleDeleteEvent(event._id)}
+                                        className="admin-delete-btn"
                                         style={{
-                                            background: '#ff4444',
+                                            background: '#dc2626',
                                             color: 'white',
                                             border: 'none',
-                                            padding: '0.3rem 0.8rem',
-                                            borderRadius: '4px',
+                                            padding: '0.4rem 0.8rem',
+                                            borderRadius: '6px',
                                             cursor: 'pointer',
-                                            fontSize: '0.8rem',
-                                            marginLeft: '1rem'
+                                            fontSize: '0.75rem',
+                                            fontWeight: '600',
+                                            textTransform: 'uppercase',
+                                            letterSpacing: '0.05em',
+                                            marginLeft: '1rem',
+                                            boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
                                         }}
                                     >
-                                        Delete
+                                        Delete Record
                                     </button>
                                 )}
                             </div>
@@ -68,28 +76,36 @@ const Events = () => {
                             </p>
 
                             <div className="event-meta">
-                                <div>
-                                    <span className="meta-label">Date</span>
-                                    <span>
-                                        {new Date(event.date).toLocaleDateString()}
+                                <div className="meta-item">
+                                    <span className="meta-label">Schedule Date</span>
+                                    <span className="meta-value">
+                                        {new Date(event.date).toLocaleDateString('en-US', {
+                                            weekday: 'long',
+                                            year: 'numeric',
+                                            month: 'long',
+                                            day: 'numeric'
+                                        })}
                                     </span>
                                 </div>
 
-                                <div>
-                                    <span className="meta-label">Location</span>
-                                    <span>{event.location}</span>
+                                <div className="meta-item">
+                                    <span className="meta-label">Venue / Mode</span>
+                                    <span className="meta-value">{event.location}</span>
                                 </div>
                             </div>
 
                             {event.registrationLink && (
-                                <a
-                                    href={event.registrationLink}
-                                    target="_blank"
-                                    rel="noreferrer"
-                                    className="event-register"
-                                >
-                                    View Registration →
-                                </a>
+                                <div className="event-action-wrapper">
+                                    <a
+                                        href={event.registrationLink}
+                                        target="_blank"
+                                        rel="noreferrer"
+                                        className="event-register"
+                                    >
+                                        Registration Link
+                                        <span className="arrow-icon"> →</span>
+                                    </a>
+                                </div>
                             )}
                         </article>
                     ))}
