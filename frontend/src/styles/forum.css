@@ -1,0 +1,171 @@
+/* =====================================================
+   FORUM PAGE – NEWS / ACADEMIC DISCUSSION BOARD
+   Platform: ACM-XIM-ENVOY | Project: acmmedia
+   ===================================================== */
+
+.forum-page {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 3rem 1.5rem;
+}
+
+/* ---------- Header ---------- */
+.forum-header {
+    margin-bottom: 3rem;
+}
+
+.forum-header h2 {
+    font-size: 2.3rem;
+    color: #ffffff;
+    margin-bottom: 0.6rem;
+}
+
+.forum-header p {
+    font-size: 0.95rem;
+    color: #a1a1a1;
+    max-width: 700px;
+    line-height: 1.6;
+}
+
+/* ---------- New Thread ---------- */
+.forum-form {
+    background: #121212;
+    border: 1px solid #1f1f1f;
+    border-radius: 14px;
+    padding: 2rem;
+    margin-bottom: 3.5rem;
+}
+
+.forum-form h3 {
+    font-size: 1.1rem;
+    margin-bottom: 1.2rem;
+    color: #ffffff;
+}
+
+.forum-form form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.forum-form input,
+.forum-form textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border-radius: 6px;
+    border: 1px solid #1f1f1f;
+    background: #0f0f0f;
+    color: #e5e5e5;
+}
+
+.forum-form textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+.forum-form button {
+    align-self: flex-start;
+    padding: 0.6rem 1.4rem;
+    background: #ffffff;
+    color: #000;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.forum-form button:hover {
+    background: #e5e5e5;
+}
+
+/* ---------- Threads ---------- */
+.threads-list {
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+}
+
+/* ---------- Thread Card ---------- */
+.thread-card {
+    background: #121212;
+    border: 1px solid #1f1f1f;
+    border-radius: 14px;
+    padding: 2rem;
+}
+
+.thread-header h3 {
+    font-size: 1.3rem;
+    color: #ffffff;
+    margin-bottom: 0.6rem;
+}
+
+.thread-description {
+    font-size: 0.95rem;
+    color: #cfcfcf;
+    line-height: 1.6;
+}
+
+/* ---------- Replies ---------- */
+.replies-section {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #1f1f1f;
+}
+
+.replies-section h4 {
+    font-size: 0.9rem;
+    color: #ffffff;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.no-replies {
+    font-size: 0.85rem;
+    color: #888;
+    margin-bottom: 1rem;
+}
+
+.reply {
+    font-size: 0.9rem;
+    padding: 0.6rem 0;
+    border-bottom: 1px solid #1f1f1f;
+    color: #e5e5e5;
+}
+
+/* ---------- Reply Input ---------- */
+.reply-input {
+    margin-top: 1.2rem;
+}
+
+.reply-input input {
+    width: 100%;
+    padding: 0.65rem;
+    border-radius: 6px;
+    border: 1px solid #1f1f1f;
+    background: #0f0f0f;
+    color: #e5e5e5;
+}
+
+/* ---------- Empty ---------- */
+.forum-empty {
+    text-align: center;
+    margin-top: 3rem;
+    font-size: 0.95rem;
+    color: #888;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 600px) {
+    .forum-page {
+        padding: 2rem 1.2rem;
+    }
+
+    .forum-header h2 {
+        font-size: 2rem;
+    }
+
+    .thread-card {
+        padding: 1.6rem;
+    }
+}

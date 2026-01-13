@@ -1,0 +1,181 @@
+/* =====================================================
+   GLOBAL BASE THEME – NEWS / EDITORIAL
+   Platform: ACM-XIM-ENVOY | Project: acmmedia
+   ===================================================== */
+
+:root {
+  --bg: #0b0b0c;
+  --card-bg: #121212;
+  --border: #1f1f1f;
+  --text: #e5e5e5;
+  --muted: #a1a1a1;
+  --muted-light: #777;
+  --white: #ffffff;
+}
+
+/* ---------- Base ---------- */
+body {
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------- Navbar ---------- */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 5%;
+  background: #0b0b0c;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.navbar ul {
+  display: flex;
+  list-style: none;
+  gap: 2rem;
+  margin: 0;
+  align-items: center;
+}
+
+.navbar a {
+  text-decoration: none;
+  color: var(--text);
+  font-size: 0.9rem;
+}
+
+.navbar a:hover {
+  text-decoration: underline;
+}
+
+/* ---------- Buttons ---------- */
+.logout-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 0.3rem 0.8rem;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.logout-btn:hover {
+  background: #1a1a1a;
+}
+
+/* ---------- Page Containers ---------- */
+.home-page,
+.login-page,
+.register-page,
+.forum-page,
+.events-page,
+.admin-page {
+  max-width: 1200px;
+  margin: 2rem auto;
+  padding: 0 5%;
+}
+
+/* ---------- Forms ---------- */
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 400px;
+  margin: 0 auto;
+  background: var(--card-bg);
+  padding: 2rem;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+}
+
+input,
+select,
+textarea {
+  padding: 0.75rem;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: #0f0f0f;
+  color: var(--text);
+  font-family: inherit;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--muted-light);
+}
+
+/* ---------- Buttons (Primary) ---------- */
+button {
+  padding: 0.7rem;
+  border-radius: 6px;
+  border: none;
+  background: var(--white);
+  color: #000;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #e5e5e5;
+}
+
+/* ---------- Post Cards ---------- */
+.post-card {
+  background: var(--card-bg);
+  padding: 1.6rem;
+  border-radius: 14px;
+  margin-bottom: 1.5rem;
+  border: 1px solid var(--border);
+}
+
+/* ---------- Admin Login ---------- */
+.admin-login-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 80vh;
+  text-align: center;
+}
+
+.admin-login-container {
+  width: 100%;
+  max-width: 400px;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 768px) {
+  .navbar {
+    padding: 1rem;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .navbar ul {
+    gap: 1rem;
+    width: 100%;
+    justify-content: center;
+    font-size: 0.85rem;
+  }
+
+  .home-page,
+  .login-page,
+  .register-page,
+  .forum-page,
+  .events-page,
+  .admin-page {
+    margin: 1rem auto;
+    padding: 0 1rem;
+  }
+
+  form {
+    padding: 1.5rem;
+  }
+
+  .admin-page>div {
+    grid-template-columns: 1fr !important;
+  }
+}

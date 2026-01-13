@@ -1,0 +1,192 @@
+/* =====================================================
+   NAVBAR – FULL SCREEN MOBILE MENU (NEWS / EDITORIAL)
+   Platform: ACM-XIM-ENVOY | Project: acmmedia
+   ===================================================== */
+
+.news-navbar {
+    width: 100%;
+    background: #0b0b0c;
+    border-bottom: 1px solid #1f1f1f;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+/* ---------- Container ---------- */
+.nav-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* ---------- Brand ---------- */
+.nav-brand {
+    text-decoration: none;
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+}
+
+.brand-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.brand-subtitle {
+    font-size: 0.7rem;
+    color: #9a9a9a;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* ---------- Desktop Menu ---------- */
+.nav-menu {
+    display: flex;
+}
+
+.nav-links {
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 1.6rem;
+    margin: 0;
+    padding: 0;
+}
+
+.nav-links li a {
+    text-decoration: none;
+    color: #e5e5e5;
+    font-size: 0.9rem;
+}
+
+.nav-links li a:hover {
+    text-decoration: underline;
+}
+
+/* ---------- Admin ---------- */
+.admin-link {
+    font-weight: 600;
+    text-decoration: underline;
+}
+
+/* ---------- Buttons ---------- */
+.logout-btn {
+    background: transparent;
+    border: 1px solid #2a2a2a;
+    color: #e5e5e5;
+    font-size: 0.85rem;
+    padding: 0.4rem 0.9rem;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.register-link {
+    padding: 0.4rem 0.9rem;
+    border-radius: 6px;
+    border: 1px solid #2a2a2a;
+}
+
+/* ---------- Hamburger ---------- */
+.hamburger {
+    display: none;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.hamburger span {
+    display: block;
+    width: 26px;
+    height: 2px;
+    background: #ffffff;
+    margin: 6px 0;
+}
+
+/* Hide close button by default (desktop) */
+.menu-close {
+    display: none;
+}
+
+
+/* =====================================================
+   MOBILE – FULL SCREEN OVERLAY MENU
+   ===================================================== */
+
+@media (max-width: 768px) {
+
+    /* Show hamburger */
+    .hamburger {
+        display: block;
+    }
+
+    /* Full screen overlay */
+    .nav-menu {
+        position: fixed;
+        inset: 0;
+        background: #0b0b0c;
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 2000;
+    }
+
+    .nav-menu.open {
+        display: flex;
+    }
+
+    /* Close button (X) */
+    .menu-close {
+        position: absolute;
+        top: 1.8rem;
+        right: 1.8rem;
+        background: none;
+        border: none;
+        color: #ffffff;
+        font-size: 2.2rem;
+        cursor: pointer;
+    }
+
+    /* Menu items */
+    .nav-links {
+        flex-direction: column;
+        gap: 2.4rem;
+        /* MORE SPACE */
+        text-align: center;
+    }
+
+    .nav-links li a {
+        font-size: 1.7rem;
+        /* BIG TEXT */
+        font-weight: 500;
+    }
+
+    .logout-btn,
+    .register-link {
+        font-size: 1.4rem;
+        padding: 0.6rem 1.6rem;
+    }
+
+    .nav-links li {
+        width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+
+    .menu-close {
+        display: block;
+        position: absolute;
+        top: 1.8rem;
+        right: 1.8rem;
+        background: none;
+        border: none;
+        color: #ffffff;
+        font-size: 2.2rem;
+        cursor: pointer;
+        z-index: 3000;
+    }
+
+}

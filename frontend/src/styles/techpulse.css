@@ -1,0 +1,223 @@
+/* =====================================================
+   TECHPULSE - GLOBAL NEWS STYLES
+   Platform: ACM-XIM-ENVOY | Project: acmmedia
+   ===================================================== */
+
+/* ---------- Ticker Mode (Home Page) ---------- */
+.tech-ticker-container {
+    background: #000;
+    border-bottom: 1px solid #1f1f1f;
+    overflow: hidden;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    position: relative;
+    z-index: 100;
+}
+
+.ticker-label {
+    background: var(--primary);
+    color: #000;
+    padding: 0 1rem;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    font-weight: bold;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    position: absolute;
+    left: 0;
+    z-index: 2;
+    box-shadow: 5px 0 15px rgba(0, 0, 0, 0.5);
+}
+
+.ticker-track {
+    display: flex;
+    white-space: nowrap;
+    animation: scroll-left 160s linear infinite;
+    padding-left: 120px;
+    /* Space for label */
+}
+
+.ticker-item {
+    font-size: 0.9rem;
+    color: #ccc;
+    margin-right: 3rem;
+    display: inline-flex;
+    align-items: center;
+}
+
+.ticker-item a {
+    color: #fff;
+    text-decoration: none;
+    margin-left: 0.5rem;
+}
+
+.ticker-item a:hover {
+    color: var(--primary);
+    text-decoration: underline;
+}
+
+.ticker-source {
+    color: var(--secondary);
+    font-size: 0.75rem;
+    margin-right: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+@keyframes scroll-left {
+    0% {
+        transform: translateX(0);
+    }
+
+    100% {
+        transform: translateX(-100%);
+    }
+}
+
+/* Pause on hover */
+.tech-ticker-container:hover .ticker-track {
+    animation-play-state: paused;
+}
+
+
+/* ---------- Grid Mode (News Page) ---------- */
+.news-page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 3rem 1.5rem;
+}
+
+.news-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.news-header h2 {
+    font-size: 2.5rem;
+    background: linear-gradient(to right, #fff, #888);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 0.8rem;
+}
+
+.news-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 2rem;
+}
+
+.news-card {
+    background: #111;
+    border: 1px solid #222;
+    border-radius: 12px;
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.news-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 212, 255, 0.1);
+    border-color: rgba(0, 212, 255, 0.3);
+}
+
+.news-image {
+    height: 200px;
+    width: 100%;
+    object-fit: cover;
+    background: #222;
+}
+
+.news-content {
+    padding: 1.5rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.news-source {
+    font-size: 0.75rem;
+    color: var(--secondary);
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.news-title {
+    font-size: 1.1rem;
+    color: #fff;
+    margin-bottom: 0.8rem;
+    line-height: 1.4;
+    font-weight: 600;
+}
+
+.news-desc {
+    font-size: 0.9rem;
+    color: #aaa;
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    flex: 1;
+}
+
+.news-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto;
+    border-top: 1px solid #222;
+    padding-top: 1rem;
+}
+
+.news-date {
+    font-size: 0.8rem;
+    color: #666;
+}
+
+.news-link {
+    background: var(--primary);
+    color: #000;
+    padding: 0.4rem 1rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background 0.2s;
+}
+
+.news-link:hover {
+    background: #fff;
+}
+
+.news-loading,
+.news-error {
+    text-align: center;
+    padding: 4rem;
+    color: #888;
+}
+
+/* Custom scrollbar for news page to fit dark theme */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #0f0f0f;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #333;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--primary);
+}
