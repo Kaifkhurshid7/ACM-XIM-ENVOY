@@ -20,6 +20,7 @@ import { AuthContext } from "../context/AuthContext";
 import { useSocket } from "../context/SocketContext";
 import ConnectionBadge from "../components/ui/ConnectionBadge";
 import { useConnectionStatus } from "../hooks/useConnectionStatus";
+import { extractArray } from "../utils/api";
 import { SOCKET_EVENTS } from "../constants";
 
 const Forum = () => {
@@ -31,7 +32,7 @@ const Forum = () => {
 
   // Fetch all threads on mount
   useEffect(() => {
-    fetchThreads().then((res) => setThreads(res.data));
+    fetchThreads().then((res) => setThreads(extractArray(res.data, ["data", "threads"])));
   }, []);
 
   // Subscribe to real-time reply events

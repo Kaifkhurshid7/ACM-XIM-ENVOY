@@ -16,13 +16,14 @@
 import React, { useEffect, useState, useContext } from "react";
 import { fetchEvents, deleteEvent } from "../api/events";
 import { AuthContext } from "../context/AuthContext";
+import { extractArray } from "../utils/api";
 
 const Events = () => {
   const [events, setEvents] = useState([]);
   const { user } = useContext(AuthContext);
 
   useEffect(() => {
-    fetchEvents().then((res) => setEvents(res.data));
+    fetchEvents().then((res) => setEvents(extractArray(res.data, ["data", "events"])));
   }, []);
 
   const handleDeleteEvent = async (id) => {
