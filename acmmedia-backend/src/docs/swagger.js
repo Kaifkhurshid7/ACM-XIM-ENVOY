@@ -1,7 +1,5 @@
 /**
  * Swagger/OpenAPI Documentation Configuration
- * 
- * Generates OpenAPI 3.0 specification for the ACM Media API.
  * Documentation is served at /api-docs in development and production.
  * 
  * @module docs/swagger

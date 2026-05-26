@@ -292,4 +292,4 @@ MIT
 
 ---
 
-Built with care by the ACM Student Chapter, XIM University.
+Built with care by the KAIF KHURSHID -CHAIR ,ACM Student Chapter, XIM University.
