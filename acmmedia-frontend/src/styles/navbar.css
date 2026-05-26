@@ -1,0 +1,312 @@
+.news-navbar {
+    background: #000;
+    border-bottom: 1px solid #111;
+    position: sticky;
+    top: 0;
+    z-index: 2000;
+    padding: 0.8rem 0;
+}
+
+.nav-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 1.2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* --- BRAND --- */
+.nav-brand {
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+}
+
+.navbar-logo {
+    height: 55px;
+    /* Increased from 40px */
+    width: auto;
+    object-fit: contain;
+}
+
+.nav-right-group {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.desktop-nav {
+    display: flex;
+    gap: 1.2rem;
+}
+
+.desktop-nav a {
+    color: #888;
+    text-decoration: none;
+    font-size: 0.75rem;
+    font-weight: 800;
+    transition: 0.3s;
+}
+
+.desktop-nav a:hover,
+.desktop-nav a.active {
+    color: #fff;
+}
+
+.auth-interaction-zone {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+/* --- GUEST ACTIONS--- */
+.guest-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.login-link {
+    color: #fff;
+    text-decoration: none;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.register-pill {
+    background: #fff;
+    color: #000;
+    text-decoration: none;
+    padding: 7px 16px;
+    border-radius: 50px;
+    font-weight: 900;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+}
+
+/* --- PROFILE PILL --- */
+.user-pill-div {
+    background: #0a0a0a;
+    border: 1px solid #222;
+    padding: 4px 10px 4px 4px;
+    border-radius: 50px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+}
+
+.avatar-circle {
+    width: 26px;
+    height: 26px;
+    background: #fff;
+    color: #000;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    font-size: 0.7rem;
+}
+
+.pill-name {
+    color: #fff;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.pill-arrow {
+    color: #444;
+    font-size: 0.5rem;
+}
+
+/* --- DROPDOWN --- */
+.editorial-dropdown {
+    position: absolute;
+    top: 60px;
+    right: 1rem;
+    width: 260px;
+    background: #080808;
+    border: 1px solid #222;
+    padding: 1.2rem;
+    border-radius: 8px;
+    z-index: 3000;
+}
+
+.info-rect-box {
+    background: #0f0f0f;
+    border: 1px solid #1a1a1a;
+    border-radius: 6px;
+    padding: 10px;
+    margin-bottom: 1rem;
+}
+
+.rect-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.rect-text label {
+    font-size: 0.5rem;
+    color: #444;
+    font-weight: 900;
+    display: block;
+}
+
+.rect-text p {
+    color: #fff;
+    font-size: 0.8rem;
+    margin: 0;
+}
+
+.rect-divider {
+    height: 1px;
+    background: #1a1a1a;
+    margin: 5px 0;
+}
+
+.status-badge-pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    background: #111;
+    border: 1px solid #222;
+    color: #eee;
+}
+
+.status-badge-pill.admin {
+    border-color: #ffd700;
+    color: #ffd700;
+}
+
+.logout-red-btn {
+    width: 100%;
+    margin-top: 1rem;
+    padding: 10px;
+    background: transparent;
+    border: 1px solid #ff4444;
+    color: #ff4444;
+    font-weight: 900;
+    font-size: 0.7rem;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+/* --- HAMBURGER --- */
+.hamburger-box {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    cursor: pointer;
+    width: 24px;
+    height: 18px;
+    position: relative;
+    display: none;
+    z-index: 4000;
+    padding: 0;
+    outline: none;
+}
+
+.hamburger-box span {
+    display: block;
+    width: 100%;
+    height: 2px;
+    background: #fff;
+    position: absolute;
+    transition: 0.3s;
+}
+
+.hamburger-box span:nth-child(1) {
+    top: 0;
+}
+
+.hamburger-box span:nth-child(2) {
+    top: 8px;
+}
+
+.hamburger-box span:nth-child(3) {
+    top: 16px;
+}
+
+.hamburger-box.open span:nth-child(1) {
+    transform: translateY(8px) rotate(45deg);
+}
+
+.hamburger-box.open span:nth-child(2) {
+    opacity: 0;
+}
+
+.hamburger-box.open span:nth-child(3) {
+    transform: translateY(-8px) rotate(-45deg);
+}
+
+/* --- MOBILE OVERLAY --- */
+.mobile-overlay {
+    position: fixed;
+    inset: 0;
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: 0.3s;
+    z-index: 2500;
+}
+
+.mobile-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.mobile-links {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    text-align: center;
+}
+
+.mobile-links a {
+    color: #fff;
+    font-size: 2rem;
+    font-weight: 900;
+    text-decoration: none;
+}
+
+
+@media (max-width: 1024px) {
+    .desktop-nav {
+        display: none;
+    }
+
+    .hamburger-box {
+        display: block;
+    }
+
+
+    .guest-actions {
+        display: flex;
+        gap: 0.8rem;
+    }
+
+    .login-link {
+        display: inline-block;
+        font-size: 0.7rem;
+    }
+
+    .register-pill {
+        padding: 5px 10px;
+        font-size: 0.65rem;
+    }
+
+    .pill-name {
+        display: none;
+    }
+}

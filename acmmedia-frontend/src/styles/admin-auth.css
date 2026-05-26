@@ -1,0 +1,164 @@
+/* =====================================================
+   ADMIN AUTH – RESTRICTED PORTAL
+   Platform: AntiGravity | Project: acmmedia
+   ===================================================== */
+
+/* Wrapper already exists globally */
+.admin-auth {
+    border: 1px solid #262626;
+    background: #121212;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.75);
+}
+
+/* ---------- Header ---------- */
+.admin-auth header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.admin-auth header h1 {
+    font-size: 1.9rem;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 0.4rem;
+}
+
+.admin-auth header h3 {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #9a9a9a;
+    margin-bottom: 0.8rem;
+}
+
+.admin-auth header p {
+    font-size: 0.85rem;
+    line-height: 1.6;
+    color: #b0b0b0;
+}
+
+/* ---------- Form ---------- */
+.admin-auth form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.3rem;
+}
+
+.admin-auth input {
+    width: 100%;
+    padding: 0.8rem 0.75rem;
+    background: #0f0f0f;
+    border: 1px solid #262626;
+    border-radius: 6px;
+    color: #e5e5e5;
+    font-size: 0.9rem;
+}
+
+.admin-auth input::placeholder {
+    color: #777;
+}
+
+.admin-auth input:focus {
+    outline: none;
+    border-color: #ffffff;
+}
+
+/* ---------- Button ---------- */
+.admin-auth button {
+    margin-top: 0.5rem;
+    padding: 0.85rem;
+    background: #ffffff;
+    color: #000;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    cursor: pointer;
+}
+
+.admin-auth button:hover {
+    background: #e5e5e5;
+}
+
+/* ---------- Divider ---------- */
+.auth-divider {
+    margin: 1.8rem 0;
+    display: flex;
+    justify-content: center;
+}
+
+.auth-divider span {
+    width: 50px;
+    height: 2px;
+    background: #262626;
+}
+
+/* ---------- Footer ---------- */
+.admin-auth .auth-footer {
+    text-align: center;
+}
+
+.admin-auth .auth-footer p {
+    font-size: 0.78rem;
+    line-height: 1.5;
+    color: #9a9a9a;
+}
+
+.admin-auth .auth-footer span {
+    margin-top: 0.6rem;
+    display: inline-block;
+    font-size: 0.8rem;
+    color: #ffffff;
+    cursor: pointer;
+}
+
+.admin-auth .auth-footer span:hover {
+    text-decoration: underline;
+}
+
+/* =====================================================
+   MOBILE OPTIMIZATION
+   ===================================================== */
+
+@media (max-width: 520px) {
+    .admin-auth {
+        padding: 1.8rem 1.4rem;
+        border-radius: 12px;
+    }
+
+    .admin-auth header h1 {
+        font-size: 1.6rem;
+    }
+
+    .admin-auth header p {
+        font-size: 0.8rem;
+    }
+
+    .admin-auth input {
+        font-size: 0.88rem;
+        padding: 0.75rem;
+    }
+
+    .admin-auth button {
+        font-size: 0.9rem;
+        padding: 0.8rem;
+    }
+}
+
+/* =====================================================
+   EXTRA SMALL DEVICES (320px)
+   ===================================================== */
+
+@media (max-width: 360px) {
+    .admin-auth {
+        padding: 1.5rem 1.2rem;
+    }
+
+    .admin-auth header h1 {
+        font-size: 1.45rem;
+    }
+
+    .admin-auth header h3 {
+        font-size: 0.68rem;
+    }
+}
