@@ -1,112 +1,71 @@
-/* =====================================================
-   HOME PAGE – PURE NEWS (BLACK / WHITE / GREY)
-   Platform: ACM-XIM-ENVOY | Project: acmmedia
-   ===================================================== */
+/* Home page — Linear design system */
 
-/* ---------- Base ---------- */
-body {
-    background: #0b0b0c;
-    color: #e5e5e5;
-}
-
-/* ---------- Wrapper ---------- */
 .home-wrapper {
-    max-width: 760px;
-    margin: 0 auto;
-    padding: 3rem 1.5rem;
+  min-height: 100vh;
+  background: var(--color-pitch-black);
+  padding: var(--spacing-32) var(--spacing-16);
+  max-width: 720px;
+  margin: 0 auto;
 }
 
-/* ---------- Header ---------- */
 .home-header {
-    margin-bottom: 3rem;
-    padding-bottom: 1.5rem;
-    border-bottom: 1px solid #222;
+  margin-bottom: var(--spacing-32);
+  padding-bottom: var(--spacing-24);
+  border-bottom: 1px solid var(--color-charcoal-grey);
 }
 
 .home-header h1 {
-    font-size: 2.4rem;
-    font-weight: 700;
-    color: #ffffff;
-    margin-bottom: 0.6rem;
+  font-size: 24px;
+  font-weight: 590;
+  color: var(--color-porcelain);
+  letter-spacing: -0.22px;
 }
 
 .home-header p {
-    font-size: 0.95rem;
-    color: #a1a1a1;
-    max-width: 620px;
-    line-height: 1.6;
+  font-size: 14px;
+  color: var(--color-storm-cloud);
+  margin-top: var(--spacing-8);
+  line-height: 1.5;
 }
 
-/* ---------- Feed ---------- */
 .home-feed {
-    display: flex;
-    flex-direction: column;
-    gap: 2.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-16);
 }
 
-/* ---------- Empty ---------- */
 .home-empty {
-    text-align: center;
-    margin-top: 3rem;
-    font-size: 0.95rem;
-    color: #888;
+  text-align: center;
+  padding: var(--spacing-48);
+  color: var(--color-fog-grey);
+  font-size: 14px;
 }
 
-/* ---------- Post Card ---------- */
+/* Post card */
 .post-card {
-    background: #121212;
-    border-radius: 14px;
-    padding: 1.8rem;
-    border: 1px solid #1f1f1f;
+  background: var(--color-graphite) !important;
+  border: 1px solid var(--color-charcoal-grey) !important;
+  border-radius: var(--radius-md) !important;
+  padding: var(--spacing-20) !important;
+  margin-bottom: 0 !important;
 }
 
-/* Title inside post */
 .post-card h3 {
-    color: #ffffff;
+  font-size: 16px;
+  font-weight: 590;
+  color: var(--color-porcelain);
+  letter-spacing: -0.15px;
+  margin-bottom: var(--spacing-8) !important;
 }
 
-/* Body text */
 .post-card p {
-    color: #cfcfcf;
+  font-size: 14px;
+  color: var(--color-light-steel);
+  line-height: 1.5;
 }
 
-/* Footer divider */
-.post-card hr {
-    border: none;
-    border-top: 1px solid #1f1f1f;
-}
-
-/* ---------- Buttons ---------- */
-.post-card button {
-    background: transparent;
-    border: 1px solid #2a2a2a;
-    color: #dcdcdc;
-    padding: 0.4rem 0.8rem;
-    border-radius: 6px;
-    cursor: pointer;
-}
-
-.post-card button:hover {
-    background: #1a1a1a;
-}
-
-/* ---------- Date ---------- */
-.post-card .post-date {
-    color: #777;
-    font-size: 0.8rem;
-}
-
-/* ---------- Responsive ---------- */
 @media (max-width: 600px) {
-    .home-wrapper {
-        padding: 2rem 1rem;
-    }
-
-    .home-header h1 {
-        font-size: 1.85rem;
-    }
-
-    .post-card {
-        padding: 1.4rem;
-    }
+  .home-wrapper {
+    padding: var(--spacing-20) var(--spacing-12);
+  }
 }

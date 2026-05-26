@@ -1,176 +1,183 @@
-/* =====================================================
-   FORUM PAGE – NEWS / ACADEMIC DISCUSSION BOARD
-   Platform: ACM-XIM-ENVOY | Project: acmmedia
-   ===================================================== */
+/* Forum page — Linear design system */
 
 .forum-page {
-    max-width: 860px;
-    margin: 0 auto;
-    padding: 3rem 1.5rem;
+  min-height: 100vh;
+  background: var(--color-pitch-black);
+  padding: var(--spacing-32) var(--spacing-16);
+  max-width: 720px;
+  margin: 0 auto;
 }
 
-/* ---------- Header ---------- */
 .forum-header {
-    margin-bottom: 3rem;
+  margin-bottom: var(--spacing-32);
+  padding-bottom: var(--spacing-24);
+  border-bottom: 1px solid var(--color-charcoal-grey);
 }
 
 .forum-header h2 {
-    font-size: 2.3rem;
-    color: #ffffff;
-    margin-bottom: 0.6rem;
+  font-size: 24px;
+  font-weight: 590;
+  color: var(--color-porcelain);
+  letter-spacing: -0.22px;
 }
 
 .forum-header p {
-    font-size: 0.95rem;
-    color: #a1a1a1;
-    max-width: 700px;
-    line-height: 1.6;
+  font-size: 14px;
+  color: var(--color-storm-cloud);
+  margin-top: var(--spacing-8);
+  line-height: 1.5;
 }
 
-/* ---------- New Thread ---------- */
+/* New thread form */
 .forum-form {
-    background: #121212;
-    border: 1px solid #1f1f1f;
-    border-radius: 14px;
-    padding: 2rem;
-    margin-bottom: 3.5rem;
+  background: var(--color-graphite);
+  border: 1px solid var(--color-charcoal-grey);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-20);
+  margin-bottom: var(--spacing-24);
 }
 
 .forum-form h3 {
-    font-size: 1.1rem;
-    margin-bottom: 1.2rem;
-    color: #ffffff;
+  font-size: 14px;
+  font-weight: 590;
+  color: var(--color-porcelain);
+  margin-bottom: var(--spacing-12);
 }
 
 .forum-form form {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-12);
 }
 
 .forum-form input,
 .forum-form textarea {
-    width: 100%;
-    padding: 0.75rem;
-    border-radius: 6px;
-    border: 1px solid #1f1f1f;
-    background: #0f0f0f;
-    color: #e5e5e5;
+  width: 100%;
+  padding: var(--spacing-12) 14px;
+  background: transparent;
+  border: 1px solid var(--color-charcoal-grey);
+  border-radius: var(--radius-md);
+  color: var(--color-porcelain);
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.forum-form input:focus,
+.forum-form textarea:focus {
+  border-color: var(--color-muted-ash);
+}
+
+.forum-form input::placeholder,
+.forum-form textarea::placeholder {
+  color: var(--color-fog-grey);
 }
 
 .forum-form textarea {
-    min-height: 120px;
-    resize: vertical;
+  min-height: 80px;
+  resize: vertical;
 }
 
 .forum-form button {
-    align-self: flex-start;
-    padding: 0.6rem 1.4rem;
-    background: #ffffff;
-    color: #000;
-    border: none;
-    border-radius: 6px;
-    font-weight: 600;
-    cursor: pointer;
+  align-self: flex-start;
+  padding: var(--spacing-8) var(--spacing-20);
+  background: var(--color-neon-lime);
+  color: var(--color-pitch-black);
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 590;
+  transition: opacity 0.15s;
 }
 
 .forum-form button:hover {
-    background: #e5e5e5;
+  opacity: 0.9;
 }
 
-/* ---------- Threads ---------- */
+/* Threads */
 .threads-list {
-    display: flex;
-    flex-direction: column;
-    gap: 3rem;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-12);
 }
 
-/* ---------- Thread Card ---------- */
 .thread-card {
-    background: #121212;
-    border: 1px solid #1f1f1f;
-    border-radius: 14px;
-    padding: 2rem;
+  background: var(--color-graphite);
+  border: 1px solid var(--color-charcoal-grey);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-20);
 }
 
-.thread-header h3 {
-    font-size: 1.3rem;
-    color: #ffffff;
-    margin-bottom: 0.6rem;
+.thread-card h3 {
+  font-size: 15px;
+  font-weight: 590;
+  color: var(--color-porcelain);
+  letter-spacing: -0.13px;
 }
 
 .thread-description {
-    font-size: 0.95rem;
-    color: #cfcfcf;
-    line-height: 1.6;
+  font-size: 14px;
+  color: var(--color-light-steel);
+  line-height: 1.5;
+  margin: var(--spacing-8) 0 var(--spacing-16);
 }
 
-/* ---------- Replies ---------- */
 .replies-section {
-    margin-top: 2rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid #1f1f1f;
+  border-top: 1px solid var(--color-charcoal-grey);
+  padding-top: var(--spacing-12);
 }
 
 .replies-section h4 {
-    font-size: 0.9rem;
-    color: #ffffff;
-    margin-bottom: 1rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-.no-replies {
-    font-size: 0.85rem;
-    color: #888;
-    margin-bottom: 1rem;
+  font-size: 12px;
+  font-weight: 510;
+  color: var(--color-storm-cloud);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  margin-bottom: var(--spacing-8);
 }
 
 .reply {
-    font-size: 0.9rem;
-    padding: 0.6rem 0;
-    border-bottom: 1px solid #1f1f1f;
-    color: #e5e5e5;
+  padding: var(--spacing-8) var(--spacing-12);
+  background: var(--color-deep-slate);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  color: var(--color-light-steel);
+  margin-bottom: var(--spacing-4);
 }
 
-/* ---------- Reply Input ---------- */
-.reply-input {
-    margin-top: 1.2rem;
+.no-replies {
+  font-size: 13px;
+  color: var(--color-fog-grey);
+  font-style: italic;
 }
 
 .reply-input input {
-    width: 100%;
-    padding: 0.65rem;
-    border-radius: 6px;
-    border: 1px solid #1f1f1f;
-    background: #0f0f0f;
-    color: #e5e5e5;
+  width: 100%;
+  margin-top: var(--spacing-8);
+  padding: var(--spacing-8) var(--spacing-12);
+  background: var(--color-deep-slate);
+  border: 1px solid var(--color-charcoal-grey);
+  border-radius: var(--radius-md);
+  color: var(--color-porcelain);
+  font-size: 13px;
+  outline: none;
 }
 
-/* ---------- Empty ---------- */
+.reply-input input::placeholder {
+  color: var(--color-fog-grey);
+}
+
+.reply-input input:focus {
+  border-color: var(--color-muted-ash);
+}
+
 .forum-empty {
-    text-align: center;
-    margin-top: 3rem;
-    font-size: 0.95rem;
-    color: #888;
+  text-align: center;
+  padding: var(--spacing-48);
+  color: var(--color-fog-grey);
+  font-size: 14px;
 }
 
-/* ---------- Responsive ---------- */
 @media (max-width: 600px) {
-    .forum-page {
-        padding: 2rem 1rem;
-    }
-
-    .forum-header h2 {
-        font-size: 1.85rem;
-    }
-
-    .forum-form,
-    .thread-card {
-        padding: 1.4rem;
-    }
-
-    .forum-form button {
-        width: 100%;
-    }
+  .forum-page { padding: var(--spacing-20) var(--spacing-12); }
 }

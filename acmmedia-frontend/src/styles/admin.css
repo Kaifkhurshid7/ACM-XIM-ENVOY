@@ -1,227 +1,199 @@
-/* =====================================================
-   ADMIN DASHBOARD – CONTROL PANEL
-   Platform: AntiGravity | Project: acmmedia
-   ===================================================== */
+/* Admin dashboard — Linear design system */
 
 .admin-page {
-    padding: 2.5rem 1.5rem;
-    max-width: 1200px;
-    margin: 0 auto;
+  min-height: 100vh;
+  background: var(--color-pitch-black);
+  padding: var(--spacing-32) var(--spacing-16);
+  max-width: 900px;
+  margin: 0 auto;
 }
 
-/* ---------- Header ---------- */
 .admin-header {
-    margin-bottom: 3rem;
+  margin-bottom: var(--spacing-32);
+  padding-bottom: var(--spacing-24);
+  border-bottom: 1px solid var(--color-charcoal-grey);
 }
 
 .admin-header h1 {
-    font-size: 2.4rem;
-    margin-bottom: 0.6rem;
-    color: #ffffff;
+  font-size: 24px;
+  font-weight: 590;
+  color: var(--color-porcelain);
+  letter-spacing: -0.22px;
 }
 
 .admin-header p {
-    color: #a1a1a1;
-    max-width: 720px;
-    line-height: 1.6;
+  font-size: 14px;
+  color: var(--color-storm-cloud);
+  margin-top: var(--spacing-8);
 }
 
-/* ---------- Main Actions Grid ---------- */
+/* Actions grid */
 .admin-actions {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 2.8rem;
-    align-items: start;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: var(--spacing-16);
+  margin-bottom: var(--spacing-32);
 }
 
-/* ---------- Cards ---------- */
 .admin-card {
-    background: var(--card-bg);
-    padding: 2rem;
-    border-radius: 16px;
-    border: 1px solid rgba(255, 255, 255, 0.12);
+  background: var(--color-graphite);
+  border: 1px solid var(--color-charcoal-grey);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-24);
 }
 
 .admin-card h2 {
-    margin-bottom: 0.4rem;
-    font-size: 1.4rem;
+  font-size: 16px;
+  font-weight: 590;
+  color: var(--color-porcelain);
+  margin-bottom: var(--spacing-4);
 }
 
 .admin-card p {
-    color: #aaa;
-    margin-bottom: 1.5rem;
-    font-size: 0.9rem;
+  font-size: 13px;
+  color: var(--color-storm-cloud);
+  margin-bottom: var(--spacing-16);
+  line-height: 1.5;
 }
 
-/* Forms */
 .admin-card form {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-12);
+}
+
+.admin-card input,
+.admin-card textarea {
+  width: 100%;
+  padding: var(--spacing-12) 14px;
+  background: transparent;
+  border: 1px solid var(--color-charcoal-grey);
+  border-radius: var(--radius-md);
+  color: var(--color-porcelain);
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.admin-card input:focus,
+.admin-card textarea:focus {
+  border-color: var(--color-muted-ash);
+}
+
+.admin-card input::placeholder,
+.admin-card textarea::placeholder {
+  color: var(--color-fog-grey);
 }
 
 .admin-card textarea {
-    min-height: 150px;
-    resize: vertical;
+  min-height: 80px;
+  resize: vertical;
 }
 
-/* ---------- Info Section ---------- */
+.admin-card button[type="submit"] {
+  align-self: flex-start;
+  padding: var(--spacing-8) var(--spacing-20);
+  background: var(--color-neon-lime);
+  color: var(--color-pitch-black);
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 590;
+  transition: opacity 0.15s;
+}
+
+.admin-card button[type="submit"]:hover {
+  opacity: 0.9;
+}
+
+.admin-card button[type="submit"]:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Info section */
 .admin-info {
-    margin-top: 4rem;
-    padding: 2.5rem;
-    border-radius: 18px;
-    background: rgba(255, 255, 255, 0.05);
-    text-align: center;
+  background: var(--color-graphite);
+  border: 1px solid var(--color-charcoal-grey);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-24);
+  margin-bottom: var(--spacing-32);
 }
 
 .admin-info h2 {
-    color: var(--primary);
+  font-size: 16px;
+  font-weight: 590;
+  color: var(--color-porcelain);
+  margin-bottom: var(--spacing-8);
 }
 
 .admin-info p {
-    color: #aaa;
-    max-width: 700px;
-    margin: 1rem auto;
+  font-size: 14px;
+  color: var(--color-storm-cloud);
+  line-height: 1.5;
+  margin-bottom: var(--spacing-16);
 }
 
-/* ---------- Analytics ---------- */
-.admin-analytics {
-    margin-top: 3rem;
-    padding: 2.5rem;
-    border-radius: 18px;
-    border: 1px solid var(--primary);
-    background: var(--card-bg);
-}
-
-.admin-analytics h2 {
-    margin-bottom: 0.6rem;
-}
-
-.admin-analytics p {
-    color: #aaa;
-    max-width: 600px;
-}
-
-/* Analytics Cards */
-.analytics-grid {
-    display: flex;
-    gap: 2rem;
-    margin-top: 2rem;
-    flex-wrap: wrap;
-}
-
-.analytics-card {
-    flex: 1;
-    min-width: 220px;
-    padding: 1.5rem;
-    background: rgba(0, 0, 0, 0.25);
-    border-radius: 12px;
-}
-
-.analytics-card h4 {
-    color: var(--secondary);
-    margin-bottom: 0.6rem;
-}
-
-/* ---------- Buttons ---------- */
 .admin-btn-outline {
-    margin-top: 1.5rem;
-    padding: 0.9rem 2rem;
-    font-size: 1rem;
-    background: transparent;
-    border: 1px solid var(--primary);
-    color: var(--primary);
-    cursor: pointer;
-    border-radius: 8px;
+  padding: var(--spacing-8) var(--spacing-16);
+  background: transparent;
+  border: 1px solid var(--color-charcoal-grey);
+  border-radius: var(--radius-md);
+  color: var(--color-light-steel);
+  font-size: 13px;
+  font-weight: 510;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
 }
 
 .admin-btn-outline:hover {
-    background: rgba(0, 212, 255, 0.08);
-}
-/* =====================================================
-   ANNOUNCEMENT SECTION (ADD-ON)
-   ===================================================== */
-
-.announcement-card select {
-    padding: 0.8rem;
-    border-radius: 8px;
-    background: rgba(0, 0, 0, 0.35);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    color: #fff;
-    font-size: 0.9rem;
+  background: var(--color-deep-slate);
+  color: var(--color-porcelain);
 }
 
-.announcement-row {
-    display: flex;
-    gap: 1rem;
+/* Analytics */
+.admin-analytics {
+  background: var(--color-graphite);
+  border: 1px solid var(--color-charcoal-grey);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-24);
 }
 
-.announcement-row select {
-    flex: 1;
+.admin-analytics h2 {
+  font-size: 16px;
+  font-weight: 590;
+  color: var(--color-porcelain);
 }
 
-.announcement-checkbox {
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    font-size: 0.85rem;
-    color: #aaa;
+.admin-analytics p {
+  font-size: 14px;
+  color: var(--color-storm-cloud);
+  margin-top: var(--spacing-4);
 }
 
-.announcement-checkbox input {
-    transform: scale(1.1);
+.analytics-card {
+  background: var(--color-deep-slate);
+  border: 1px solid var(--color-charcoal-grey);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-16) !important;
 }
 
-/* =====================================================
-   RESPONSIVE
-   ===================================================== */
+.analytics-card h4 {
+  font-size: 11px;
+  font-weight: 510;
+  color: var(--color-fog-grey);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
 
-@media (max-width: 900px) {
-    .admin-actions {
-        grid-template-columns: 1fr;
-    }
+.analytics-card p {
+  font-size: 24px !important;
+  font-weight: 590 !important;
+  color: var(--color-porcelain) !important;
+  letter-spacing: -0.22px;
 }
 
 @media (max-width: 600px) {
-    .admin-page {
-        padding: 1.8rem 1rem;
-    }
-
-    .admin-header h1 {
-        font-size: 1.9rem;
-    }
-
-    .admin-card {
-        padding: 1.6rem;
-    }
-
-    .admin-info,
-    .admin-analytics {
-        padding: 1.8rem;
-    }
-
-    .admin-btn-outline {
-        width: 100%;
-        padding: 0.8rem 1rem;
-    }
-
-    .analytics-grid {
-        flex-direction: column;
-        gap: 1rem;
-    }
-
-    .analytics-card {
-        min-width: 100%;
-    }
-}
-
-
-@media (max-width: 360px) {
-    .admin-header h1 {
-        font-size: 1.6rem;
-    }
-
-    .admin-card h2 {
-        font-size: 1.2rem;
-    }
+  .admin-page { padding: var(--spacing-20) var(--spacing-12); }
+  .admin-actions { grid-template-columns: 1fr; }
 }

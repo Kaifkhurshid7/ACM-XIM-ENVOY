@@ -1,135 +1,127 @@
-/* =====================================================
-   EVENTS PAGE – ACADEMIC / NEWS BULLETIN
-   Platform: ACM-XIM-ENVOY | Project: acmmedia
-   ===================================================== */
+/* Events page — Linear design system */
 
 .events-page {
-    max-width: 1100px;
-    margin: 0 auto;
-    padding: 3rem 1.5rem;
+  min-height: 100vh;
+  background: var(--color-pitch-black);
+  padding: var(--spacing-32) var(--spacing-16);
+  max-width: 900px;
+  margin: 0 auto;
 }
 
-/* ---------- Header ---------- */
 .events-header {
-    margin-bottom: 3rem;
-    text-align: center;
+  margin-bottom: var(--spacing-32);
+  padding-bottom: var(--spacing-24);
+  border-bottom: 1px solid var(--color-charcoal-grey);
 }
 
-.events-header h2 {
-    font-size: 2.4rem;
-    color: #ffffff;
-    margin-bottom: 0.6rem;
+.section-title {
+  font-size: 24px;
+  font-weight: 590;
+  color: var(--color-porcelain);
+  letter-spacing: -0.22px;
+  margin-bottom: var(--spacing-8);
 }
 
-.events-header p {
-    font-size: 0.95rem;
-    color: #a1a1a1;
-    max-width: 760px;
-    margin: 0 auto;
-    line-height: 1.6;
+.section-subtitle {
+  font-size: 14px;
+  color: var(--color-storm-cloud);
+  line-height: 1.5;
 }
 
-/* ---------- Grid ---------- */
 .events-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 2.5rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: var(--spacing-16);
 }
 
-/* ---------- Card ---------- */
 .event-card {
-    background: #121212;
-    border: 1px solid #1f1f1f;
-    border-radius: 14px;
-    padding: 2rem;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+  background: var(--color-graphite);
+  border: 1px solid var(--color-charcoal-grey);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-20);
 }
 
-/* ---------- Title ---------- */
-.event-header h3 {
-    font-size: 1.35rem;
-    color: #ffffff;
-    margin-bottom: 0.6rem;
+.event-title {
+  font-size: 16px;
+  font-weight: 590;
+  color: var(--color-porcelain);
+  letter-spacing: -0.15px;
 }
 
-/* ---------- Description ---------- */
 .event-description {
-    font-size: 0.95rem;
-    color: #cfcfcf;
-    line-height: 1.6;
-    margin-bottom: 1.4rem;
+  font-size: 14px;
+  color: var(--color-light-steel);
+  line-height: 1.5;
+  margin: var(--spacing-12) 0;
 }
 
-/* ---------- Meta ---------- */
 .event-meta {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1.2rem;
-    margin-bottom: 1.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-8);
+  margin: var(--spacing-16) 0;
 }
 
-.event-meta div {
-    display: flex;
-    flex-direction: column;
-    font-size: 0.85rem;
+.meta-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .meta-label {
-    color: #888;
-    margin-bottom: 0.2rem;
-    text-transform: uppercase;
-    letter-spacing: 0.8px;
+  font-size: 11px;
+  font-weight: 510;
+  color: var(--color-fog-grey);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
 }
 
-/* ---------- CTA ---------- */
+.meta-value {
+  font-size: 13px;
+  color: var(--color-light-steel);
+}
+
+.event-action-wrapper {
+  margin-top: var(--spacing-16);
+}
+
 .event-register {
-    align-self: flex-start;
-    text-decoration: none;
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: #000;
-    background: #ffffff;
-    padding: 0.6rem 1.4rem;
-    border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: var(--spacing-8) var(--spacing-16);
+  background: var(--color-neon-lime);
+  color: var(--color-pitch-black);
+  border-radius: var(--radius-md);
+  font-size: 13px;
+  font-weight: 590;
+  text-decoration: none;
+  transition: opacity 0.15s;
 }
 
 .event-register:hover {
-    background: #e5e5e5;
+  opacity: 0.9;
 }
 
-/* ---------- Empty ---------- */
+.empty-state-container {
+  text-align: center;
+  padding: var(--spacing-64);
+}
+
 .no-events {
-    text-align: center;
-    font-size: 0.95rem;
-    color: #888;
-    margin-top: 3rem;
+  color: var(--color-fog-grey);
+  font-size: 14px;
 }
 
-/* ---------- Responsive ---------- */
+.admin-delete-btn {
+  background: var(--color-warning-red) !important;
+  font-size: 11px !important;
+  font-weight: 510 !important;
+  padding: 4px 8px !important;
+  border-radius: var(--radius-sm) !important;
+}
+
 @media (max-width: 600px) {
-    .events-page {
-        padding: 2rem 1rem;
-    }
-
-    .events-header h2 {
-        font-size: 1.85rem;
-    }
-
-    .event-card {
-        padding: 1.4rem;
-    }
-}
-
-@media (max-width: 480px) {
-    .event-meta {
-        grid-template-columns: 1fr;
-        gap: 0.8rem;
-    }
-
-    .event-register {
-        align-self: stretch;
-        text-align: center;
-    }
+  .events-page { padding: var(--spacing-20) var(--spacing-12); }
+  .events-grid { grid-template-columns: 1fr; }
 }
