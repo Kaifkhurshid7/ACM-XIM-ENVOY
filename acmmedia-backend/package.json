@@ -1,12 +1,15 @@
 {
   "name": "acmmedia-backend",
   "version": "1.0.0",
-  "description": "Backend for ACM Media platform",
+  "description": "Backend API for ACM-XIM-ENVOY platform - Express.js + MongoDB + Socket.IO",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js"
   },
+  "keywords": ["acm", "express", "mongodb", "socket.io", "rest-api"],
+  "author": "ACM XIM Student Chapter",
+  "license": "MIT",
   "dependencies": {
     "axios": "^1.13.2",
     "bcryptjs": "^2.4.3",
