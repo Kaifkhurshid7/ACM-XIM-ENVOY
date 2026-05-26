@@ -1,11 +1,11 @@
 /**
  * Events Routes
  * 
- * CRUD operations for chapter events (workshops, hackathons, seminars).
- * Events are publicly viewable but only admins can create/modify/delete.
+ * CRUD operations for chapter events with pagination.
+ * Uses date index for efficient sorted queries.
  * 
  * Endpoints:
- * - GET    /     - List all events sorted by date (public)
+ * - GET    /     - List events with pagination (public)
  * - GET    /:id  - Get single event (public)
  * - POST   /     - Create event (admin only)
  * - PATCH  /:id  - Update event (admin only)
@@ -21,12 +21,17 @@ const checkRole = require("../middlewares/role");
 const { AppError } = require("../middlewares/errorHandler");
 const { validateObjectIdParam, validateEventCreate, validateEventUpdate } = require("../middlewares/validators");
 const { ROLES } = require("../constants");
+const { parsePagination, paginatedResponse } = require("../utils/pagination");
 
-/** List all events, sorted by date ascending (upcoming first) */
+/** List all events with pagination, sorted by date ascending */
 router.get("/", async (req, res, next) => {
   try {
-    const events = await Event.find().sort({ date: 1 });
-    res.json(events);
+    const { page, limit, skip } = parsePagination(req.query);
+    const [events, total] = await Promise.all([
+      Event.find().sort({ date: 1 }).skip(skip).limit(limit).lean(),
+      Event.countDocuments(),
+    ]);
+    return res.json(paginatedResponse(events, total, page, limit));
   } catch (err) {
     return next(err);
   }
@@ -35,7 +40,7 @@ router.get("/", async (req, res, next) => {
 /** Get a single event by ID */
 router.get("/:id", validateObjectIdParam, async (req, res, next) => {
   try {
-    const event = await Event.findById(req.params.id);
+    const event = await Event.findById(req.params.id).lean();
     if (!event) return next(new AppError(404, "Event not found"));
     return res.json(event);
   } catch (err) {

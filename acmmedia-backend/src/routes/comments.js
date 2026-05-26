@@ -1,11 +1,11 @@
 /**
  * Comments Routes
  * 
- * Manages user comments on posts. Comments enable community
- * discussion beneath chapter announcements.
+ * Manages user comments on posts with pagination support.
+ * Uses compound index (postId + createdAt) for efficient queries.
  * 
  * Endpoints:
- * - GET    /:postId - Get all comments for a post (public)
+ * - GET    /:postId - Get comments for a post with pagination (public)
  * - POST   /        - Add a comment (authenticated)
  * - DELETE /:id     - Delete a comment (admin only)
  * 
@@ -18,17 +18,28 @@ const auth = require("../middlewares/auth");
 const role = require("../middlewares/role");
 const { emitAnalytics } = require("../socket");
 const { ROLES } = require("../constants");
+const { parsePagination, paginatedResponse } = require("../utils/pagination");
 
 /**
- * Get all comments for a specific post.
- * Populates user name for display. Sorted newest first.
+ * Get all comments for a specific post with pagination.
+ * Populates user name for display. Uses compound index for performance.
  */
 router.get("/:postId", async (req, res) => {
   try {
-    const comments = await Comment.find({ postId: req.params.postId })
-      .populate("user", "name")
-      .sort({ createdAt: -1 });
-    res.json(comments);
+    const { page, limit, skip } = parsePagination(req.query, { limit: 30 });
+    const filter = { postId: req.params.postId };
+
+    const [comments, total] = await Promise.all([
+      Comment.find(filter)
+        .populate("user", "name avatar")
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .lean(),
+      Comment.countDocuments(filter),
+    ]);
+
+    res.json(paginatedResponse(comments, total, page, limit));
   } catch (err) {
     res.status(500).json({ msg: "Server error" });
   }
@@ -36,7 +47,6 @@ router.get("/:postId", async (req, res) => {
 
 /**
  * Add a comment to a post.
- * The commenting user is automatically set from the auth token.
  * Returns the populated comment for immediate frontend display.
  */
 router.post("/", auth, async (req, res) => {
@@ -48,7 +58,7 @@ router.post("/", auth, async (req, res) => {
     });
 
     const comment = await newComment.save();
-    await comment.populate("user", "name");
+    await comment.populate("user", "name avatar");
 
     emitAnalytics();
     res.json(comment);
@@ -57,10 +67,7 @@ router.post("/", auth, async (req, res) => {
   }
 });
 
-/**
- * Delete a comment - restricted to admin users.
- * Enables content moderation by chapter coordinators.
- */
+/** Delete a comment - restricted to admin users */
 router.delete("/:id", auth, role(ROLES.ADMIN), async (req, res) => {
   try {
     const comment = await Comment.findById(req.params.id);

@@ -13,7 +13,7 @@
 
 /**
  * Extracts an array from an API response payload.
- * Tries the payload directly, then checks nested keys.
+ * Handles both paginated responses (with .data field) and direct arrays.
  * 
  * @param {*} payload - Raw API response data
  * @param {string[]} keys - Possible keys where the array might be nested
@@ -21,6 +21,9 @@
  */
 export const extractArray = (payload, keys = []) => {
   if (Array.isArray(payload)) return payload;
+
+  // Handle paginated response format: { data: [...], pagination: {...} }
+  if (payload?.data && Array.isArray(payload.data)) return payload.data;
 
   for (const key of keys) {
     const value = payload?.[key];
