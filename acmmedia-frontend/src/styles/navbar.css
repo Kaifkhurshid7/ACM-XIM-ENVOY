@@ -89,58 +89,79 @@
 /* --- PROFILE PILL --- */
 .user-pill-div {
     background: #0a0a0a;
-    border: 1px solid #222;
-    padding: 4px 10px 4px 4px;
+    border: 1px solid #1f1f1f;
+    padding: 5px 12px 5px 5px;
     border-radius: 50px;
     display: flex;
     align-items: center;
     gap: 8px;
     cursor: pointer;
+    transition: border-color 0.2s;
+}
+
+.user-pill-div:hover {
+    border-color: #333;
 }
 
 .avatar-circle {
-    width: 26px;
-    height: 26px;
-    background: #fff;
-    color: #000;
+    width: 28px;
+    height: 28px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: #fff;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-weight: 900;
+    font-weight: 800;
     font-size: 0.7rem;
 }
 
 .pill-name {
-    color: #fff;
-    font-size: 0.8rem;
+    color: #ccc;
+    font-size: 0.78rem;
     font-weight: 600;
+    max-width: 100px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .pill-arrow {
-    color: #444;
+    color: #555;
     font-size: 0.5rem;
+    transition: transform 0.2s;
+}
+
+.pill-arrow.up {
+    transform: rotate(180deg);
 }
 
 /* --- DROPDOWN --- */
+.profile-wrapper {
+    position: relative;
+}
+
 .editorial-dropdown {
     position: absolute;
-    top: 60px;
-    right: 1rem;
+    top: calc(100% + 10px);
+    right: 0;
     width: 260px;
-    background: #080808;
-    border: 1px solid #222;
-    padding: 1.2rem;
-    border-radius: 8px;
+    background: #0a0a0a;
+    border: 1px solid #1f1f1f;
+    padding: 0.9rem;
+    border-radius: 10px;
     z-index: 3000;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
 }
 
 .info-rect-box {
-    background: #0f0f0f;
-    border: 1px solid #1a1a1a;
-    border-radius: 6px;
-    padding: 10px;
-    margin-bottom: 1rem;
+    background: #111;
+    border: 1px solid #1c1c1c;
+    border-radius: 8px;
+    padding: 0.7rem 0.8rem;
 }
 
 .rect-row {
@@ -149,54 +170,94 @@
     gap: 10px;
 }
 
+.rect-row svg {
+    flex-shrink: 0;
+    color: #555;
+}
+
+.rect-text {
+    overflow: hidden;
+}
+
 .rect-text label {
-    font-size: 0.5rem;
-    color: #444;
-    font-weight: 900;
+    font-size: 0.55rem;
+    color: #555;
+    font-weight: 800;
+    letter-spacing: 0.05em;
     display: block;
+    margin-bottom: 1px;
 }
 
 .rect-text p {
-    color: #fff;
+    color: #e0e0e0;
     font-size: 0.8rem;
     margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .rect-divider {
     height: 1px;
-    background: #1a1a1a;
-    margin: 5px 0;
+    background: #1c1c1c;
+    margin: 0.5rem 0;
+}
+
+.drop-status-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+.drop-label {
+    font-size: 0.55rem;
+    color: #555;
+    font-weight: 800;
+    letter-spacing: 0.05em;
 }
 
 .status-badge-pill {
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 8px;
-    border-radius: 4px;
-    font-size: 0.7rem;
-    font-weight: 800;
+    padding: 0.5rem 0.7rem;
+    border-radius: 6px;
+    font-size: 0.72rem;
+    font-weight: 700;
     background: #111;
-    border: 1px solid #222;
-    color: #eee;
+    border: 1px solid #1c1c1c;
+    color: #ccc;
 }
 
 .status-badge-pill.admin {
-    border-color: #ffd700;
+    border-color: rgba(255, 215, 0, 0.3);
     color: #ffd700;
+    background: rgba(255, 215, 0, 0.05);
+}
+
+.status-badge-pill.member {
+    border-color: rgba(74, 222, 128, 0.2);
+    color: #4ade80;
+    background: rgba(74, 222, 128, 0.05);
 }
 
 .logout-red-btn {
     width: 100%;
-    margin-top: 1rem;
-    padding: 10px;
+    padding: 0.55rem;
     background: transparent;
-    border: 1px solid #ff4444;
+    border: 1px solid rgba(255, 68, 68, 0.4);
     color: #ff4444;
-    font-weight: 900;
-    font-size: 0.7rem;
-    border-radius: 4px;
+    font-weight: 800;
+    font-size: 0.68rem;
+    letter-spacing: 0.04em;
+    border-radius: 6px;
     cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+}
+
+.logout-red-btn:hover {
+    background: rgba(255, 68, 68, 0.08);
+    border-color: #ff4444;
 }
 
 /* --- HAMBURGER --- */
@@ -315,19 +376,21 @@
 .dropdown-profile-link {
     display: block;
     width: 100%;
-    padding: 0.6rem 1rem;
-    margin: 0.5rem 0;
+    padding: 0.55rem 0.8rem;
     text-align: center;
     border-radius: 6px;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.03);
+    color: #e0e0e0;
     text-decoration: none;
-    font-size: 0.85rem;
-    font-weight: 500;
-    transition: background 0.3s, border-color 0.3s;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    transition: background 0.2s, border-color 0.2s, color 0.2s;
 }
 
 .dropdown-profile-link:hover {
     background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(255, 255, 255, 0.4);
+    border-color: rgba(255, 255, 255, 0.3);
+    color: #fff;
 }
