@@ -11,6 +11,7 @@
  */
 
 const authRoutes = require("./auth");
+const profileRoutes = require("./profile");
 const postRoutes = require("./posts");
 const commentRoutes = require("./comments");
 const forumRoutes = require("./forum");
@@ -26,6 +27,7 @@ const uploadRoutes = require("./upload");
  */
 const mountRoutes = (app) => {
   app.use("/api/v1/auth", authRoutes);
+  app.use("/api/v1/profile", profileRoutes);
   app.use("/api/v1/posts", postRoutes);
   app.use("/api/v1/comments", commentRoutes);
   app.use("/api/v1/forum", forumRoutes);

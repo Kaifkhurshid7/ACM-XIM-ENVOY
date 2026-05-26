@@ -206,6 +206,45 @@ const validateForumReply = [
   validateRequest,
 ];
 
+const validateProfileUpdate = [
+  body("name")
+    .optional().isString().trim()
+    .isLength({ min: 2, max: 100 }).withMessage("Name must be 2-100 characters"),
+  body("bio")
+    .optional().isString().trim()
+    .isLength({ max: 300 }).withMessage("Bio must be at most 300 characters"),
+  body("department")
+    .optional().isString().trim()
+    .isLength({ max: 100 }).withMessage("Department must be at most 100 characters"),
+  body("year")
+    .optional().isString().trim()
+    .isLength({ max: 20 }).withMessage("Year must be at most 20 characters"),
+  body("github")
+    .optional({ values: "falsy" }).isString().trim()
+    .isLength({ max: 200 }).withMessage("GitHub URL must be at most 200 characters"),
+  body("linkedin")
+    .optional({ values: "falsy" }).isString().trim()
+    .isLength({ max: 200 }).withMessage("LinkedIn URL must be at most 200 characters"),
+  validateRequest,
+];
+
+const validatePasswordChange = [
+  body("currentPassword")
+    .notEmpty().withMessage("Current password is required"),
+  body("newPassword")
+    .notEmpty().withMessage("New password is required")
+    .isLength({ min: 6 }).withMessage("New password must be at least 6 characters"),
+  body("confirmPassword")
+    .notEmpty().withMessage("Confirm password is required")
+    .custom((value, { req }) => {
+      if (value !== req.body.newPassword) {
+        throw new Error("Passwords do not match");
+      }
+      return true;
+    }),
+  validateRequest,
+];
+
 module.exports = {
   validateRequest,
   validateObjectIdParam,
@@ -217,4 +256,6 @@ module.exports = {
   validateEventUpdate,
   validateForumThread,
   validateForumReply,
+  validateProfileUpdate,
+  validatePasswordChange,
 };

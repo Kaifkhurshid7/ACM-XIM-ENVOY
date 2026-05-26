@@ -29,6 +29,7 @@ import Events from "./pages/Events";
 import Admin from "./pages/Admin";
 import AdminLogin from "./pages/AdminLogin";
 import News from "./pages/News";
+import Profile from "./pages/Profile";
 
 const App = () => {
   return (
@@ -43,6 +44,7 @@ const App = () => {
         <Route path="/news" element={<News />} />
         <Route path="/admin" element={<Admin />} />
         <Route path="/admin-login" element={<AdminLogin />} />
+        <Route path="/profile" element={<Profile />} />
       </Routes>
     </Router>
   );

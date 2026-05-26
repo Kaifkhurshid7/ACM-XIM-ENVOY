@@ -102,6 +102,9 @@ const Navbar = () => {
                         )}
                       </div>
                     </div>
+                    <Link to="/profile" className="dropdown-profile-link" onClick={() => setShowProfile(false)}>
+                      Edit Profile
+                    </Link>
                     <button onClick={logout} className="logout-red-btn">SECURE LOGOUT</button>
                   </div>
                 )}

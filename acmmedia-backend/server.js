@@ -52,6 +52,7 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 // ─── Static Files ────────────────────────────────────────────────────────────
 
 app.use("/uploads", express.static("uploads"));
+app.use("/uploads/avatars", express.static("uploads/avatars"));
 
 // ─── API Routes ──────────────────────────────────────────────────────────────
 

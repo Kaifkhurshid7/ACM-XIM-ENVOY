@@ -310,3 +310,24 @@
         display: none;
     }
 }
+
+/* ─── Profile Link in Dropdown ────────────────────────────────────────────── */
+.dropdown-profile-link {
+    display: block;
+    width: 100%;
+    padding: 0.6rem 1rem;
+    margin: 0.5rem 0;
+    text-align: center;
+    border-radius: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: background 0.3s, border-color 0.3s;
+}
+
+.dropdown-profile-link:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.4);
+}

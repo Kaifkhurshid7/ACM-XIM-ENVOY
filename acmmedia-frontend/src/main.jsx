@@ -25,6 +25,7 @@ import "./styles/events.css";
 import "./styles/home.css";
 import "./styles/forum.css";
 import "./styles/navbar.css";
+import "./styles/profile.css";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
