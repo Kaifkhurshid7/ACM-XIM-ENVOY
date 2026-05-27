@@ -12,5 +12,7 @@ module.exports = {
   Post: require("./Post"),
   Event: require("./Event"),
   DiscussionThread: require("./DiscussionThread"),
+  DiscussionReply: require("./DiscussionReply"),
+  Notification: require("./Notification"),
   Comment: require("./Comment"),
 };

@@ -29,6 +29,16 @@ const logger = require("./utils/logger");
 
 let io;
 let analyticsTimeout = null;
+const discussionPresence = new Map();
+
+const emitDiscussionPresence = (discussionId) => {
+  const room = discussionPresence.get(discussionId);
+  if (!room) return;
+  io.to(`discussion:${discussionId}`).emit(SOCKET_EVENTS.DISCUSSION_ONLINE_UPDATE, {
+    discussionId,
+    count: room.size,
+  });
+};
 
 /**
  * Initializes Socket.IO with production-optimized settings.
@@ -67,9 +77,47 @@ const init = (httpServer) => {
           // Send current analytics immediately on admin connect
           sendAnalyticsToSocket(socket);
         }
+        if (decoded.id) {
+          socket.join(`user:${decoded.id}`);
+        }
       } catch (err) {
         // Invalid token - silently ignore (client will retry)
       }
+    });
+
+    socket.join("discussions");
+
+    socket.on("discussion:join", (discussionId) => {
+      if (!discussionId) return;
+      const key = String(discussionId);
+      socket.join(`discussion:${key}`);
+      socket.data.discussionId = key;
+
+      // Presence is intentionally per-discussion room instead of global state
+      // so active readers scale with the conversation they are viewing.
+      if (!discussionPresence.has(key)) discussionPresence.set(key, new Set());
+      discussionPresence.get(key).add(socket.id);
+      emitDiscussionPresence(key);
+    });
+
+    socket.on("discussion:leave", (discussionId) => {
+      const key = String(discussionId || socket.data.discussionId || "");
+      if (!key) return;
+      socket.leave(`discussion:${key}`);
+      const room = discussionPresence.get(key);
+      if (room) {
+        room.delete(socket.id);
+        if (room.size === 0) discussionPresence.delete(key);
+      }
+      emitDiscussionPresence(key);
+    });
+
+    socket.on(SOCKET_EVENTS.DISCUSSION_TYPING, ({ discussionId, user }) => {
+      if (!discussionId) return;
+      socket.to(`discussion:${discussionId}`).emit(SOCKET_EVENTS.DISCUSSION_TYPING, {
+        discussionId,
+        user,
+      });
     });
 
     // Admin requesting analytics refresh
@@ -78,8 +126,15 @@ const init = (httpServer) => {
     });
 
     socket.on("disconnect", () => {
-      // Socket.IO handles listener cleanup automatically
-      // No manual cleanup needed with stateless design
+      const discussionId = socket.data.discussionId;
+      if (discussionId && discussionPresence.has(discussionId)) {
+        discussionPresence.get(discussionId).delete(socket.id);
+        if (discussionPresence.get(discussionId).size === 0) {
+          discussionPresence.delete(discussionId);
+        } else {
+          emitDiscussionPresence(discussionId);
+        }
+      }
     });
   });
 

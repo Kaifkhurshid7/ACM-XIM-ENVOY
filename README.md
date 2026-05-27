@@ -1,6 +1,6 @@
 # ACM-XIM-ENVOY
 
-A production-grade, full-stack community platform built for the **ACM Student Chapter at XIM University**. Provides real-time news, event management, discussion forums, profile management, and administrative tools — engineered for **100+ concurrent users** with security hardening, rate limiting, and optimized database performance.
+A production-grade, full-stack community platform built for the **ACM Student Chapter at XIM University**. Provides real-time news, event management, a modern Community Hub, profile management, and administrative tools — engineered for **100+ concurrent users** with security hardening, rate limiting, and optimized database performance.
 
 **Live Demo:** [Frontend](https://acmmedia-frontend.vercel.app) | [Backend API](https://acmmedia-backend.onrender.com) | [API Docs](https://acmmedia-backend.onrender.com/api-docs)
 
@@ -79,7 +79,7 @@ ACM-XIM-ENVOY/
 |-------|-----------|---------|
 | Frontend | React 18, Vite 4, React Router 6 | SPA with client-side routing |
 | State | React Context API | Auth state, Socket connection |
-| Real-time | Socket.IO Client | Live likes, replies, analytics |
+| Real-time | Socket.IO Client | Live discussions, replies, likes, typing, analytics |
 | HTTP | Axios | API communication with JWT interceptors |
 | Backend | Express.js 4 | REST API server |
 | Security | Helmet, CORS, express-mongo-sanitize, HPP | Production hardening |
@@ -87,7 +87,7 @@ ACM-XIM-ENVOY/
 | Database | MongoDB Atlas (Mongoose 7) | Document storage with indexes |
 | Auth | JWT + bcrypt | Stateless authentication |
 | Validation | express-validator | Request validation & sanitization |
-| Real-time | Socket.IO 4 | WebSocket server (debounced, room-scoped) |
+| Real-time | Socket.IO 4 | WebSocket server (debounced, room-scoped community updates) |
 | Logging | Pino | Structured JSON logging with redaction |
 | Performance | compression, lean queries, pagination | Optimized for 100+ users |
 | Docs | Swagger UI + swagger-jsdoc | Interactive API documentation |
@@ -102,24 +102,76 @@ ACM-XIM-ENVOY/
 - **News Feed** — Chapter announcements with like/comment interactions
 - **Tech News** — Aggregated technology headlines (30-min cache, graceful fallback)
 - **Events** — Upcoming workshops, hackathons, and seminars
-- **Discussion Forum** — Threaded community discussions with real-time replies
+- **Community Hub** — Discord/Reddit/GitHub Discussions-inspired student interaction hub
 - **Responsive Design** — Mobile-first with hamburger navigation
 
 ### Authenticated Features
 - **Like Posts** — Toggle likes with real-time count updates
 - **Comment** — Participate in post discussions
-- **Create Threads** — Start forum discussions
-- **Reply to Threads** — Contribute to existing discussions
+- **Create Discussions** — Ask doubts, raise concerns, share ideas, and start topic threads
+- **Threaded Replies** — Reply to discussions or nested replies with mentions and live updates
+- **Upvote Discussions & Replies** — Surface helpful questions and answers
 - **Profile Management** — Edit name, bio, department, year, social links
 - **Avatar Upload** — Profile picture upload (2MB limit, image validation)
 - **Password Change** — Secure password update with current password verification
 
 ### Admin Features
 - **Content Management** — Create/delete posts and events
-- **Content Moderation** — Delete comments and forum threads
+- **Community Moderation** — Pin, lock, announce, delete discussions, remove replies, and mark official answers
 - **Live Analytics** — Real-time platform metrics (users, posts, likes, comments)
 - **Admin Creation** — Create additional admin accounts
 - **File Upload** — Image upload for platform content
+
+---
+
+## Community Hub Architecture
+
+The old basic forum is now **ACM Connect / Community Hub**, a real-time student discussion system inspired by Discord rooms, Reddit nested threads, GitHub Discussions, and StackOverflow answer workflows.
+
+### Discussion Workflow
+
+- Discussions include title, content, category, tags, author snapshot, timestamps, upvotes, views, reply count, pinned/announcement state, locked state, and resolved status.
+- The feed supports keyword search, category/tag filtering, and sort modes: `Trending`, `Latest`, `Most Active`, `Unanswered`, and `Solved`.
+- The frontend keeps the feed lightweight and loads one active discussion's reply tree at a time for better rendering performance.
+
+### Threaded Replies
+
+Replies are stored in a separate `DiscussionReply` collection instead of being embedded in the discussion document. This keeps hot discussions scalable and prevents oversized MongoDB documents.
+
+- `parentReply` enables reply-to-reply conversations.
+- `path` and `depth` preserve thread structure without recursive database queries.
+- The client renders a nested tree with capped visual indentation for mobile readability.
+- Replies support mentions, likes, soft moderation removal, and official answer highlighting.
+
+### Socket.IO System
+
+- `discussions` room: new discussions, feed updates, discussion likes, moderation changes.
+- `discussion:{id}` room: live replies, reply likes, typing indicators, active reader counts.
+- `user:{id}` room: notification events for replies, mentions, likes, accepted answers, and announcements.
+- Clients join only the currently opened discussion room, reducing unnecessary socket traffic.
+
+### Search, Filtering, and Indexes
+
+- Text index: `title`, `content`, `tags`
+- Feed indexes: `pinned + lastActivityAt`, `category + lastActivityAt`, `status + replyCount + lastActivityAt`
+- Reply indexes: `discussion + createdAt`, `discussion + parentReply + createdAt`
+- Notification index: `recipient + read + createdAt`
+
+### Community API
+
+| Method | Endpoint | Purpose |
+|--------|----------|---------|
+| `GET` | `/api/v1/discussions` | Paginated feed with `search`, `category`, `tag`, and `sort` |
+| `GET` | `/api/v1/discussions/meta` | Categories and community stats |
+| `POST` | `/api/v1/discussions` | Create a discussion |
+| `GET` | `/api/v1/discussions/:id` | Load a discussion and threaded replies |
+| `POST` | `/api/v1/discussions/:id/replies` | Add top-level or nested reply |
+| `POST` | `/api/v1/discussions/:id/like` | Toggle discussion upvote |
+| `POST` | `/api/v1/discussions/replies/:replyId/like` | Toggle reply upvote |
+| `PATCH` | `/api/v1/discussions/:id/moderation` | Admin pin/lock/announcement/official-answer updates |
+| `DELETE` | `/api/v1/discussions/:id` | Admin discussion deletion |
+
+`/api/v1/forum` remains mounted as a compatibility alias so existing deployment assumptions do not break.
 
 ---
 

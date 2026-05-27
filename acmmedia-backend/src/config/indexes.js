@@ -21,7 +21,7 @@
  * @module config/indexes
  */
 
-const { User, Post, Comment, Forum, Event } = require("../models");
+const { User, Post, Comment, DiscussionThread, DiscussionReply, Notification, Event } = require("../models");
 const logger = require("../utils/logger");
 
 const ensureIndexes = async () => {
@@ -42,9 +42,16 @@ const ensureIndexes = async () => {
     // User's comments (for profile/moderation)
     await Comment.collection.createIndex({ user: 1 });
 
-    // ─── Forum Indexes ─────────────────────────────────────────────────────
-    // Primary query: list threads sorted by newest first
-    await Forum.collection.createIndex({ createdAt: -1 });
+    // ─── Community Hub Indexes ─────────────────────────────────────────────
+    // Feed queries combine category/status filters with activity sorting.
+    await DiscussionThread.collection.createIndex({ pinned: -1, lastActivityAt: -1 });
+    await DiscussionThread.collection.createIndex({ category: 1, lastActivityAt: -1 });
+    await DiscussionThread.collection.createIndex({ status: 1, replyCount: 1, lastActivityAt: -1 });
+    await DiscussionThread.collection.createIndex({ title: "text", content: "text", tags: "text" });
+    // Reply indexes keep threaded loading to one ordered scan per discussion.
+    await DiscussionReply.collection.createIndex({ discussion: 1, createdAt: 1 });
+    await DiscussionReply.collection.createIndex({ discussion: 1, parentReply: 1, createdAt: 1 });
+    await Notification.collection.createIndex({ recipient: 1, read: 1, createdAt: -1 });
 
     // ─── Event Indexes ─────────────────────────────────────────────────────
     // Primary query: list events sorted by date ascending (upcoming first)

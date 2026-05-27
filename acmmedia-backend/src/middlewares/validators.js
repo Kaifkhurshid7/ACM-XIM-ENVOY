@@ -14,7 +14,8 @@
  * @module middlewares/validators
  */
 
-const { body, param, validationResult } = require("express-validator");
+const { body, param, query, validationResult } = require("express-validator");
+const { DISCUSSION_CATEGORIES } = require("../models/DiscussionThread");
 
 // ─── Sanitizers ──────────────────────────────────────────────────────────────
 
@@ -192,17 +193,57 @@ const validateForumThread = [
   body("title")
     .trim().notEmpty().withMessage("Title is required")
     .isLength({ min: 3, max: 200 }).withMessage("Title must be 3-200 characters"),
+  body("content")
+    .optional().isString().trim()
+    .isLength({ min: 5, max: 10000 }).withMessage("Content must be 5-10000 characters"),
   body("description")
-    .trim().notEmpty().withMessage("Description is required")
-    .isLength({ min: 5 }).withMessage("Description must be at least 5 characters"),
+    .optional().isString().trim()
+    .isLength({ min: 5, max: 10000 }).withMessage("Description must be 5-10000 characters"),
+  body().custom((value) => {
+    if (!value.content && !value.description) {
+      throw new Error("Content or description is required");
+    }
+    return true;
+  }),
+  body("category")
+    .optional().isIn(DISCUSSION_CATEGORIES).withMessage("Invalid discussion category"),
+  body("tags")
+    .optional().isArray({ max: 6 }).withMessage("Tags must be an array with at most 6 items"),
+  body("tags.*")
+    .optional().isString().trim()
+    .isLength({ min: 1, max: 30 }).withMessage("Each tag must be 1-30 characters"),
   validateRequest,
 ];
 
 const validateForumReply = [
-  param("id").isMongoId().withMessage("Invalid thread id format"),
+  param("id").optional().isMongoId().withMessage("Invalid discussion id format"),
+  param("replyId").optional().isMongoId().withMessage("Invalid reply id format"),
+  body("content")
+    .optional().isString().trim()
+    .isLength({ min: 1, max: 4000 }).withMessage("Reply content must be 1-4000 characters"),
   body("text")
-    .trim().notEmpty().withMessage("Reply text is required")
-    .isLength({ min: 1, max: 2000 }).withMessage("Reply text must be 1-2000 characters"),
+    .optional().isString().trim()
+    .isLength({ min: 1, max: 4000 }).withMessage("Reply text must be 1-4000 characters"),
+  body("parentReply")
+    .optional({ values: "falsy" }).isMongoId().withMessage("Invalid parent reply id"),
+  body("quotedReply")
+    .optional({ values: "falsy" }).isMongoId().withMessage("Invalid quoted reply id"),
+  body().custom((value) => {
+    if (!value.content && !value.text) {
+      throw new Error("Reply content or text is required");
+    }
+    return true;
+  }),
+  validateRequest,
+];
+
+const validateForumListQuery = [
+  query("category").optional().isString().trim(),
+  query("tag").optional().isString().trim(),
+  query("search").optional().isString().trim().isLength({ max: 120 }),
+  query("sort")
+    .optional().isIn(["trending", "latest", "active", "unanswered", "solved"])
+    .withMessage("Invalid sort value"),
   validateRequest,
 ];
 
@@ -256,6 +297,7 @@ module.exports = {
   validateEventUpdate,
   validateForumThread,
   validateForumReply,
+  validateForumListQuery,
   validateProfileUpdate,
   validatePasswordChange,
 };

@@ -38,6 +38,11 @@ export const SocketProvider = ({ children }) => {
 
     setSocket(newSocket);
 
+    const token = localStorage.getItem("token");
+    if (token) {
+      newSocket.emit("auth", token);
+    }
+
     // Cleanup: close socket when provider unmounts
     return () => {
       newSocket.close();

@@ -34,6 +34,13 @@ const HTTP_STATUS = Object.freeze({
 const SOCKET_EVENTS = Object.freeze({
   ANNOUNCEMENT_REACTION_UPDATE: "announcements:reaction-update",
   DISCUSSION_NEW_REPLY: "discussions:new-reply",
+  DISCUSSION_CREATED: "discussions:created",
+  DISCUSSION_UPDATED: "discussions:updated",
+  DISCUSSION_LIKE_UPDATE: "discussions:like-update",
+  DISCUSSION_REPLY_LIKE_UPDATE: "discussions:reply-like-update",
+  DISCUSSION_TYPING: "discussions:typing",
+  DISCUSSION_ONLINE_UPDATE: "discussions:online-update",
+  NOTIFICATION_CREATED: "notifications:created",
   PLATFORM_ANALYTICS_UPDATE: "platform:analytics-update",
   PLATFORM_ANALYTICS_REQUEST: "platform:analytics-request",
 });
