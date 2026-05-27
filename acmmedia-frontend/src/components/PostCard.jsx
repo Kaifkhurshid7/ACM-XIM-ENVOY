@@ -43,8 +43,8 @@ const PostCard = ({ post, onDelete }) => {
       }
     };
 
-    socket.on(SOCKET_EVENTS.ANNOUNCEMENT_REACTION_UPDATE, onLikeUpdate);
-    return () => socket.off(SOCKET_EVENTS.ANNOUNCEMENT_REACTION_UPDATE, onLikeUpdate);
+    socket.on(SOCKET_EVENTS.POST_LIKE_UPDATE, onLikeUpdate);
+    return () => socket.off(SOCKET_EVENTS.POST_LIKE_UPDATE, onLikeUpdate);
   }, [socket, post._id]);
 
   const isLiked = user && Array.isArray(likes) && likes.includes(user._id);

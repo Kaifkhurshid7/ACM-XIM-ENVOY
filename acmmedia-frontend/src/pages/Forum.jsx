@@ -15,7 +15,7 @@
  */
 
 import React, { useEffect, useState, useContext } from "react";
-import { fetchDiscussions, createDiscussion, removeDiscussion, replyToDiscussion } from "../api/discussions";
+import { fetchThreads, createThread, deleteThread, replyToThread } from "../api/forum";
 import { AuthContext } from "../context/AuthContext";
 import { useSocket } from "../context/SocketContext";
 import ConnectionBadge from "../components/ui/ConnectionBadge";
@@ -32,7 +32,9 @@ const Forum = () => {
 
   // Fetch all threads on mount
   useEffect(() => {
-    fetchDiscussions().then((res) => setThreads(extractArray(res.data, ["data", "threads"])));
+    fetchThreads()
+      .then((res) => setThreads(extractArray(res.data, ["data", "threads"])))
+      .catch((err) => console.error("Forum fetch failed:", err));
   }, []);
 
   // Subscribe to real-time reply events
@@ -49,14 +51,14 @@ const Forum = () => {
       );
     };
 
-    socket.on(SOCKET_EVENTS.DISCUSSION_NEW_REPLY, onNewReply);
-    return () => socket.off(SOCKET_EVENTS.DISCUSSION_NEW_REPLY, onNewReply);
+    socket.on(SOCKET_EVENTS.FORUM_NEW_REPLY, onNewReply);
+    return () => socket.off(SOCKET_EVENTS.FORUM_NEW_REPLY, onNewReply);
   }, [socket]);
 
   const handleCreateThread = async (e) => {
     e.preventDefault();
     try {
-      const { data } = await createDiscussion(newThread);
+      const { data } = await createThread(newThread);
       setThreads([data, ...threads]);
       setNewThread({ title: "", description: "" });
     } catch (err) {
@@ -65,9 +67,9 @@ const Forum = () => {
   };
 
   const handleDeleteThread = async (id) => {
-    if (!window.confirm("Remove this discussion?")) return;
+    if (!window.confirm("Delete this thread?")) return;
     try {
-      await removeDiscussion(id);
+      await deleteThread(id);
       setThreads(threads.filter((t) => t._id !== id));
     } catch (err) {
       console.error(err);
@@ -147,7 +149,7 @@ const Forum = () => {
                       placeholder="Compose reply and press Enter"
                       onKeyDown={async (e) => {
                         if (e.key === "Enter" && e.target.value.trim()) {
-                          const { data } = await replyToDiscussion(t._id, { text: e.target.value });
+                          const { data } = await replyToThread(t._id, { text: e.target.value });
                           setThreads(threads.map((thread) => (thread._id === t._id ? data : thread)));
                           e.target.value = "";
                         }

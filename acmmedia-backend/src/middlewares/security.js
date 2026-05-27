@@ -51,15 +51,16 @@ const applySecurityMiddleware = (app) => {
     "http://localhost:5173",
     "http://localhost:3000",
     "https://acmmedia-frontend.vercel.app",
+    "https://acm-xim-envoy.vercel.app",
   ];
 
   app.use(
     cors({
       origin: (origin, callback) => {
-        // Allow requests with no origin (mobile apps, Postman, server-to-server)
         if (!origin) return callback(null, true);
         if (allowedOrigins.includes(origin)) return callback(null, true);
-        // In production, reject unknown origins; in dev, allow all
+        // Allow any Vercel preview deployments
+        if (origin.endsWith(".vercel.app")) return callback(null, true);
         if (process.env.NODE_ENV === "production") {
           return callback(null, false);
         }

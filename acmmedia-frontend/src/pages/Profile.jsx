@@ -167,9 +167,11 @@ const Profile = () => {
     );
   }
 
-  const avatarSrc = profile?.avatar
-    ? `${import.meta.env.VITE_API_BASE_URL?.replace("/api/v1", "") || (import.meta.env.DEV ? "" : "https://acmmedia-backend.onrender.com")}${profile.avatar}`
-    : null;
+  const backendBase = import.meta.env.VITE_API_BASE_URL
+    ? import.meta.env.VITE_API_BASE_URL.replace("/api/v1", "")
+    : import.meta.env.DEV ? "http://localhost:5000" : "https://acmmedia-backend.onrender.com";
+
+  const avatarSrc = profile?.avatar ? `${backendBase}${profile.avatar}` : null;
 
   return (
     <div className="profile-page">

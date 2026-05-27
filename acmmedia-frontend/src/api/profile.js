@@ -19,9 +19,8 @@ export const updateProfile = (data) => client.patch("/profile", data);
 export const uploadAvatar = (file) => {
   const formData = new FormData();
   formData.append("avatar", file);
-  return client.post("/profile/avatar", formData, {
-    headers: { "Content-Type": "multipart/form-data" },
-  });
+  // Don't set Content-Type manually — axios sets the correct multipart boundary
+  return client.post("/profile/avatar", formData);
 };
 
 /** Remove profile avatar */

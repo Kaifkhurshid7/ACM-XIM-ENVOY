@@ -20,7 +20,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import { createPost, fetchPosts } from "../api/posts";
 import { createEvent } from "../api/events";
-import { fetchDiscussions } from "../api/discussions";
+import { fetchThreads } from "../api/forum";
 import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { useSocket } from "../context/SocketContext";
@@ -47,7 +47,7 @@ const Admin = () => {
 
   /** Compute stats from public endpoints as fallback */
   const refreshFallbackStats = async () => {
-    const [postsRes, threadsRes] = await Promise.all([fetchPosts(), fetchDiscussions()]);
+    const [postsRes, threadsRes] = await Promise.all([fetchPosts(), fetchThreads()]);
     const posts = extractArray(postsRes.data, ["posts", "data"]);
     const threads = extractArray(threadsRes.data, ["threads", "data"]);
 
@@ -82,16 +82,16 @@ const Admin = () => {
       setLoading(false);
     };
 
-    socket.on(SOCKET_EVENTS.PLATFORM_ANALYTICS_UPDATE, onAnalyticsUpdate);
+    socket.on(SOCKET_EVENTS.ANALYTICS_UPDATE, onAnalyticsUpdate);
 
     if (socket.connected) {
-      socket.emit(SOCKET_EVENTS.PLATFORM_ANALYTICS_REQUEST);
+      socket.emit(SOCKET_EVENTS.ANALYTICS_REQUEST);
     }
 
     const timeout = setTimeout(() => setLoading(false), 5000);
 
     return () => {
-      socket.off(SOCKET_EVENTS.PLATFORM_ANALYTICS_UPDATE, onAnalyticsUpdate);
+      socket.off(SOCKET_EVENTS.ANALYTICS_UPDATE, onAnalyticsUpdate);
       clearTimeout(timeout);
     };
   }, [socket]);
