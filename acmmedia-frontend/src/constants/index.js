@@ -24,7 +24,7 @@ export const ROUTES = Object.freeze({
   HOME: "/",
   LOGIN: "/login",
   REGISTER: "/register",
-  FORUM: "/forum",
+  DISCUSSIONS: "/discussions",
   EVENTS: "/events",
   NEWS: "/news",
   ADMIN: "/admin",
@@ -33,8 +33,8 @@ export const ROUTES = Object.freeze({
 
 /** Socket.IO event names - must match backend events */
 export const SOCKET_EVENTS = Object.freeze({
-  POST_LIKE_UPDATE: "post:like-update",
-  FORUM_NEW_REPLY: "forum:new-reply",
-  ANALYTICS_UPDATE: "analytics:update",
-  ANALYTICS_REQUEST: "analytics:request",
+  ANNOUNCEMENT_REACTION_UPDATE: "announcements:reaction-update",
+  DISCUSSION_NEW_REPLY: "discussions:new-reply",
+  PLATFORM_ANALYTICS_UPDATE: "platform:analytics-update",
+  PLATFORM_ANALYTICS_REQUEST: "platform:analytics-request",
 });

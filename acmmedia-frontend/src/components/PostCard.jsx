@@ -43,8 +43,8 @@ const PostCard = ({ post, onDelete }) => {
       }
     };
 
-    socket.on(SOCKET_EVENTS.POST_LIKE_UPDATE, onLikeUpdate);
-    return () => socket.off(SOCKET_EVENTS.POST_LIKE_UPDATE, onLikeUpdate);
+    socket.on(SOCKET_EVENTS.ANNOUNCEMENT_REACTION_UPDATE, onLikeUpdate);
+    return () => socket.off(SOCKET_EVENTS.ANNOUNCEMENT_REACTION_UPDATE, onLikeUpdate);
   }, [socket, post._id]);
 
   const isLiked = user && Array.isArray(likes) && likes.includes(user._id);
@@ -160,15 +160,15 @@ const PostCard = ({ post, onDelete }) => {
             <CommentBox onAdd={handleAddComment} />
           ) : (
             <div style={{ padding: "1rem", textAlign: "center", border: "1px dashed rgba(255,255,255,0.2)", borderRadius: "8px", color: "rgba(255,255,255,0.6)", fontSize: "0.9rem", marginBottom: "1rem" }}>
-              Please <strong>Login</strong> to participate in this discussion.
+              Please <strong>Sign In</strong> to participate in this discussion.
             </div>
           )}
 
           {loadingComments ? (
-            <p style={{ textAlign: "center", color: "#aaa" }}>Loading discussions...</p>
+            <p style={{ textAlign: "center", color: "#aaa" }}>Fetching resources...</p>
           ) : (
             <div style={{ marginTop: "1rem" }}>
-              {comments.length === 0 && <p style={{ color: "#666", fontStyle: "italic", textAlign: "center" }}>No discussions yet.</p>}
+              {comments.length === 0 && <p style={{ color: "#666", fontStyle: "italic", textAlign: "center" }}>No comments yet.</p>}
               {comments.map((c) => (
                 <div key={c._id} style={{ padding: "0.8rem 0", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.2rem" }}>
@@ -177,7 +177,7 @@ const PostCard = ({ post, onDelete }) => {
                     </span>
                     {isAdmin && (
                       <span onClick={() => handleDeleteComment(c._id)} style={{ color: "#ff4444", cursor: "pointer", fontSize: "0.75rem" }}>
-                        Delete
+                        Remove Resource
                       </span>
                     )}
                   </div>

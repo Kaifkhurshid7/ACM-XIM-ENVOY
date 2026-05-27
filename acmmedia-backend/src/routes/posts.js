@@ -104,7 +104,7 @@ router.put("/like/:id", auth, validateObjectIdParam, async (req, res, next) => {
     await post.save();
 
     // Broadcast to all clients for real-time UI updates
-    getIO().emit(SOCKET_EVENTS.POST_LIKE_UPDATE, {
+    getIO().emit(SOCKET_EVENTS.ANNOUNCEMENT_REACTION_UPDATE, {
       postId: post._id,
       likes: post.likes,
     });

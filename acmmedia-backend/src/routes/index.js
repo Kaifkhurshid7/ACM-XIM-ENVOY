@@ -42,7 +42,7 @@ const mountRoutes = (app) => {
   // Content routes (covered by global limiter)
   app.use("/api/v1/posts", postRoutes);
   app.use("/api/v1/comments", commentRoutes);
-  app.use("/api/v1/forum", forumRoutes);
+  app.use("/api/v1/discussions", forumRoutes);
   app.use("/api/v1/events", eventRoutes);
 
   // Admin routes

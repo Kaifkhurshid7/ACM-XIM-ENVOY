@@ -20,7 +20,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import { createPost, fetchPosts } from "../api/posts";
 import { createEvent } from "../api/events";
-import { fetchThreads } from "../api/forum";
+import { fetchDiscussions } from "../api/discussions";
 import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { useSocket } from "../context/SocketContext";
@@ -47,7 +47,7 @@ const Admin = () => {
 
   /** Compute stats from public endpoints as fallback */
   const refreshFallbackStats = async () => {
-    const [postsRes, threadsRes] = await Promise.all([fetchPosts(), fetchThreads()]);
+    const [postsRes, threadsRes] = await Promise.all([fetchPosts(), fetchDiscussions()]);
     const posts = extractArray(postsRes.data, ["posts", "data"]);
     const threads = extractArray(threadsRes.data, ["threads", "data"]);
 
@@ -82,16 +82,16 @@ const Admin = () => {
       setLoading(false);
     };
 
-    socket.on(SOCKET_EVENTS.ANALYTICS_UPDATE, onAnalyticsUpdate);
+    socket.on(SOCKET_EVENTS.PLATFORM_ANALYTICS_UPDATE, onAnalyticsUpdate);
 
     if (socket.connected) {
-      socket.emit(SOCKET_EVENTS.ANALYTICS_REQUEST);
+      socket.emit(SOCKET_EVENTS.PLATFORM_ANALYTICS_REQUEST);
     }
 
     const timeout = setTimeout(() => setLoading(false), 5000);
 
     return () => {
-      socket.off(SOCKET_EVENTS.ANALYTICS_UPDATE, onAnalyticsUpdate);
+      socket.off(SOCKET_EVENTS.PLATFORM_ANALYTICS_UPDATE, onAnalyticsUpdate);
       clearTimeout(timeout);
     };
   }, [socket]);
@@ -135,8 +135,8 @@ const Admin = () => {
     <div className="admin-page">
       {/* Header */}
       <header className="admin-header">
-        <h1>Admin Control Panel</h1>
-        <p>Welcome to the <strong>ACM-XIM-ENVOY</strong> administration dashboard.</p>
+        <h1>Administration Console</h1>
+        <p>Welcome to the <strong>Envoy Platform</strong> administration dashboard.</p>
       </header>
 
       {/* Content Creation */}

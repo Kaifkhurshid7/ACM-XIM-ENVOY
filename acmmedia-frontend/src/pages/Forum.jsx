@@ -15,7 +15,7 @@
  */
 
 import React, { useEffect, useState, useContext } from "react";
-import { fetchThreads, createThread, deleteThread, replyToThread } from "../api/forum";
+import { fetchDiscussions, createDiscussion, removeDiscussion, replyToDiscussion } from "../api/discussions";
 import { AuthContext } from "../context/AuthContext";
 import { useSocket } from "../context/SocketContext";
 import ConnectionBadge from "../components/ui/ConnectionBadge";
@@ -32,7 +32,7 @@ const Forum = () => {
 
   // Fetch all threads on mount
   useEffect(() => {
-    fetchThreads().then((res) => setThreads(extractArray(res.data, ["data", "threads"])));
+    fetchDiscussions().then((res) => setThreads(extractArray(res.data, ["data", "threads"])));
   }, []);
 
   // Subscribe to real-time reply events
@@ -49,14 +49,14 @@ const Forum = () => {
       );
     };
 
-    socket.on(SOCKET_EVENTS.FORUM_NEW_REPLY, onNewReply);
-    return () => socket.off(SOCKET_EVENTS.FORUM_NEW_REPLY, onNewReply);
+    socket.on(SOCKET_EVENTS.DISCUSSION_NEW_REPLY, onNewReply);
+    return () => socket.off(SOCKET_EVENTS.DISCUSSION_NEW_REPLY, onNewReply);
   }, [socket]);
 
   const handleCreateThread = async (e) => {
     e.preventDefault();
     try {
-      const { data } = await createThread(newThread);
+      const { data } = await createDiscussion(newThread);
       setThreads([data, ...threads]);
       setNewThread({ title: "", description: "" });
     } catch (err) {
@@ -65,9 +65,9 @@ const Forum = () => {
   };
 
   const handleDeleteThread = async (id) => {
-    if (!window.confirm("Delete this thread?")) return;
+    if (!window.confirm("Remove this discussion?")) return;
     try {
-      await deleteThread(id);
+      await removeDiscussion(id);
       setThreads(threads.filter((t) => t._id !== id));
     } catch (err) {
       console.error(err);
@@ -79,12 +79,12 @@ const Forum = () => {
       {/* Header */}
       <header className="forum-header">
         <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "0.6rem" }}>
-          <h2 style={{ margin: 0 }}>Discussion Forum</h2>
+          <h2 style={{ margin: 0 }}>Community Discussions</h2>
           <ConnectionBadge isConnected={isConnected} />
         </div>
         <p>
-          A collaborative space for academic, technical, and chapter-related
-          discussions. Ask questions, share insights, and learn together.
+          A collaborative space for academic, technical, and platform-related
+          discussions. Share insights, ask questions, and collaborate professionally.
         </p>
       </header>
 
@@ -106,7 +106,7 @@ const Forum = () => {
               onChange={(e) => setNewThread({ ...newThread, description: e.target.value })}
               required
             />
-            <button type="submit">Post Discussion</button>
+            <button type="submit">Publish Discussion</button>
           </form>
         </section>
       )}
@@ -114,7 +114,7 @@ const Forum = () => {
       {/* Thread List */}
       <section className="threads-list">
         {threads.length === 0 ? (
-          <p className="forum-empty">No discussions yet. Be the first to start one.</p>
+          <p className="forum-empty">No discussions available. Start the first discussion.</p>
         ) : (
           threads.map((t) => (
             <article key={t._id} className="thread-card">
@@ -125,7 +125,7 @@ const Forum = () => {
                     onClick={() => handleDeleteThread(t._id)}
                     style={{ background: "#ff4444", color: "white", border: "none", padding: "0.3rem 0.8rem", borderRadius: "4px", cursor: "pointer", fontSize: "0.8rem" }}
                   >
-                    Delete
+                    Remove Resource
                   </button>
                 )}
               </div>
@@ -144,10 +144,10 @@ const Forum = () => {
                   <div className="reply-input">
                     <input
                       type="text"
-                      placeholder="Write a reply and press Enter"
+                      placeholder="Compose reply and press Enter"
                       onKeyDown={async (e) => {
                         if (e.key === "Enter" && e.target.value.trim()) {
-                          const { data } = await replyToThread(t._id, { text: e.target.value });
+                          const { data } = await replyToDiscussion(t._id, { text: e.target.value });
                           setThreads(threads.map((thread) => (thread._id === t._id ? data : thread)));
                           e.target.value = "";
                         }

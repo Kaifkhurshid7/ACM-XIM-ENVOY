@@ -18,6 +18,7 @@
 import React, { useContext, useState, useRef, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
+import { ROUTES } from "../constants";
 import logo from "./assets/Transparent-Logo-min.png";
 
 const Navbar = () => {
@@ -52,9 +53,9 @@ const Navbar = () => {
           {/* Desktop Navigation */}
           <nav className="desktop-nav">
             <Link to="/" className={isActive("/") ? "active" : ""}>HOME</Link>
-            <Link to="/news" className={isActive("/news") ? "active" : ""}>NEWS</Link>
-            <Link to="/events" className={isActive("/events") ? "active" : ""}>EVENTS</Link>
-            <Link to="/forum" className={isActive("/forum") ? "active" : ""}>FORUM</Link>
+              <Link to="/news" className={isActive("/news") ? "active" : ""}>NEWS</Link>
+              <Link to="/events" className={isActive("/events") ? "active" : ""}>EVENTS</Link>
+              <Link to={ROUTES.DISCUSSIONS} className={isActive(ROUTES.DISCUSSIONS) ? "active" : ""}>COMMUNITY</Link>
             {user && user.role === "admin" && (
               <Link to="/admin" className={isActive("/admin") ? "active admin-link" : "admin-link"} style={{ color: "#ffd700" }}>
                 DASHBOARD
@@ -103,16 +104,16 @@ const Navbar = () => {
                       </div>
                     </div>
                     <Link to="/profile" className="dropdown-profile-link" onClick={() => setShowProfile(false)}>
-                      Edit Profile
+                      Manage Account
                     </Link>
                     <button onClick={logout} className="logout-red-btn">SECURE LOGOUT</button>
                   </div>
                 )}
               </div>
             ) : (
-              <div className="guest-actions">
-                <Link to="/login" className="login-link">Login</Link>
-                <Link to="/register" className="register-pill">Register</Link>
+                <div className="guest-actions">
+                <Link to="/login" className="login-link">Sign In</Link>
+                <Link to="/register" className="register-pill">Create Account</Link>
               </div>
             )}
 
@@ -125,11 +126,11 @@ const Navbar = () => {
 
         {/* Mobile Overlay Navigation */}
         <div className={`mobile-overlay ${open ? "active" : ""}`}>
-          <nav className="mobile-links">
+            <nav className="mobile-links">
             <Link to="/" onClick={() => setOpen(false)}>HOME</Link>
             <Link to="/news" onClick={() => setOpen(false)}>NEWS</Link>
             <Link to="/events" onClick={() => setOpen(false)}>EVENTS</Link>
-            <Link to="/forum" onClick={() => setOpen(false)}>FORUM</Link>
+            <Link to={ROUTES.DISCUSSIONS} onClick={() => setOpen(false)}>COMMUNITY</Link>
             {user && user.role === "admin" && (
               <Link to="/admin" onClick={() => setOpen(false)} style={{ color: "#ffd700" }}>DASHBOARD</Link>
             )}

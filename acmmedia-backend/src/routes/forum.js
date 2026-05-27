@@ -14,7 +14,7 @@
  */
 
 const router = require("express").Router();
-const { Forum } = require("../models");
+const { DiscussionThread } = require("../models");
 const auth = require("../middlewares/auth");
 const { AppError } = require("../middlewares/errorHandler");
 const { validateObjectIdParam, validateForumThread, validateForumReply } = require("../middlewares/validators");
@@ -22,13 +22,13 @@ const { getIO, emitAnalytics } = require("../socket");
 const { ROLES, SOCKET_EVENTS } = require("../constants");
 const { parsePagination, paginatedResponse } = require("../utils/pagination");
 
-/** List all forum threads with pagination */
+/** List all discussion threads with pagination */
 router.get("/", async (req, res, next) => {
   try {
     const { page, limit, skip } = parsePagination(req.query);
     const [threads, total] = await Promise.all([
-      Forum.find().sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
-      Forum.countDocuments(),
+      DiscussionThread.find().sort({ createdAt: -1 }).skip(skip).limit(limit).lean(),
+      DiscussionThread.countDocuments(),
     ]);
     return res.json(paginatedResponse(threads, total, page, limit));
   } catch (err) {
@@ -39,11 +39,11 @@ router.get("/", async (req, res, next) => {
 /** Create a new discussion thread */
 router.post("/", auth, validateForumThread, async (req, res, next) => {
   try {
-    const newThread = new Forum({
+    const newThread = new DiscussionThread({
       ...req.body,
       author: req.user.id,
     });
-    const thread = await newThread.save();
+      const thread = await newThread.save();
     res.json(thread);
   } catch (err) {
     return next(err);
@@ -56,14 +56,14 @@ router.post("/", auth, validateForumThread, async (req, res, next) => {
  */
 router.post("/reply/:id", auth, validateForumReply, async (req, res, next) => {
   try {
-    const thread = await Forum.findById(req.params.id);
+    const thread = await DiscussionThread.findById(req.params.id);
     if (!thread) return next(new AppError(404, "Thread not found"));
 
     const newReply = { user: req.user.id, text: req.body.text };
     thread.replies.push(newReply);
     await thread.save();
 
-    getIO().emit(SOCKET_EVENTS.FORUM_NEW_REPLY, {
+    getIO().emit(SOCKET_EVENTS.DISCUSSION_NEW_REPLY, {
       threadId: thread._id,
       reply: newReply,
     });
@@ -77,7 +77,7 @@ router.post("/reply/:id", auth, validateForumReply, async (req, res, next) => {
 /** Delete a thread - admin moderation action */
 router.delete("/:id", auth, validateObjectIdParam, async (req, res, next) => {
   try {
-    const thread = await Forum.findById(req.params.id);
+    const thread = await DiscussionThread.findById(req.params.id);
     if (!thread) return next(new AppError(404, "Thread not found"));
 
     if (req.user.role !== ROLES.ADMIN) {
@@ -86,7 +86,7 @@ router.delete("/:id", auth, validateObjectIdParam, async (req, res, next) => {
 
     await thread.deleteOne();
     emitAnalytics();
-    res.json({ msg: "Thread removed" });
+    res.json({ msg: "Discussion removed" });
   } catch (err) {
     return next(err);
   }

@@ -73,7 +73,7 @@ const init = (httpServer) => {
     });
 
     // Admin requesting analytics refresh
-    socket.on(SOCKET_EVENTS.ANALYTICS_REQUEST, async () => {
+    socket.on(SOCKET_EVENTS.PLATFORM_ANALYTICS_REQUEST, async () => {
       sendAnalyticsToSocket(socket);
     });
 
@@ -93,7 +93,7 @@ const sendAnalyticsToSocket = async (socket) => {
   try {
     const analytics = await getAnalytics();
     if (analytics) {
-      socket.emit(SOCKET_EVENTS.ANALYTICS_UPDATE, analytics);
+      socket.emit(SOCKET_EVENTS.PLATFORM_ANALYTICS_UPDATE, analytics);
     }
   } catch (err) {
     logger.warn({ err: err.message }, "Failed to send analytics to socket");
@@ -128,7 +128,7 @@ const emitAnalytics = async () => {
     try {
       const analytics = await getAnalytics();
       if (analytics) {
-        io.to("admins").emit(SOCKET_EVENTS.ANALYTICS_UPDATE, analytics);
+        io.to("admins").emit(SOCKET_EVENTS.PLATFORM_ANALYTICS_UPDATE, analytics);
       }
     } catch (err) {
       logger.warn({ err: err.message }, "Failed to emit analytics");

@@ -11,6 +11,6 @@ module.exports = {
   User: require("./User"),
   Post: require("./Post"),
   Event: require("./Event"),
-  Forum: require("./Forum"),
+  DiscussionThread: require("./DiscussionThread"),
   Comment: require("./Comment"),
 };
