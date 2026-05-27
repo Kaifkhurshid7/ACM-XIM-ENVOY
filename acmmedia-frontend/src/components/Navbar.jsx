@@ -1,3 +1,22 @@
+/**
+ * Navbar Component
+ * 
+ * Responsive navigation bar with desktop and mobile layouts.
+ * Displays user profile dropdown when authenticated, or
+ * login/register links for guests.
+ * 
+ * Features:
+ * - Responsive hamburger menu for mobile
+ * - Active route highlighting
+ * - User profile dropdown with role badge
+ * - Admin dashboard link (visible to admins only)
+ * - Click-outside detection to close dropdown
+ * 
+ * @component
+ */
+// Navbar with modern account panel dropdown
+
+
 import React, { useContext, useState, useRef, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
