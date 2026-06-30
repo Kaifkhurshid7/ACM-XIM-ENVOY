@@ -135,8 +135,8 @@ const Admin = () => {
     <div className="admin-page">
       {/* Header */}
       <header className="admin-header">
-        <h1>Administration Console</h1>
-        <p>Welcome to the <strong>Envoy Platform</strong> administration dashboard.</p>
+        <h1>Dashboard</h1>
+        <p>Manage content, monitor engagement, and keep the chapter running smoothly.</p>
       </header>
 
       {/* Content Creation */}
@@ -146,9 +146,9 @@ const Admin = () => {
           <h2>Publish announcement</h2>
           <p>Create updates that appear on the chapter feed for all members.</p>
           <form onSubmit={handleCreatePost}>
-            <input type="text" placeholder="News Title" value={postData.title} onChange={(e) => setPostData({ ...postData, title: e.target.value })} required />
-            <textarea placeholder="Write detailed news content here..." value={postData.content} onChange={(e) => setPostData({ ...postData, content: e.target.value })} required />
-            <button type="submit" disabled={submittingPost}>{submittingPost ? "Publishing..." : "Publish News"}</button>
+            <input type="text" placeholder="Announcement title" value={postData.title} onChange={(e) => setPostData({ ...postData, title: e.target.value })} required />
+            <textarea placeholder="Write your announcement..." value={postData.content} onChange={(e) => setPostData({ ...postData, content: e.target.value })} required />
+            <button type="submit" disabled={submittingPost}>{submittingPost ? "Publishing..." : "Publish"}</button>
           </form>
         </div>
 
@@ -160,9 +160,9 @@ const Admin = () => {
             <input type="text" placeholder="Event Title" value={eventData.title} onChange={(e) => setEventData({ ...eventData, title: e.target.value })} required />
             <input type="date" value={eventData.date} onChange={(e) => setEventData({ ...eventData, date: e.target.value })} required />
             <input type="text" placeholder="Event Location / Mode" value={eventData.location} onChange={(e) => setEventData({ ...eventData, location: e.target.value })} required />
-            <input type="text" placeholder="Registration Link (optional)" value={eventData.registrationLink} onChange={(e) => setEventData({ ...eventData, registrationLink: e.target.value })} />
+            <input type="text" placeholder="Registration link (optional)" value={eventData.registrationLink} onChange={(e) => setEventData({ ...eventData, registrationLink: e.target.value })} />
             <textarea placeholder="Describe agenda, speakers, eligibility..." value={eventData.description} onChange={(e) => setEventData({ ...eventData, description: e.target.value })} required />
-            <button type="submit" disabled={submittingEvent}>{submittingEvent ? "Saving Event..." : "Add Event"}</button>
+            <button type="submit" disabled={submittingEvent}>{submittingEvent ? "Creating..." : "Create event"}</button>
           </form>
         </div>
       </section>
