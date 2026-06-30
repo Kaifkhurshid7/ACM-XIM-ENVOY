@@ -1,8 +1,11 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { signup } from "../api/auth";
 import { useNavigate } from "react-router-dom";
 import { extractErrorMessage } from "../utils/api";
 import { ALLOWED_DOMAINS } from "../constants";
+import { AUTH } from "../constants/copy";
+import Toast from "../components/Toast";
+import ConfirmDialog from "../components/ConfirmDialog";
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -11,6 +14,7 @@ const Register = () => {
   });
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [toast, setToast] = useState(null);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
@@ -19,25 +23,25 @@ const Register = () => {
     const isValidDomain = ALLOWED_DOMAINS.some((d) => emailLower.endsWith(d));
 
     if (!isValidDomain) {
-      alert("Please use your official university email (@stu.xim.edu.in or @xim.edu.in).");
+      setToast({ type: "error", message: AUTH.REGISTER.ERROR_INVALID_EMAIL });
       return;
     }
     if (formData.password.length < 6) {
-      alert("Password must be at least 6 characters.");
+      setToast({ type: "error", message: AUTH.REGISTER.ERROR_PASSWORD_SHORT });
       return;
     }
     if (formData.password !== formData.confirmPassword) {
-      alert("Passwords don't match. Please try again.");
+      setToast({ type: "error", message: AUTH.REGISTER.ERROR_PASSWORD_MISMATCH });
       return;
     }
 
     setLoading(true);
     try {
       await signup({ name: formData.name.trim(), email: emailLower, password: formData.password });
-      alert("Account created successfully. You can now sign in.");
-      navigate("/login");
+      setToast({ type: "success", message: AUTH.REGISTER.SUCCESS });
+      setTimeout(() => navigate("/login"), 1500);
     } catch (err) {
-      alert(extractErrorMessage(err, "Something went wrong. Please try again."));
+      setToast({ type: "error", message: extractErrorMessage(err, AUTH.REGISTER.ERROR_GENERIC) });
     } finally {
       setLoading(false);
     }
