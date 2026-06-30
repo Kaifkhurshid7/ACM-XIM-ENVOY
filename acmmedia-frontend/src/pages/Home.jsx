@@ -1,18 +1,3 @@
-/**
- * Home Page
- * 
- * The main feed displaying chapter announcements and posts.
- * Features real-time like updates via Socket.IO and a tech news ticker.
- * 
- * Behavior:
- * - Fetches all posts on mount
- * - Displays connection status badge (LIVE/DISCONNECTED)
- * - Shows loading, error, and empty states gracefully
- * - Admin users see delete controls on each post
- * 
- * @page
- */
-
 import React, { useEffect, useState, useContext } from "react";
 import { fetchPosts } from "../api/posts";
 import { AuthContext } from "../context/AuthContext";
@@ -29,18 +14,16 @@ export default function Home() {
   const { user } = useContext(AuthContext);
   const isConnected = useConnectionStatus();
 
-  // Fetch posts on component mount
   useEffect(() => {
     const loadPosts = async () => {
       try {
         setLoadingPosts(true);
         setPostsError("");
         const res = await fetchPosts();
-        setPosts(extractArray(res.data, ["posts", "data"]));
+        setPosts(extractArray(res.data, ["data", "posts"]));
       } catch (err) {
-        console.error("Failed to load posts", err);
         setPosts([]);
-        setPostsError("Unable to load chapter updates right now.");
+        setPostsError("Unable to load updates right now. Please try again shortly.");
       } finally {
         setLoadingPosts(false);
       }
@@ -48,38 +31,28 @@ export default function Home() {
     loadPosts();
   }, []);
 
-  /** Remove a deleted post from local state (optimistic UI) */
-  const handleDeletePost = (id) => {
-    setPosts(posts.filter((p) => p._id !== id));
-  };
+  const handleDeletePost = (id) => setPosts(posts.filter((p) => p._id !== id));
 
   return (
     <div className="home-wrapper">
       <TechPulse mode="ticker" />
-
-      {/* Page Header */}
       <header className="home-header">
-        <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "0.6rem" }}>
-          <h1 style={{ margin: 0 }}>ACM-XIM-ENVOY</h1>
+        <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "0.4rem" }}>
+          <h1 style={{ margin: 0 }}>Chapter Feed</h1>
           <ConnectionBadge isConnected={isConnected} />
         </div>
-        <p>
-          Official announcements, achievements, and updates from the ACM Student Chapter.
-        </p>
+        <p>Announcements, achievements, and updates from the ACM Student Chapter.</p>
       </header>
 
-      {/* Posts Feed */}
       <section className="home-feed">
         {loadingPosts ? (
-          <p className="home-empty">Loading latest chapter updates...</p>
+          <p className="home-empty">Loading latest updates...</p>
         ) : postsError ? (
           <p className="home-empty">{postsError}</p>
         ) : posts.length === 0 ? (
-          <p className="home-empty">No updates available at the moment.</p>
+          <p className="home-empty">No updates yet. Check back soon for chapter announcements.</p>
         ) : (
-          posts.map((p) => (
-            <PostCard key={p._id} post={p} onDelete={handleDeletePost} />
-          ))
+          posts.map((p) => <PostCard key={p._id} post={p} onDelete={handleDeletePost} />)
         )}
       </section>
     </div>
