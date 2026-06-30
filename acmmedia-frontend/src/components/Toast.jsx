@@ -2,7 +2,8 @@
  * Toast Notification Component
  * 
  * Accessible, dismissible notification component replacing browser alerts.
- * Supports multiple types: success, error, warning, info
+ * Supports multiple types: success, error, warning, info.
+ * Uses proper SVG icons (no emojis).
  * 
  * Usage:
  * const [toast, setToast] = useState(null);
@@ -14,21 +15,22 @@
  */
 
 import React, { useEffect } from "react";
+import { CheckCircleIcon, AlertCircleIcon, AlertTriangleIcon, InfoIcon } from "./ui/Icons";
 
 const Toast = ({ toast, onClose }) => {
   useEffect(() => {
     if (!toast) return;
-    const timer = setTimeout(onClose, 4000);
+    const timer = setTimeout(onClose, 4500);
     return () => clearTimeout(timer);
   }, [toast, onClose]);
 
   if (!toast) return null;
 
-  const icons = {
-    success: "\u2713",
-    error: "\u2715",
-    warning: "\u26A0",
-    info: "\u2139",
+  const iconMap = {
+    success: <CheckCircleIcon size={18} />,
+    error: <AlertCircleIcon size={18} />,
+    warning: <AlertTriangleIcon size={18} />,
+    info: <InfoIcon size={18} />,
   };
 
   const colors = {
@@ -59,11 +61,13 @@ const Toast = ({ toast, onClose }) => {
         maxWidth: "400px",
         fontSize: "14px",
         fontWeight: "500",
-        animation: "slideIn 0.3s ease-out",
+        animation: "toastSlideIn 0.3s ease-out",
       }}
     >
-      <span style={{ fontSize: "18px", fontWeight: "bold" }}>{icons[toast.type]}</span>
-      <span>{toast.message}</span>
+      <span style={{ display: "flex", alignItems: "center", flexShrink: 0 }}>
+        {iconMap[toast.type] || iconMap.info}
+      </span>
+      <span style={{ flex: 1 }}>{toast.message}</span>
       <button
         onClick={onClose}
         aria-label="Dismiss notification"
@@ -76,13 +80,19 @@ const Toast = ({ toast, onClose }) => {
           borderRadius: "4px",
           marginLeft: "auto",
           fontSize: "16px",
+          lineHeight: 1,
+          display: "flex",
+          alignItems: "center",
         }}
       >
-        ×
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <line x1="18" y1="6" x2="6" y2="18" />
+          <line x1="6" y1="6" x2="18" y2="18" />
+        </svg>
       </button>
       <style>{`
-        @keyframes slideIn {
-          from { transform: translateX(400px); opacity: 0; }
+        @keyframes toastSlideIn {
+          from { transform: translateX(100%); opacity: 0; }
           to { transform: translateX(0); opacity: 1; }
         }
       `}</style>
