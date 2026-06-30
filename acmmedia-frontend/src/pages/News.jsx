@@ -1,4 +1,3 @@
-import React from "react";
 import TechPulse from "../components/TechPulse";
 
 const News = () => (

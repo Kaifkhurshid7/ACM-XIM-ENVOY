@@ -1,21 +1,26 @@
 /**
  * Profile Page
  * 
- * User profile management page with three sections:
+ * User profile management page with four sections:
  * 1. Avatar upload/change
  * 2. Profile information editing (name, bio, department, links)
  * 3. Password change form
+ * 4. Account details
  * 
- * Access: Authenticated users only (redirects to login if not logged in)
+ * Access: Authenticated users only
  * 
  * @page
  */
 
-import React, { useState, useEffect, useContext, useRef } from "react";
+import { useState, useEffect, useContext, useRef } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { getProfile, updateProfile, uploadAvatar, removeAvatar, changePassword } from "../api/profile";
 import { extractErrorMessage } from "../utils/api";
+import { PROFILE, CONFIRMATIONS } from "../constants/copy";
+import Toast from "../components/Toast";
+import ConfirmDialog from "../components/ConfirmDialog";
+import { UploadIcon, TrashIcon, LockIcon } from "../components/ui/Icons";
 import "../styles/profile.css";
 
 const Profile = () => {
@@ -23,36 +28,26 @@ const Profile = () => {
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
 
-  // Profile state
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [avatarUploading, setAvatarUploading] = useState(false);
+  const [toast, setToast] = useState(null);
+  const [confirm, setConfirm] = useState(null);
 
-  // Edit form state
   const [formData, setFormData] = useState({
-    name: "",
-    bio: "",
-    department: "",
-    year: "",
-    github: "",
-    linkedin: "",
+    name: "", bio: "", department: "", year: "", github: "", linkedin: "",
   });
 
-  // Password form state
   const [passwordData, setPasswordData] = useState({
-    currentPassword: "",
-    newPassword: "",
-    confirmPassword: "",
+    currentPassword: "", newPassword: "", confirmPassword: "",
   });
   const [changingPassword, setChangingPassword] = useState(false);
 
-  // Redirect if not authenticated
   useEffect(() => {
     if (!user) navigate("/login");
   }, [user, navigate]);
 
-  // Fetch profile on mount
   useEffect(() => {
     const loadProfile = async () => {
       try {
@@ -75,35 +70,30 @@ const Profile = () => {
     if (user) loadProfile();
   }, [user]);
 
-  // ─── Profile Update Handler ──────────────────────────────────────────────────
-
+  // Profile update
   const handleProfileSubmit = async (e) => {
     e.preventDefault();
     try {
       setSaving(true);
       const { data } = await updateProfile(formData);
       setProfile(data.user);
-      alert("Profile updated successfully!");
+      setToast({ type: "success", message: PROFILE.SAVED });
     } catch (err) {
-      alert(extractErrorMessage(err, "Failed to update profile."));
+      setToast({ type: "error", message: extractErrorMessage(err, "Couldn't update profile. Please try again.") });
     } finally {
       setSaving(false);
     }
   };
 
-  // ─── Avatar Handlers ─────────────────────────────────────────────────────────
-
-  const handleAvatarClick = () => {
-    fileInputRef.current?.click();
-  };
+  // Avatar handlers
+  const handleAvatarClick = () => fileInputRef.current?.click();
 
   const handleAvatarChange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    // Client-side validation
     if (file.size > 2 * 1024 * 1024) {
-      alert("Image must be under 2MB.");
+      setToast({ type: "error", message: PROFILE.AVATAR_ERROR_SIZE });
       return;
     }
 
@@ -111,58 +101,60 @@ const Profile = () => {
       setAvatarUploading(true);
       const { data } = await uploadAvatar(file);
       setProfile((prev) => ({ ...prev, avatar: data.avatar }));
+      setToast({ type: "success", message: PROFILE.AVATAR_UPLOADED });
     } catch (err) {
-      alert(extractErrorMessage(err, "Failed to upload avatar."));
+      setToast({ type: "error", message: extractErrorMessage(err, PROFILE.AVATAR_ERROR_GENERIC) });
     } finally {
       setAvatarUploading(false);
     }
   };
 
-  const handleRemoveAvatar = async () => {
-    if (!window.confirm("Remove your profile picture?")) return;
-    try {
-      await removeAvatar();
-      setProfile((prev) => ({ ...prev, avatar: null }));
-    } catch (err) {
-      alert(extractErrorMessage(err, "Failed to remove avatar."));
-    }
+  const handleRemoveAvatar = () => {
+    setConfirm({
+      ...CONFIRMATIONS.REMOVE_AVATAR,
+      onConfirm: async () => {
+        try {
+          await removeAvatar();
+          setProfile((prev) => ({ ...prev, avatar: null }));
+          setToast({ type: "success", message: PROFILE.AVATAR_REMOVED });
+        } catch (err) {
+          setToast({ type: "error", message: extractErrorMessage(err, "Couldn't remove avatar.") });
+        }
+      },
+    });
   };
 
-  // ─── Password Change Handler ─────────────────────────────────────────────────
-
+  // Password change
   const handlePasswordSubmit = async (e) => {
     e.preventDefault();
 
     if (passwordData.newPassword !== passwordData.confirmPassword) {
-      alert("New passwords do not match.");
+      setToast({ type: "error", message: PROFILE.ERROR_MISMATCH });
       return;
     }
 
     if (passwordData.newPassword.length < 6) {
-      alert("New password must be at least 6 characters.");
+      setToast({ type: "error", message: PROFILE.ERROR_SHORT });
       return;
     }
 
     try {
       setChangingPassword(true);
       await changePassword(passwordData);
-      alert("Password changed successfully! Please login again.");
+      setToast({ type: "success", message: PROFILE.SUCCESS });
       setPasswordData({ currentPassword: "", newPassword: "", confirmPassword: "" });
-      logout();
-      navigate("/login");
+      setTimeout(() => { logout(); navigate("/login"); }, 1500);
     } catch (err) {
-      alert(extractErrorMessage(err, "Failed to change password."));
+      setToast({ type: "error", message: extractErrorMessage(err, PROFILE.ERROR_GENERIC) });
     } finally {
       setChangingPassword(false);
     }
   };
 
-  // ─── Render ──────────────────────────────────────────────────────────────────
-
   if (loading) {
     return (
       <div className="profile-page">
-        <p style={{ textAlign: "center", padding: "3rem", opacity: 0.6 }}>Loading profile...</p>
+        <p style={{ textAlign: "center", padding: "3rem", opacity: 0.6 }} role="status" aria-live="polite">{PROFILE.LOADING}</p>
       </div>
     );
   }
@@ -176,25 +168,32 @@ const Profile = () => {
   return (
     <div className="profile-page">
       <header className="profile-header">
-        <h1>My Profile</h1>
-        <p>Manage your account information, avatar, and security settings.</p>
+        <h1>{PROFILE.HEADING}</h1>
+        <p>{PROFILE.SUBHEADING}</p>
       </header>
 
       <div className="profile-content">
-        {/* ─── Avatar Section ─────────────────────────────────────────────── */}
-        <section className="profile-section avatar-section">
-          <h2>Profile Picture</h2>
+        {/* Avatar Section */}
+        <section className="profile-section avatar-section" aria-label="Profile picture">
+          <h2>{PROFILE.AVATAR_HEADING}</h2>
           <div className="avatar-container">
-            <div className="avatar-preview" onClick={handleAvatarClick}>
+            <div
+              className="avatar-preview"
+              onClick={handleAvatarClick}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => e.key === "Enter" && handleAvatarClick()}
+              aria-label="Change profile picture"
+            >
               {avatarSrc ? (
-                <img src={avatarSrc} alt="Profile" className="avatar-image" />
+                <img src={avatarSrc} alt={`${profile?.name}'s profile picture`} className="avatar-image" />
               ) : (
                 <div className="avatar-placeholder">
                   {profile?.name?.charAt(0).toUpperCase() || "?"}
                 </div>
               )}
               <div className="avatar-overlay">
-                {avatarUploading ? "Uploading..." : "Change"}
+                {avatarUploading ? PROFILE.AVATAR_UPLOADING : PROFILE.AVATAR_OVERLAY}
               </div>
             </div>
             <input
@@ -203,178 +202,203 @@ const Profile = () => {
               accept="image/jpeg,image/png,image/gif,image/webp"
               onChange={handleAvatarChange}
               style={{ display: "none" }}
+              aria-label="Upload profile picture"
             />
             <div className="avatar-actions">
-              <button onClick={handleAvatarClick} className="btn-secondary" disabled={avatarUploading}>
-                {avatarUploading ? "Uploading..." : "Upload New Photo"}
+              <button onClick={handleAvatarClick} className="btn-secondary" disabled={avatarUploading} aria-label="Upload new photo">
+                <UploadIcon size={14} /> {avatarUploading ? PROFILE.AVATAR_UPLOADING : PROFILE.AVATAR_BUTTON_UPLOAD}
               </button>
               {profile?.avatar && (
-                <button onClick={handleRemoveAvatar} className="btn-danger-outline">
-                  Remove
+                <button onClick={handleRemoveAvatar} className="btn-danger-outline" aria-label="Remove profile picture">
+                  <TrashIcon size={14} /> {PROFILE.AVATAR_BUTTON_REMOVE}
                 </button>
               )}
             </div>
-            <p className="avatar-hint">JPEG, PNG, GIF, or WebP. Max 2MB.</p>
+            <p className="avatar-hint">{PROFILE.AVATAR_HINT}</p>
           </div>
         </section>
 
-        {/* ─── Profile Info Section ───────────────────────────────────────── */}
-        <section className="profile-section">
-          <h2>Personal Information</h2>
-          <form onSubmit={handleProfileSubmit} className="profile-form">
+        {/* Personal Information Section */}
+        <section className="profile-section" aria-label="Personal information">
+          <h2>{PROFILE.INFO_HEADING}</h2>
+          <form onSubmit={handleProfileSubmit} className="profile-form" noValidate>
             <div className="form-group">
-              <label>Full Name</label>
+              <label htmlFor="profile-name">{PROFILE.LABEL_NAME}</label>
               <input
+                id="profile-name"
                 type="text"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 placeholder="Your full name"
                 required
+                aria-required="true"
               />
             </div>
 
             <div className="form-group">
-              <label>Email</label>
-              <input type="email" value={profile?.email || ""} disabled className="input-disabled" />
-              <span className="form-hint">Email cannot be changed.</span>
+              <label htmlFor="profile-email">{PROFILE.LABEL_EMAIL}</label>
+              <input id="profile-email" type="email" value={profile?.email || ""} disabled className="input-disabled" aria-describedby="email-readonly-hint" />
+              <span className="form-hint" id="email-readonly-hint">{PROFILE.LABEL_EMAIL_HINT}</span>
             </div>
 
             <div className="form-group">
-              <label>Bio</label>
+              <label htmlFor="profile-bio">{PROFILE.LABEL_BIO}</label>
               <textarea
+                id="profile-bio"
                 value={formData.bio}
                 onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
-                placeholder="Tell us about yourself (max 300 characters)"
+                placeholder={PROFILE.LABEL_BIO_PLACEHOLDER}
                 maxLength={300}
                 rows={3}
+                aria-describedby="bio-hint bio-count"
               />
-              <span className="form-hint">{formData.bio.length}/300</span>
+              <span className="form-hint" id="bio-hint">{PROFILE.LABEL_BIO_HINT}</span>
+              <span className="form-hint" id="bio-count" aria-live="polite">{formData.bio.length}/300</span>
             </div>
 
             <div className="form-row">
               <div className="form-group">
-                <label>Department</label>
+                <label htmlFor="profile-dept">{PROFILE.LABEL_DEPARTMENT}</label>
                 <input
+                  id="profile-dept"
                   type="text"
                   value={formData.department}
                   onChange={(e) => setFormData({ ...formData, department: e.target.value })}
-                  placeholder="e.g. Computer Science"
+                  placeholder={PROFILE.LABEL_DEPARTMENT_PLACEHOLDER}
                 />
               </div>
               <div className="form-group">
-                <label>Year</label>
+                <label htmlFor="profile-year">{PROFILE.LABEL_YEAR}</label>
                 <input
+                  id="profile-year"
                   type="text"
                   value={formData.year}
                   onChange={(e) => setFormData({ ...formData, year: e.target.value })}
-                  placeholder="e.g. 3rd Year"
+                  placeholder={PROFILE.LABEL_YEAR_PLACEHOLDER}
                 />
               </div>
             </div>
 
             <div className="form-group">
-              <label>GitHub Profile</label>
+              <label htmlFor="profile-github">{PROFILE.LABEL_GITHUB}</label>
               <input
-                type="text"
+                id="profile-github"
+                type="url"
                 value={formData.github}
                 onChange={(e) => setFormData({ ...formData, github: e.target.value })}
-                placeholder="https://github.com/username"
+                placeholder={PROFILE.LABEL_GITHUB_PLACEHOLDER}
+                aria-describedby="github-hint"
               />
+              <span className="form-hint" id="github-hint">{PROFILE.LABEL_GITHUB_HINT}</span>
             </div>
 
             <div className="form-group">
-              <label>LinkedIn Profile</label>
+              <label htmlFor="profile-linkedin">{PROFILE.LABEL_LINKEDIN}</label>
               <input
-                type="text"
+                id="profile-linkedin"
+                type="url"
                 value={formData.linkedin}
                 onChange={(e) => setFormData({ ...formData, linkedin: e.target.value })}
-                placeholder="https://linkedin.com/in/username"
+                placeholder={PROFILE.LABEL_LINKEDIN_PLACEHOLDER}
+                aria-describedby="linkedin-hint"
               />
+              <span className="form-hint" id="linkedin-hint">{PROFILE.LABEL_LINKEDIN_HINT}</span>
             </div>
 
-            <button type="submit" className="btn-primary" disabled={saving}>
-              {saving ? "Saving..." : "Save Changes"}
+            <button type="submit" className="btn-primary" disabled={saving} aria-busy={saving}>
+              {saving ? PROFILE.SAVING : PROFILE.BUTTON_SAVE}
             </button>
           </form>
         </section>
 
-        {/* ─── Password Section ───────────────────────────────────────────── */}
-        <section className="profile-section">
-          <h2>Change Password</h2>
-          <p className="section-desc">
-            For security, you must enter your current password to set a new one.
-            After changing, you will be logged out.
-          </p>
-          <form onSubmit={handlePasswordSubmit} className="profile-form">
+        {/* Password Section */}
+        <section className="profile-section" aria-label="Change password">
+          <h2><LockIcon size={18} /> {PROFILE.PASSWORD_HEADING}</h2>
+          <p className="section-desc">{PROFILE.PASSWORD_SUBHEADING}</p>
+          <form onSubmit={handlePasswordSubmit} className="profile-form" noValidate>
             <div className="form-group">
-              <label>Current Password</label>
+              <label htmlFor="current-pw">{PROFILE.LABEL_CURRENT}</label>
               <input
+                id="current-pw"
                 type="password"
                 value={passwordData.currentPassword}
                 onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })}
-                placeholder="Enter current password"
+                placeholder={PROFILE.PLACEHOLDER_CURRENT}
                 required
+                autoComplete="current-password"
+                aria-required="true"
               />
             </div>
 
             <div className="form-group">
-              <label>New Password</label>
+              <label htmlFor="new-pw">{PROFILE.LABEL_NEW}</label>
               <input
+                id="new-pw"
                 type="password"
                 value={passwordData.newPassword}
                 onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })}
-                placeholder="Enter new password (min 6 characters)"
+                placeholder={PROFILE.PLACEHOLDER_NEW}
                 required
                 minLength={6}
+                autoComplete="new-password"
+                aria-required="true"
+                aria-describedby="new-pw-hint"
               />
+              <span className="form-hint" id="new-pw-hint">{PROFILE.LABEL_NEW_HINT}</span>
             </div>
 
             <div className="form-group">
-              <label>Confirm New Password</label>
+              <label htmlFor="confirm-new-pw">{PROFILE.LABEL_CONFIRM}</label>
               <input
+                id="confirm-new-pw"
                 type="password"
                 value={passwordData.confirmPassword}
                 onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })}
-                placeholder="Re-enter new password"
+                placeholder={PROFILE.PLACEHOLDER_CONFIRM}
                 required
+                autoComplete="new-password"
+                aria-required="true"
               />
             </div>
 
-            <button type="submit" className="btn-warning" disabled={changingPassword}>
-              {changingPassword ? "Changing..." : "Change Password"}
+            <button type="submit" className="btn-warning" disabled={changingPassword} aria-busy={changingPassword}>
+              {changingPassword ? PROFILE.CHANGING : PROFILE.BUTTON_CHANGE}
             </button>
           </form>
         </section>
 
-        {/* ─── Account Info ───────────────────────────────────────────────── */}
-        <section className="profile-section account-info">
-          <h2>Account Details</h2>
+        {/* Account Details */}
+        <section className="profile-section account-info" aria-label="Account details">
+          <h2>{PROFILE.ACCOUNT_HEADING}</h2>
           <div className="info-grid">
             <div className="info-item">
-              <span className="info-label">Role</span>
+              <span className="info-label">{PROFILE.LABEL_ROLE}</span>
               <span className={`info-value role-badge ${profile?.role}`}>
-                {profile?.role === "admin" ? "Administrator" : "Chapter Member"}
+                {profile?.role === "admin" ? PROFILE.ROLE_ADMIN : PROFILE.ROLE_MEMBER}
               </span>
             </div>
             <div className="info-item">
-              <span className="info-label">ACM Member</span>
-              <span className="info-value">{profile?.isAcmMember ? "Yes" : "No"}</span>
+              <span className="info-label">{PROFILE.LABEL_ACM_MEMBER}</span>
+              <span className="info-value">{profile?.isAcmMember ? PROFILE.MEMBER_YES : PROFILE.MEMBER_NO}</span>
             </div>
             {profile?.acmId && (
               <div className="info-item">
-                <span className="info-label">ACM ID</span>
+                <span className="info-label">{PROFILE.LABEL_ACM_ID}</span>
                 <span className="info-value">{profile.acmId}</span>
               </div>
             )}
             <div className="info-item">
-              <span className="info-label">Member Since</span>
+              <span className="info-label">{PROFILE.LABEL_JOINED}</span>
               <span className="info-value">
-                {profile?.createdAt ? new Date(profile.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }) : "—"}
+                {profile?.createdAt ? new Date(profile.createdAt).toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }) : "\u2014"}
               </span>
             </div>
           </div>
         </section>
       </div>
+
+      <Toast toast={toast} onClose={() => setToast(null)} />
+      <ConfirmDialog dialog={confirm} onClose={() => setConfirm(null)} />
     </div>
   );
 };
