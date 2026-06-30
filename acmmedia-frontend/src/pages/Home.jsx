@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from "react";
+import { useEffect, useState, useContext } from "react";
 import { fetchPosts } from "../api/posts";
 import { AuthContext } from "../context/AuthContext";
 import PostCard from "../components/PostCard";
@@ -6,6 +6,7 @@ import TechPulse from "../components/TechPulse";
 import ConnectionBadge from "../components/ui/ConnectionBadge";
 import { useConnectionStatus } from "../hooks/useConnectionStatus";
 import { extractArray } from "../utils/api";
+import { HOME } from "../constants/copy";
 
 export default function Home() {
   const [posts, setPosts] = useState([]);
@@ -23,7 +24,7 @@ export default function Home() {
         setPosts(extractArray(res.data, ["data", "posts"]));
       } catch (err) {
         setPosts([]);
-        setPostsError("Unable to load updates right now. Please try again shortly.");
+        setPostsError(HOME.ERROR);
       } finally {
         setLoadingPosts(false);
       }
@@ -38,19 +39,21 @@ export default function Home() {
       <TechPulse mode="ticker" />
       <header className="home-header">
         <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "0.4rem" }}>
-          <h1 style={{ margin: 0 }}>Chapter Feed</h1>
+          <h1 style={{ margin: 0 }}>{HOME.HEADING}</h1>
           <ConnectionBadge isConnected={isConnected} />
         </div>
-        <p>Announcements, achievements, and updates from the ACM Student Chapter.</p>
+        <p>{HOME.SUBHEADING}</p>
       </header>
 
-      <section className="home-feed">
+      <section className="home-feed" aria-label="Chapter announcements feed">
         {loadingPosts ? (
-          <p className="home-empty">Loading latest updates...</p>
+          <p className="home-empty" role="status" aria-live="polite">{HOME.LOADING}</p>
         ) : postsError ? (
-          <p className="home-empty">{postsError}</p>
+          <p className="home-empty" role="alert">{postsError}</p>
         ) : posts.length === 0 ? (
-          <p className="home-empty">No updates yet. Check back soon for chapter announcements.</p>
+          <div className="home-empty" aria-label="Empty feed">
+            <p>{HOME.EMPTY}</p>
+          </div>
         ) : (
           posts.map((p) => <PostCard key={p._id} post={p} onDelete={handleDeletePost} />)
         )}
