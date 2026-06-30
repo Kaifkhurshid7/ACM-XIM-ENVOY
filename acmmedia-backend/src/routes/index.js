@@ -16,7 +16,9 @@
 const { authLimiter, registerLimiter, uploadLimiter } = require("../middlewares/rateLimiter");
 
 const authRoutes = require("./auth");
+const authV2Routes = require("./authV2");
 const profileRoutes = require("./profile");
+const profileV2Routes = require("./profileV2");
 const postRoutes = require("./posts");
 const commentRoutes = require("./comments");
 const forumRoutes = require("./forum");
@@ -35,9 +37,17 @@ const mountRoutes = (app) => {
   app.use("/api/v1/auth/login", authLimiter);
   app.use("/api/v1/auth/register", registerLimiter);
   app.use("/api/v1/auth", authRoutes);
+  
+  // Auth V2 routes (new system with verification, reset, sessions)
+  app.use("/api/v1/auth/v2/login", authLimiter);
+  app.use("/api/v1/auth/v2/register", registerLimiter);
+  app.use("/api/v1/auth/v2", authV2Routes);
 
   // Profile routes
   app.use("/api/v1/profile", profileRoutes);
+  
+  // Profile V2 routes (enhanced with security, privacy, bookmarks)
+  app.use("/api/v1/profile/v2", profileV2Routes);
 
   // Content routes (covered by global limiter)
   app.use("/api/v1/posts", postRoutes);
