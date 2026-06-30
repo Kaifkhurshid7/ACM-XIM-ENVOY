@@ -4,19 +4,12 @@
  * Renders a single post/announcement card with interactive features.
  * Supports real-time like updates via Socket.IO subscription.
  * 
- * Features:
- * - Like/unlike toggle (authenticated users)
- * - Guest prompt for unauthenticated like attempts
- * - Expandable comments section
- * - Admin delete controls
- * - Real-time like count synchronization
- * 
  * @component
  * @param {object} post - Post data object from API
  * @param {function} onDelete - Callback when post is deleted
  */
 
-import React, { useContext, useState, useEffect } from "react";
+import { useContext, useState, useEffect } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { likePost, deletePost } from "../api/posts";
 import { fetchComments, addComment, deleteComment } from "../api/comments";
@@ -24,6 +17,10 @@ import CommentBox from "./CommentBox";
 import { useSocket } from "../context/SocketContext";
 import { extractArray, extractObject } from "../utils/api";
 import { SOCKET_EVENTS } from "../constants";
+import { POSTS, CONFIRMATIONS } from "../constants/copy";
+import Toast from "./Toast";
+import ConfirmDialog from "./ConfirmDialog";
+import { HeartIcon, CommentIcon, TrashIcon } from "./ui/Icons";
 
 const PostCard = ({ post, onDelete }) => {
   const { user } = useContext(AuthContext);
@@ -31,9 +28,10 @@ const PostCard = ({ post, onDelete }) => {
   const [comments, setComments] = useState([]);
   const [showComments, setShowComments] = useState(false);
   const [loadingComments, setLoadingComments] = useState(false);
+  const [toast, setToast] = useState(null);
+  const [confirm, setConfirm] = useState(null);
   const socket = useSocket();
 
-  // Subscribe to real-time like updates for this post
   useEffect(() => {
     if (!socket) return;
 
@@ -50,10 +48,10 @@ const PostCard = ({ post, onDelete }) => {
   const isLiked = user && Array.isArray(likes) && likes.includes(user._id);
   const isAdmin = user && user.role === "admin";
 
-  /** Toggle like - prompts guests to login */
   const handleLike = async () => {
     if (!user) {
-      return alert("Please login to like this post and join the ACM-XIM-ENVOY community.");
+      setToast({ type: "info", message: POSTS.PROMPT_LOGIN });
+      return;
     }
     try {
       const { data } = await likePost(post._id);
@@ -63,7 +61,6 @@ const PostCard = ({ post, onDelete }) => {
     }
   };
 
-  /** Load/toggle comments section */
   const toggleComments = async () => {
     if (!showComments) {
       setLoadingComments(true);
@@ -90,28 +87,36 @@ const PostCard = ({ post, onDelete }) => {
     }
   };
 
-  const handleDeleteComment = async (commentId) => {
-    if (!window.confirm("Delete this comment?")) return;
-    try {
-      await deleteComment(commentId);
-      setComments(comments.filter((c) => c._id !== commentId));
-    } catch (err) {
-      console.error(err);
-    }
+  const handleDeleteComment = (commentId) => {
+    setConfirm({
+      ...CONFIRMATIONS.DELETE_COMMENT,
+      onConfirm: async () => {
+        try {
+          await deleteComment(commentId);
+          setComments(comments.filter((c) => c._id !== commentId));
+        } catch (err) {
+          setToast({ type: "error", message: POSTS.ERROR_DELETE_COMMENT });
+        }
+      },
+    });
   };
 
-  const handleDeletePost = async () => {
-    if (!window.confirm("Delete this post? This cannot be undone.")) return;
-    try {
-      await deletePost(post._id);
-      if (onDelete) onDelete(post._id);
-    } catch (err) {
-      console.error(err);
-    }
+  const handleDeletePost = () => {
+    setConfirm({
+      ...CONFIRMATIONS.DELETE_POST,
+      onConfirm: async () => {
+        try {
+          await deletePost(post._id);
+          if (onDelete) onDelete(post._id);
+        } catch (err) {
+          setToast({ type: "error", message: POSTS.ERROR_DELETE });
+        }
+      },
+    });
   };
 
   return (
-    <div className="post-card" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "12px", padding: "1.5rem", marginBottom: "1.5rem" }}>
+    <article className="post-card" style={{ background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.1)", borderRadius: "12px", padding: "1.5rem", marginBottom: "1.5rem" }} aria-label={`Post: ${post.title}`}>
       <h3 style={{ fontSize: "1.4rem", fontWeight: "700", marginBottom: "0.8rem" }}>{post.title}</h3>
       <p style={{ lineHeight: "1.7", opacity: 0.9 }}>{post.content}</p>
 
@@ -120,34 +125,40 @@ const PostCard = ({ post, onDelete }) => {
         <div style={{ display: "flex", gap: "1rem" }}>
           <button
             onClick={handleLike}
+            aria-label={isLiked ? `Unlike post (${likes.length} likes)` : `Like post (${likes.length} likes)`}
+            aria-pressed={isLiked}
             style={{
               padding: "0.6rem 1.2rem", borderRadius: "8px", border: "none", cursor: "pointer",
               background: isLiked ? "#ffffff" : "rgba(255,255,255,0.1)",
               color: isLiked ? "#000000" : "#ffffff",
               fontWeight: "600", transition: "0.3s",
               opacity: !user ? 0.6 : 1,
+              display: "flex", alignItems: "center", gap: "0.4rem",
             }}
           >
-            🤍 {likes.length}
+            <HeartIcon size={16} filled={isLiked} /> {likes.length}
           </button>
           <button
             onClick={toggleComments}
-            style={{ padding: "0.6rem 1.2rem", background: "transparent", border: "1px solid rgba(255,255,255,0.3)", color: "#ffffff", borderRadius: "8px", cursor: "pointer" }}
+            aria-label={`${showComments ? "Hide" : "Show"} comments`}
+            aria-expanded={showComments}
+            style={{ padding: "0.6rem 1.2rem", background: "transparent", border: "1px solid rgba(255,255,255,0.3)", color: "#ffffff", borderRadius: "8px", cursor: "pointer", display: "flex", alignItems: "center", gap: "0.4rem" }}
           >
-            💬 Comments
+            <CommentIcon size={16} /> {POSTS.BUTTON_COMMENTS}
           </button>
         </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-          <span style={{ opacity: 0.5, fontSize: "0.85rem" }}>
+          <time style={{ opacity: 0.5, fontSize: "0.85rem" }} dateTime={post.createdAt}>
             {new Date(post.createdAt).toLocaleDateString()}
-          </span>
+          </time>
           {isAdmin && (
             <button
               onClick={handleDeletePost}
-              style={{ background: "#dc2626", color: "white", border: "none", padding: "0.4rem 0.8rem", fontSize: "0.75rem", borderRadius: "6px", cursor: "pointer" }}
+              aria-label={`Delete post: ${post.title}`}
+              style={{ background: "#dc2626", color: "white", border: "none", padding: "0.4rem 0.8rem", fontSize: "0.75rem", borderRadius: "6px", cursor: "pointer", display: "flex", alignItems: "center", gap: "0.3rem" }}
             >
-              Delete Post
+              <TrashIcon size={12} /> {POSTS.BUTTON_DELETE}
             </button>
           )}
         </div>
@@ -155,20 +166,20 @@ const PostCard = ({ post, onDelete }) => {
 
       {/* Comments Section */}
       {showComments && (
-        <div className="comments-section" style={{ marginTop: "1.5rem", background: "rgba(0,0,0,0.2)", padding: "1.2rem", borderRadius: "10px" }}>
+        <div className="comments-section" style={{ marginTop: "1.5rem", background: "rgba(0,0,0,0.2)", padding: "1.2rem", borderRadius: "10px" }} aria-label="Comments section">
           {user ? (
             <CommentBox onAdd={handleAddComment} />
           ) : (
-            <div style={{ padding: "1rem", textAlign: "center", border: "1px dashed rgba(255,255,255,0.2)", borderRadius: "8px", color: "rgba(255,255,255,0.6)", fontSize: "0.9rem", marginBottom: "1rem" }}>
-              Please <strong>Sign In</strong> to participate in this discussion.
+            <div style={{ padding: "1rem", textAlign: "center", border: "1px dashed rgba(255,255,255,0.2)", borderRadius: "8px", color: "rgba(255,255,255,0.6)", fontSize: "0.9rem", marginBottom: "1rem" }} role="note">
+              {POSTS.COMMENTS_LOGIN_PROMPT}
             </div>
           )}
 
           {loadingComments ? (
-            <p style={{ textAlign: "center", color: "#aaa" }}>Fetching resources...</p>
+            <p style={{ textAlign: "center", color: "#aaa" }} role="status" aria-live="polite">{POSTS.COMMENTS_LOADING}</p>
           ) : (
             <div style={{ marginTop: "1rem" }}>
-              {comments.length === 0 && <p style={{ color: "#666", fontStyle: "italic", textAlign: "center" }}>No comments yet.</p>}
+              {comments.length === 0 && <p style={{ color: "#666", fontStyle: "italic", textAlign: "center" }}>{POSTS.COMMENTS_EMPTY}</p>}
               {comments.map((c) => (
                 <div key={c._id} style={{ padding: "0.8rem 0", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.2rem" }}>
@@ -176,9 +187,13 @@ const PostCard = ({ post, onDelete }) => {
                       {c.user?.name || "Member"}
                     </span>
                     {isAdmin && (
-                      <span onClick={() => handleDeleteComment(c._id)} style={{ color: "#ff4444", cursor: "pointer", fontSize: "0.75rem" }}>
-                        Remove Resource
-                      </span>
+                      <button
+                        onClick={() => handleDeleteComment(c._id)}
+                        aria-label={`Remove comment by ${c.user?.name || "member"}`}
+                        style={{ color: "#ff4444", cursor: "pointer", fontSize: "0.75rem", background: "none", border: "none", display: "flex", alignItems: "center", gap: "0.25rem" }}
+                      >
+                        <TrashIcon size={11} /> Remove
+                      </button>
                     )}
                   </div>
                   <p style={{ margin: 0, fontSize: "0.95rem", opacity: 0.8 }}>{c.text}</p>
@@ -188,7 +203,10 @@ const PostCard = ({ post, onDelete }) => {
           )}
         </div>
       )}
-    </div>
+
+      <Toast toast={toast} onClose={() => setToast(null)} />
+      <ConfirmDialog dialog={confirm} onClose={() => setConfirm(null)} />
+    </article>
   );
 };
 

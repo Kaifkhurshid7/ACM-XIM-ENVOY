@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { fetchExternalNews } from "../api/news";
 import "../styles/techpulse.css";
 import { extractArray } from "../utils/api";
+import { ExternalLinkIcon } from "./ui/Icons";
 
 const TechPulse = ({ mode = "grid" }) => {
   const [news, setNews] = useState([]);
@@ -39,9 +40,9 @@ const TechPulse = ({ mode = "grid" }) => {
     );
   }
 
-  if (loading) return <div className="news-loading">Loading tech news...</div>;
-  if (error) return <div className="news-error">{error}</div>;
-  if (news.length === 0) return <div className="news-loading">No tech news available right now.</div>;
+  if (loading) return <div className="news-loading" role="status" aria-live="polite">Loading tech news...</div>;
+  if (error) return <div className="news-error" role="alert">{error}</div>;
+  if (news.length === 0) return <div className="news-loading" role="status">No tech news available right now.</div>;
 
   return (
     <div className="news-page">
@@ -59,7 +60,9 @@ const TechPulse = ({ mode = "grid" }) => {
               <p className="news-desc">{item.description || "No description available."}</p>
               <div className="news-footer">
                 <span className="news-date">{item.publishedAt ? new Date(item.publishedAt).toLocaleDateString() : "Recent"}</span>
-                <a href={item.url} target="_blank" rel="noopener noreferrer" className="news-link">Read article →</a>
+                <a href={item.url} target="_blank" rel="noopener noreferrer" className="news-link" aria-label={`Read full article: ${item.title}`}>
+                  Read article <ExternalLinkIcon size={12} />
+                </a>
               </div>
             </div>
           </article>
