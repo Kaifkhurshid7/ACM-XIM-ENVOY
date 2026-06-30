@@ -1,4 +1,3 @@
-// Register page - new student account creation
 import React, { useState } from "react";
 import { signup } from "../api/auth";
 import { useNavigate } from "react-router-dom";
@@ -16,10 +15,9 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // Client-side validations
     const emailLower = formData.email.toLowerCase();
     const isValidDomain = ALLOWED_DOMAINS.some((d) => emailLower.endsWith(d));
+
     if (!isValidDomain) {
       alert("Please use your official university email (@stu.xim.edu.in or @xim.edu.in).");
       return;
@@ -29,17 +27,17 @@ const Register = () => {
       return;
     }
     if (formData.password !== formData.confirmPassword) {
-      alert("Passwords do not match.");
+      alert("Passwords don't match. Please try again.");
       return;
     }
 
     setLoading(true);
     try {
       await signup({ name: formData.name.trim(), email: emailLower, password: formData.password });
-      alert("Registration successful! Please login.");
+      alert("Account created successfully. You can now sign in.");
       navigate("/login");
     } catch (err) {
-      alert(extractErrorMessage(err, "Registration failed."));
+      alert(extractErrorMessage(err, "Something went wrong. Please try again."));
     } finally {
       setLoading(false);
     }
@@ -50,17 +48,16 @@ const Register = () => {
       <div className="auth-card register-card">
         <header className="auth-card-header">
           <div className="auth-logo-mark">E</div>
-          <h1>Create Account</h1>
-          <p>Join the ACM Student Chapter community. Use your official university email to register.</p>
+          <h1>Create your account</h1>
+          <p>Join the ACM Student Chapter. Use your official university email to get started.</p>
         </header>
 
         <form onSubmit={handleSubmit} className="auth-form-grid">
-          {/* Personal Info */}
           <div className="field-group full-width">
-            <label>Full Name</label>
+            <label>Full name</label>
             <input
               type="text"
-              placeholder="e.g. Kaif Khurshid"
+              placeholder="e.g. Rahul Sharma"
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               required
@@ -68,7 +65,7 @@ const Register = () => {
           </div>
 
           <div className="field-group full-width">
-            <label>Email Address</label>
+            <label>University email</label>
             <input
               type="email"
               placeholder="you@stu.xim.edu.in"
@@ -76,7 +73,7 @@ const Register = () => {
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
               required
             />
-            <span className="form-hint">Only @xim.edu.in and @stu.xim.edu.in accepted</span>
+            <span className="form-hint">Only @xim.edu.in and @stu.xim.edu.in domains are accepted.</span>
           </div>
 
           <div className="field-row">
@@ -97,7 +94,7 @@ const Register = () => {
               </div>
             </div>
             <div className="field-group">
-              <label>Confirm Password</label>
+              <label>Confirm password</label>
               <input
                 type={showPassword ? "text" : "password"}
                 placeholder="Re-enter password"
@@ -108,24 +105,20 @@ const Register = () => {
             </div>
           </div>
 
-          {/* ACM Membership */}
           <div className="field-row">
             <div className="field-group">
-              <label>ACM Member?</label>
-              <select
-                value={formData.isAcmMember}
-                onChange={(e) => setFormData({ ...formData, isAcmMember: e.target.value })}
-              >
-                <option value="no">No, not yet</option>
-                <option value="yes">Yes</option>
+              <label>ACM member?</label>
+              <select value={formData.isAcmMember} onChange={(e) => setFormData({ ...formData, isAcmMember: e.target.value })}>
+                <option value="no">Not yet</option>
+                <option value="yes">Yes, I am</option>
               </select>
             </div>
             {formData.isAcmMember === "yes" && (
               <div className="field-group">
-                <label>ACM ID</label>
+                <label>ACM membership ID</label>
                 <input
                   type="text"
-                  placeholder="Membership ID"
+                  placeholder="e.g. 1234567"
                   value={formData.acmId}
                   onChange={(e) => setFormData({ ...formData, acmId: e.target.value })}
                 />
@@ -134,13 +127,13 @@ const Register = () => {
           </div>
 
           <button type="submit" className="auth-submit-btn" disabled={loading}>
-            {loading ? "Creating Account..." : "Create Account"}
+            {loading ? "Creating account..." : "Create account"}
           </button>
         </form>
 
         <div className="auth-card-footer">
           <p>Already have an account? <span onClick={() => navigate("/login")}>Sign in</span></p>
-          <p className="auth-footer-alt">Admin? <span onClick={() => navigate("/admin-login")}>Admin portal →</span></p>
+          <p className="auth-footer-alt">Chapter admin? <span onClick={() => navigate("/admin-login")}>Admin access →</span></p>
         </div>
       </div>
     </div>
