@@ -108,10 +108,10 @@ const Admin = () => {
       setSubmittingPost(true);
       await createPost(postData);
       await refreshFallbackStats();
-      alert("Post created successfully!");
+      alert("Post published successfully.");
       setPostData({ title: "", content: "" });
     } catch (err) {
-      alert(extractErrorMessage(err, "Failed to create post."));
+      alert(extractErrorMessage(err, "Unable to publish post. Please try again."));
     } finally {
       setSubmittingPost(false);
     }
@@ -122,10 +122,10 @@ const Admin = () => {
     try {
       setSubmittingEvent(true);
       await createEvent(eventData);
-      alert("Event created successfully!");
+      alert("Event created successfully.");
       setEventData({ title: "", description: "", date: "", location: "", registrationLink: "" });
     } catch (err) {
-      alert(extractErrorMessage(err, "Failed to create event."));
+      alert(extractErrorMessage(err, "Unable to create event. Please try again."));
     } finally {
       setSubmittingEvent(false);
     }
@@ -143,8 +143,8 @@ const Admin = () => {
       <section className="admin-actions">
         {/* Create Post */}
         <div className="admin-card">
-          <h2>Publish Chapter News</h2>
-          <p>Create official announcements that appear on the main feed for all members.</p>
+          <h2>Publish announcement</h2>
+          <p>Create updates that appear on the chapter feed for all members.</p>
           <form onSubmit={handleCreatePost}>
             <input type="text" placeholder="News Title" value={postData.title} onChange={(e) => setPostData({ ...postData, title: e.target.value })} required />
             <textarea placeholder="Write detailed news content here..." value={postData.content} onChange={(e) => setPostData({ ...postData, content: e.target.value })} required />
@@ -154,8 +154,8 @@ const Admin = () => {
 
         {/* Create Event */}
         <div className="admin-card">
-          <h2>Create & Schedule Event</h2>
-          <p>Add upcoming workshops, hackathons, seminars, or competitions.</p>
+          <h2>Schedule event</h2>
+          <p>Add upcoming workshops, hackathons, or technical sessions.</p>
           <form onSubmit={handleCreateEvent}>
             <input type="text" placeholder="Event Title" value={eventData.title} onChange={(e) => setEventData({ ...eventData, title: e.target.value })} required />
             <input type="date" value={eventData.date} onChange={(e) => setEventData({ ...eventData, date: e.target.value })} required />
@@ -169,16 +169,16 @@ const Admin = () => {
 
       {/* Content Management */}
       <section className="admin-info">
-        <h2>Content Moderation & Management</h2>
-        <p>Administrators can manage posts, remove content, and moderate discussions from the main feed.</p>
-        <button className="admin-btn-outline" onClick={() => navigate("/")}>← Go to Main Feed</button>
+        <h2>Content moderation</h2>
+        <p>Manage posts, moderate discussions, and remove content from the main feed.</p>
+        <button className="admin-btn-outline" onClick={() => navigate("/")}>← View feed</button>
       </section>
 
       {/* Analytics */}
       <section className="admin-analytics">
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
-            <h2>Platform Insights & Overview</h2>
+            <h2>Platform overview</h2>
             <ConnectionBadge isConnected={isConnected} />
           </div>
         </div>
