@@ -5,7 +5,7 @@ import { extractErrorMessage } from "../utils/api";
 import { ALLOWED_DOMAINS } from "../constants";
 import { AUTH } from "../constants/copy";
 import Toast from "../components/Toast";
-import ConfirmDialog from "../components/ConfirmDialog";
+import { EyeIcon, EyeOffIcon } from "../components/ui/Icons";
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -52,94 +52,123 @@ const Register = () => {
       <div className="auth-card register-card">
         <header className="auth-card-header">
           <div className="auth-logo-mark">E</div>
-          <h1>Create your account</h1>
-          <p>Join the ACM Student Chapter. Use your official university email to get started.</p>
+          <h1>{AUTH.REGISTER.HEADING}</h1>
+          <p>{AUTH.REGISTER.SUBHEADING}</p>
         </header>
 
-        <form onSubmit={handleSubmit} className="auth-form-grid">
+        <form onSubmit={handleSubmit} className="auth-form-grid" noValidate>
           <div className="field-group full-width">
-            <label>Full name</label>
+            <label htmlFor="register-name">{AUTH.REGISTER.LABEL_NAME}</label>
             <input
+              id="register-name"
               type="text"
-              placeholder="e.g. Rahul Sharma"
+              placeholder={AUTH.REGISTER.PLACEHOLDER_NAME}
               value={formData.name}
               onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               required
+              autoComplete="name"
+              aria-required="true"
             />
           </div>
 
           <div className="field-group full-width">
-            <label>University email</label>
+            <label htmlFor="register-email">{AUTH.REGISTER.LABEL_EMAIL}</label>
             <input
+              id="register-email"
               type="email"
-              placeholder="you@stu.xim.edu.in"
+              placeholder={AUTH.REGISTER.PLACEHOLDER_EMAIL}
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
               required
+              autoComplete="email"
+              aria-required="true"
+              aria-describedby="email-hint"
             />
-            <span className="form-hint">Only @xim.edu.in and @stu.xim.edu.in domains are accepted.</span>
+            <span className="form-hint" id="email-hint">{AUTH.REGISTER.LABEL_EMAIL_HINT}</span>
           </div>
 
           <div className="field-row">
             <div className="field-group">
-              <label>Password</label>
+              <label htmlFor="register-password">{AUTH.REGISTER.LABEL_PASSWORD}</label>
               <div className="input-with-icon">
                 <input
+                  id="register-password"
                   type={showPassword ? "text" : "password"}
-                  placeholder="Min 6 characters"
+                  placeholder={AUTH.REGISTER.PLACEHOLDER_PASSWORD}
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                   required
                   minLength={6}
+                  autoComplete="new-password"
+                  aria-required="true"
+                  aria-describedby="password-hint"
                 />
-                <button type="button" className="toggle-pw" onClick={() => setShowPassword(!showPassword)}>
-                  {showPassword ? "Hide" : "Show"}
+                <button
+                  type="button"
+                  className="toggle-pw"
+                  onClick={() => setShowPassword(!showPassword)}
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? <EyeOffIcon size={16} /> : <EyeIcon size={16} />}
                 </button>
               </div>
+              <span className="form-hint" id="password-hint">{AUTH.REGISTER.LABEL_PASSWORD_HINT}</span>
             </div>
             <div className="field-group">
-              <label>Confirm password</label>
+              <label htmlFor="register-confirm">{AUTH.REGISTER.LABEL_PASSWORD_CONFIRM}</label>
               <input
+                id="register-confirm"
                 type={showPassword ? "text" : "password"}
-                placeholder="Re-enter password"
+                placeholder={AUTH.REGISTER.PLACEHOLDER_PASSWORD_CONFIRM}
                 value={formData.confirmPassword}
                 onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
                 required
+                autoComplete="new-password"
+                aria-required="true"
               />
             </div>
           </div>
 
           <div className="field-row">
             <div className="field-group">
-              <label>ACM member?</label>
-              <select value={formData.isAcmMember} onChange={(e) => setFormData({ ...formData, isAcmMember: e.target.value })}>
-                <option value="no">Not yet</option>
-                <option value="yes">Yes, I am</option>
+              <label htmlFor="register-acm">{AUTH.REGISTER.LABEL_ACM_MEMBER}</label>
+              <select
+                id="register-acm"
+                value={formData.isAcmMember}
+                onChange={(e) => setFormData({ ...formData, isAcmMember: e.target.value })}
+              >
+                <option value="no">{AUTH.REGISTER.OPTION_NOT_YET}</option>
+                <option value="yes">{AUTH.REGISTER.OPTION_YES}</option>
               </select>
             </div>
             {formData.isAcmMember === "yes" && (
               <div className="field-group">
-                <label>ACM membership ID</label>
+                <label htmlFor="register-acm-id">{AUTH.REGISTER.LABEL_ACM_ID}</label>
                 <input
+                  id="register-acm-id"
                   type="text"
-                  placeholder="e.g. 1234567"
+                  placeholder={AUTH.REGISTER.PLACEHOLDER_ACM_ID}
                   value={formData.acmId}
                   onChange={(e) => setFormData({ ...formData, acmId: e.target.value })}
+                  aria-describedby="acm-id-hint"
                 />
+                <span className="form-hint" id="acm-id-hint">{AUTH.REGISTER.LABEL_ACM_ID_HINT}</span>
               </div>
             )}
           </div>
 
-          <button type="submit" className="auth-submit-btn" disabled={loading}>
-            {loading ? "Creating account..." : "Create account"}
+          <button type="submit" className="auth-submit-btn" disabled={loading} aria-busy={loading}>
+            {loading ? "Creating account..." : AUTH.REGISTER.BUTTON_SUBMIT}
           </button>
         </form>
 
         <div className="auth-card-footer">
-          <p>Already have an account? <span onClick={() => navigate("/login")}>Sign in</span></p>
-          <p className="auth-footer-alt">Chapter admin? <span onClick={() => navigate("/admin-login")}>Admin access →</span></p>
+          <p>Already have an account? <span onClick={() => navigate("/login")} role="link" tabIndex={0} onKeyDown={(e) => e.key === "Enter" && navigate("/login")}>Sign in</span></p>
+          <p className="auth-footer-alt">Chapter admin? <span onClick={() => navigate("/admin-login")} role="link" tabIndex={0} onKeyDown={(e) => e.key === "Enter" && navigate("/admin-login")}>Admin access</span></p>
         </div>
       </div>
+
+      <Toast toast={toast} onClose={() => setToast(null)} />
     </div>
   );
 };
