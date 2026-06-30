@@ -1,13 +1,3 @@
-/**
- * CommentBox Component
- * 
- * Simple input form for adding comments to posts.
- * Clears the input after successful submission.
- * 
- * @component
- * @param {function} onAdd - Callback with comment text when submitted
- */
-
 import React, { useState } from "react";
 
 const CommentBox = ({ onAdd }) => {
@@ -24,12 +14,12 @@ const CommentBox = ({ onAdd }) => {
       <input
         value={text}
         onChange={(e) => setText(e.target.value)}
-        placeholder="Add a comment..."
+        placeholder="Write a comment..."
         onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
-        style={{ flex: 1, padding: "0.5rem", borderRadius: "8px", border: "1px solid rgba(255,255,255,0.2)", background: "rgba(0,0,0,0.3)", color: "white" }}
+        style={{ flex: 1, padding: "0.6rem 0.8rem", borderRadius: "var(--radius-sm)", border: "1px solid var(--color-border)", background: "var(--color-white)", color: "var(--color-text)", fontSize: "13px" }}
       />
-      <button onClick={handleSubmit} style={{ padding: "0.5rem 1rem" }}>
-        Send
+      <button onClick={handleSubmit} style={{ padding: "0.6rem 1rem", background: "var(--color-primary)", color: "white", border: "none", borderRadius: "var(--radius-sm)", fontSize: "13px", fontWeight: 600 }}>
+        Post
       </button>
     </div>
   );
