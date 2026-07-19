@@ -1,0 +1,108 @@
+/**
+ * Register Page Specific Styles
+ * 
+ * Complements the FormField.css and auth.css with 
+ * page-specific layout and spacing adjustments.
+ */
+
+/* ============================================================================
+   Footer Link Styling
+   ============================================================================ */
+
+.auth-link {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--color-porcelain);
+  cursor: pointer;
+  font-weight: 510;
+  text-decoration: none;
+  transition: color 0.15s ease;
+  font-size: inherit;
+  font: inherit;
+}
+
+.auth-link:hover {
+  color: var(--color-neon-lime);
+}
+
+.auth-link:focus-visible {
+  outline: 2px solid var(--color-neon-lime);
+  outline-offset: 2px;
+}
+
+/* ============================================================================
+   Responsive Adjustments
+   ============================================================================ */
+
+@media (max-width: 640px) {
+  .auth-card.register-card {
+    max-width: 100%;
+  }
+
+  .form-row.two-col {
+    grid-template-columns: 1fr;
+  }
+
+  .auth-form-grid {
+    gap: var(--spacing-20);
+  }
+
+  .form-section {
+    gap: var(--spacing-16);
+  }
+}
+
+/* ============================================================================
+   Accessibility: Focus Management
+   ============================================================================ */
+
+/* Skip to main content link (for screen readers) */
+.skip-to-main {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: var(--color-neon-lime);
+  color: var(--color-pitch-black);
+  padding: var(--spacing-8) var(--spacing-12);
+  text-decoration: none;
+  z-index: 100;
+  font-weight: 590;
+}
+
+.skip-to-main:focus {
+  top: 0;
+}
+
+/* ============================================================================
+   Loading State
+   ============================================================================ */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.auth-card {
+  animation: fadeIn 0.3s ease;
+}
+
+/* ============================================================================
+   Motion Preferences
+   ============================================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-card,
+  .auth-link,
+  .form-field-input,
+  .form-field-select {
+    animation: none;
+    transition: none;
+  }
+}
