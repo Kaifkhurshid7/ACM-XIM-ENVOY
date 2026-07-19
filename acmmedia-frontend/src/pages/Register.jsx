@@ -1,176 +1,499 @@
-import { useState } from "react";
+/**
+ * Register Page (Refactored)
+ * 
+ * Production-grade account creation with:
+ * - Comprehensive client-side validation
+ * - Real-time error feedback & password strength indicator
+ * - Reusable form components with consistent styling
+ * - Input sanitization and duplicate submission prevention
+ * - Accessible keyboard navigation and screen reader support
+ * - Graceful API error handling and user feedback
+ * - Loading and success states with animations
+ * 
+ * @component
+ */
+
+import { useState, useRef, useCallback, useEffect } from "react";
 import { signup } from "../api/auth";
 import { useNavigate } from "react-router-dom";
 import { extractErrorMessage } from "../utils/api";
 import { ALLOWED_DOMAINS } from "../constants";
 import { AUTH } from "../constants/copy";
 import Toast from "../components/Toast";
-import { EyeIcon, EyeOffIcon } from "../components/ui/Icons";
+import {
+  TextField,
+  PasswordField,
+  SelectField,
+  FormSection,
+  FormRow,
+} from "../components/FormField";
+import {
+  ValidationRules,
+  composeValidators,
+  FieldValidator,
+  Sanitize,
+  getPasswordStrength,
+} from "../utils/validation";
+import { SparkleIcon } from "../components/ui/Icons";
+import "../components/FormField.css";
+import "./Register.css";
 
 const Register = () => {
+  // Form state
   const [formData, setFormData] = useState({
-    name: "", email: "", password: "", confirmPassword: "",
-    isAcmMember: "no", acmId: "",
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    isAcmMember: "no",
+    acmId: "",
   });
+
+  // Field validation state
+  const [fieldErrors, setFieldErrors] = useState({
+    name: null,
+    email: null,
+    password: null,
+    confirmPassword: null,
+    acmId: null,
+  });
+
+  const [fieldTouched, setFieldTouched] = useState({
+    name: false,
+    email: false,
+    password: false,
+    confirmPassword: false,
+    acmId: false,
+  });
+
+  // UI state
   const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
   const [toast, setToast] = useState(null);
+  const [formAttempted, setFormAttempted] = useState(false);
+  const [passwordStrength, setPasswordStrength] = useState(
+    getPasswordStrength("")
+  );
+
   const navigate = useNavigate();
+  const submitButtonRef = useRef(null);
+
+  // ============================================================================
+  // Validation Setup
+  // ============================================================================
+
+  const validators = {
+    name: composeValidators(
+      ValidationRules.required("Full name"),
+      ValidationRules.minLength(2),
+      ValidationRules.maxLength(100)
+    ),
+    email: composeValidators(
+      ValidationRules.required("Email"),
+      ValidationRules.email(),
+      ValidationRules.universityEmail()
+    ),
+    password: composeValidators(
+      ValidationRules.required("Password"),
+      ValidationRules.minLength(6),
+      ValidationRules.passwordStrength()
+    ),
+    confirmPassword: composeValidators(
+      ValidationRules.required("Confirm password"),
+      ValidationRules.minLength(6)
+    ),
+    acmId: ValidationRules.minLength(1),
+  };
+
+  // ============================================================================
+  // Validation Handlers
+  // ============================================================================
+
+  /**
+   * Validate a specific field
+   */
+  const validateField = useCallback(
+    (fieldName, value) => {
+      if (!validators[fieldName]) return null;
+
+      let result = validators[fieldName](value);
+
+      // Special handling for password confirmation
+      if (fieldName === "confirmPassword") {
+        const passwordMatch = composeValidators(
+          ValidationRules.matches(formData.password)
+        )(value);
+
+        if (!passwordMatch.isValid && result.isValid) {
+          result = passwordMatch;
+        }
+      }
+
+      return result.error;
+    },
+    [formData.password, validators]
+  );
+
+  /**
+   * Handle field change with real-time validation
+   */
+  const handleFieldChange = useCallback(
+    (fieldName, rawValue) => {
+      // Sanitize input
+      let value = rawValue;
+      if (fieldName === "email") {
+        value = Sanitize.email(value);
+      } else if (fieldName === "name") {
+        value = Sanitize.trim(value);
+      } else if (fieldName === "acmId") {
+        value = Sanitize.whitespace(value);
+      }
+
+      // Update form data
+      setFormData((prev) => ({
+        ...prev,
+        [fieldName]: value,
+      }));
+
+      // Mark as dirty (user has changed the value)
+      setFieldTouched((prev) => ({
+        ...prev,
+        [fieldName]: true,
+      }));
+
+      // Real-time validation
+      const error = validateField(fieldName, value);
+      setFieldErrors((prev) => ({
+        ...prev,
+        [fieldName]: error,
+      }));
+
+      // Update password strength on password change
+      if (fieldName === "password") {
+        setPasswordStrength(getPasswordStrength(value));
+
+        // Clear confirm password error if password changed
+        if (formData.confirmPassword) {
+          const confirmError = validateField("confirmPassword", formData.confirmPassword);
+          setFieldErrors((prev) => ({
+            ...prev,
+            confirmPassword: confirmError,
+          }));
+        }
+      }
+    },
+    [formData.confirmPassword, validateField]
+  );
+
+  /**
+   * Handle field blur (mark as touched for better UX)
+   */
+  const handleFieldBlur = useCallback((fieldName) => {
+    setFieldTouched((prev) => ({
+      ...prev,
+      [fieldName]: true,
+    }));
+  }, []);
+
+  /**
+   * Validate entire form before submission
+   */
+  const validateForm = useCallback(() => {
+    const errors = {};
+    let isValid = true;
+
+    // Validate all required fields
+    Object.keys(validators).forEach((fieldName) => {
+      if (fieldName === "acmId" && formData.isAcmMember !== "yes") {
+        return; // Skip ACM ID validation if not a member
+      }
+
+      const error = validateField(fieldName, formData[fieldName]);
+      if (error) {
+        errors[fieldName] = error;
+        isValid = false;
+      }
+    });
+
+    // Additional check for password confirmation
+    if (formData.password !== formData.confirmPassword) {
+      errors.confirmPassword = "Passwords do not match.";
+      isValid = false;
+    }
+
+    setFieldErrors(errors);
+    return isValid;
+  }, [formData, validateField, validators]);
+
+  // ============================================================================
+  // Form Submission
+  // ============================================================================
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const emailLower = formData.email.toLowerCase();
-    const isValidDomain = ALLOWED_DOMAINS.some((d) => emailLower.endsWith(d));
 
-    if (!isValidDomain) {
-      setToast({ type: "error", message: AUTH.REGISTER.ERROR_INVALID_EMAIL });
-      return;
-    }
-    if (formData.password.length < 6) {
-      setToast({ type: "error", message: AUTH.REGISTER.ERROR_PASSWORD_SHORT });
-      return;
-    }
-    if (formData.password !== formData.confirmPassword) {
-      setToast({ type: "error", message: AUTH.REGISTER.ERROR_PASSWORD_MISMATCH });
+    // Prevent duplicate submissions
+    if (loading) return;
+
+    setFormAttempted(true);
+
+    // Client-side validation
+    if (!validateForm()) {
+      setToast({
+        type: "error",
+        message: "Please fix the errors above and try again.",
+      });
+      // Focus first error field
+      if (fieldErrors.name) {
+        document.getElementById("register-name")?.focus();
+      } else if (fieldErrors.email) {
+        document.getElementById("register-email")?.focus();
+      }
       return;
     }
 
     setLoading(true);
+
     try {
-      await signup({ name: formData.name.trim(), email: emailLower, password: formData.password });
-      setToast({ type: "success", message: AUTH.REGISTER.SUCCESS });
-      setTimeout(() => navigate("/login"), 1500);
+      // Sanitize before sending to API
+      const payload = {
+        name: Sanitize.trim(formData.name),
+        email: Sanitize.email(formData.email),
+        password: formData.password,
+        isAcmMember: formData.isAcmMember === "yes",
+        acmId: formData.isAcmMember === "yes" ? Sanitize.trim(formData.acmId) : null,
+      };
+
+      // API call
+      await signup(payload);
+
+      // Success feedback
+      setToast({
+        type: "success",
+        message: AUTH.REGISTER.SUCCESS,
+      });
+
+      // Clear form
+      setFormData({
+        name: "",
+        email: "",
+        password: "",
+        confirmPassword: "",
+        isAcmMember: "no",
+        acmId: "",
+      });
+
+      // Redirect to login after delay
+      setTimeout(() => {
+        navigate("/login");
+      }, 1500);
     } catch (err) {
-      setToast({ type: "error", message: extractErrorMessage(err, AUTH.REGISTER.ERROR_GENERIC) });
+      // Extract and display error message
+      const errorMessage = extractErrorMessage(
+        err,
+        AUTH.REGISTER.ERROR_GENERIC
+      );
+
+      setToast({
+        type: "error",
+        message: errorMessage,
+      });
+
+      // Optionally focus submit button for keyboard users
+      submitButtonRef.current?.focus();
     } finally {
       setLoading(false);
     }
   };
 
+  // ============================================================================
+  // Render
+  // ============================================================================
+
   return (
     <div className="auth-wrapper">
       <div className="auth-card register-card">
+        {/* Header */}
         <header className="auth-card-header">
-          <div className="auth-logo-mark">E</div>
+          <div className="auth-logo-mark">
+            <SparkleIcon size={24} />
+          </div>
           <h1>{AUTH.REGISTER.HEADING}</h1>
           <p>{AUTH.REGISTER.SUBHEADING}</p>
         </header>
 
-        <form onSubmit={handleSubmit} className="auth-form-grid" noValidate>
-          <div className="field-group full-width">
-            <label htmlFor="register-name">{AUTH.REGISTER.LABEL_NAME}</label>
-            <input
+        {/* Form */}
+        <form
+          onSubmit={handleSubmit}
+          className="auth-form-grid"
+          noValidate
+          aria-label="Account creation form"
+        >
+          {/* Personal Information Section */}
+          <FormSection heading="Basic Information">
+            {/* Full Name */}
+            <TextField
+              label={AUTH.REGISTER.LABEL_NAME}
               id="register-name"
               type="text"
               placeholder={AUTH.REGISTER.PLACEHOLDER_NAME}
               value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              onChange={(e) => handleFieldChange("name", e.target.value)}
+              onBlur={() => handleFieldBlur("name")}
+              error={fieldTouched.name ? fieldErrors.name : null}
               required
               autoComplete="name"
-              aria-required="true"
+              disabled={loading}
             />
-          </div>
 
-          <div className="field-group full-width">
-            <label htmlFor="register-email">{AUTH.REGISTER.LABEL_EMAIL}</label>
-            <input
+            {/* University Email */}
+            <TextField
+              label={AUTH.REGISTER.LABEL_EMAIL}
               id="register-email"
               type="email"
               placeholder={AUTH.REGISTER.PLACEHOLDER_EMAIL}
               value={formData.email}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              onChange={(e) => handleFieldChange("email", e.target.value)}
+              onBlur={() => handleFieldBlur("email")}
+              error={fieldTouched.email ? fieldErrors.email : null}
+              hint={AUTH.REGISTER.LABEL_EMAIL_HINT}
               required
               autoComplete="email"
-              aria-required="true"
-              aria-describedby="email-hint"
+              disabled={loading}
             />
-            <span className="form-hint" id="email-hint">{AUTH.REGISTER.LABEL_EMAIL_HINT}</span>
-          </div>
+          </FormSection>
 
-          <div className="field-row">
-            <div className="field-group">
-              <label htmlFor="register-password">{AUTH.REGISTER.LABEL_PASSWORD}</label>
-              <div className="input-with-icon">
-                <input
-                  id="register-password"
-                  type={showPassword ? "text" : "password"}
-                  placeholder={AUTH.REGISTER.PLACEHOLDER_PASSWORD}
-                  value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  required
-                  minLength={6}
-                  autoComplete="new-password"
-                  aria-required="true"
-                  aria-describedby="password-hint"
-                />
-                <button
-                  type="button"
-                  className="toggle-pw"
-                  onClick={() => setShowPassword(!showPassword)}
-                  aria-label={showPassword ? "Hide password" : "Show password"}
-                >
-                  {showPassword ? <EyeOffIcon size={16} /> : <EyeIcon size={16} />}
-                </button>
-              </div>
-              <span className="form-hint" id="password-hint">{AUTH.REGISTER.LABEL_PASSWORD_HINT}</span>
-            </div>
-            <div className="field-group">
-              <label htmlFor="register-confirm">{AUTH.REGISTER.LABEL_PASSWORD_CONFIRM}</label>
-              <input
+          {/* Security Section */}
+          <FormSection heading="Security">
+            {/* Password Fields Row */}
+            <FormRow className="two-col">
+              {/* Password */}
+              <PasswordField
+                label={AUTH.REGISTER.LABEL_PASSWORD}
+                id="register-password"
+                placeholder={AUTH.REGISTER.PLACEHOLDER_PASSWORD}
+                value={formData.password}
+                onChange={(e) => handleFieldChange("password", e.target.value)}
+                onBlur={() => handleFieldBlur("password")}
+                error={fieldTouched.password ? fieldErrors.password : null}
+                hint={AUTH.REGISTER.LABEL_PASSWORD_HINT}
+                required
+                showStrength={true}
+                strengthIndicator={passwordStrength}
+                showToggle={true}
+                disabled={loading}
+              />
+
+              {/* Confirm Password */}
+              <PasswordField
+                label={AUTH.REGISTER.LABEL_PASSWORD_CONFIRM}
                 id="register-confirm"
-                type={showPassword ? "text" : "password"}
                 placeholder={AUTH.REGISTER.PLACEHOLDER_PASSWORD_CONFIRM}
                 value={formData.confirmPassword}
-                onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
+                onChange={(e) =>
+                  handleFieldChange("confirmPassword", e.target.value)
+                }
+                onBlur={() => handleFieldBlur("confirmPassword")}
+                error={
+                  fieldTouched.confirmPassword
+                    ? fieldErrors.confirmPassword
+                    : null
+                }
                 required
-                autoComplete="new-password"
-                aria-required="true"
+                showToggle={false}
+                disabled={loading}
               />
-            </div>
-          </div>
+            </FormRow>
+          </FormSection>
 
-          <div className="field-row">
-            <div className="field-group">
-              <label htmlFor="register-acm">{AUTH.REGISTER.LABEL_ACM_MEMBER}</label>
-              <select
+          {/* ACM Membership Section */}
+          <FormSection heading="Chapter Membership">
+            {/* ACM Member Status */}
+            <FormRow className="two-col">
+              <SelectField
+                label={AUTH.REGISTER.LABEL_ACM_MEMBER}
                 id="register-acm"
                 value={formData.isAcmMember}
-                onChange={(e) => setFormData({ ...formData, isAcmMember: e.target.value })}
-              >
-                <option value="no">{AUTH.REGISTER.OPTION_NOT_YET}</option>
-                <option value="yes">{AUTH.REGISTER.OPTION_YES}</option>
-              </select>
-            </div>
-            {formData.isAcmMember === "yes" && (
-              <div className="field-group">
-                <label htmlFor="register-acm-id">{AUTH.REGISTER.LABEL_ACM_ID}</label>
-                <input
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    isAcmMember: e.target.value,
+                  })
+                }
+                options={[
+                  { value: "no", label: AUTH.REGISTER.OPTION_NOT_YET },
+                  { value: "yes", label: AUTH.REGISTER.OPTION_YES },
+                ]}
+                required
+                disabled={loading}
+              />
+
+              {/* ACM ID (conditional) */}
+              {formData.isAcmMember === "yes" && (
+                <TextField
+                  label={AUTH.REGISTER.LABEL_ACM_ID}
                   id="register-acm-id"
                   type="text"
                   placeholder={AUTH.REGISTER.PLACEHOLDER_ACM_ID}
                   value={formData.acmId}
-                  onChange={(e) => setFormData({ ...formData, acmId: e.target.value })}
-                  aria-describedby="acm-id-hint"
+                  onChange={(e) => handleFieldChange("acmId", e.target.value)}
+                  onBlur={() => handleFieldBlur("acmId")}
+                  error={fieldTouched.acmId ? fieldErrors.acmId : null}
+                  hint={AUTH.REGISTER.LABEL_ACM_ID_HINT}
+                  disabled={loading}
                 />
-                <span className="form-hint" id="acm-id-hint">{AUTH.REGISTER.LABEL_ACM_ID_HINT}</span>
-              </div>
-            )}
-          </div>
+              )}
+            </FormRow>
+          </FormSection>
 
-          <button type="submit" className="auth-submit-btn" disabled={loading} aria-busy={loading}>
+          {/* Submit Button */}
+          <button
+            ref={submitButtonRef}
+            type="submit"
+            className="auth-submit-btn"
+            disabled={loading}
+            aria-busy={loading}
+            aria-label={
+              loading
+                ? "Creating account, please wait..."
+                : "Create account"
+            }
+          >
             {loading ? "Creating account..." : AUTH.REGISTER.BUTTON_SUBMIT}
           </button>
         </form>
 
+        {/* Footer */}
         <div className="auth-card-footer">
-          <p>Already have an account? <span onClick={() => navigate("/login")} role="link" tabIndex={0} onKeyDown={(e) => e.key === "Enter" && navigate("/login")}>Sign in</span></p>
-          <p className="auth-footer-alt">Chapter admin? <span onClick={() => navigate("/admin-login")} role="link" tabIndex={0} onKeyDown={(e) => e.key === "Enter" && navigate("/admin-login")}>Admin access</span></p>
+          <p>
+            Already have an account?{" "}
+            <button
+              type="button"
+              className="auth-link"
+              onClick={() => navigate("/login")}
+              aria-label="Go to sign in page"
+            >
+              Sign in
+            </button>
+          </p>
+          <p className="auth-footer-alt">
+            Chapter admin?{" "}
+            <button
+              type="button"
+              className="auth-link"
+              onClick={() => navigate("/admin-login")}
+              aria-label="Go to admin access page"
+            >
+              Admin access →
+            </button>
+          </p>
         </div>
       </div>
 
+      {/* Toast Notification */}
       <Toast toast={toast} onClose={() => setToast(null)} />
     </div>
   );
 };
 
 export default Register;
+
