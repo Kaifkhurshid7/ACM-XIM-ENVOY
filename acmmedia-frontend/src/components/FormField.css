@@ -1,0 +1,400 @@
+/**
+ * Form Field Component Styles
+ * 
+ * Premium design system with consistent spacing, typography,
+ * colors, borders, shadows, and interactive states.
+ * Follows Linear/Vercel/Clerk aesthetic.
+ */
+
+/* ============================================================================
+   Form Field Base
+   ============================================================================ */
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+
+.form-field.has-error {
+  /* Enhanced visual feedback for error state */
+}
+
+/* ============================================================================
+   Labels
+   ============================================================================ */
+
+.form-field-label {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  font-size: 12px;
+  font-weight: 510;
+  color: var(--color-storm-cloud);
+  letter-spacing: -0.1px;
+  text-transform: none;
+}
+
+.form-field-required {
+  color: #ef4444; /* red-500 */
+  font-weight: 600;
+}
+
+.form-field-optional {
+  font-size: 11px;
+  color: var(--color-fog-grey);
+  font-weight: 400;
+  text-transform: none;
+}
+
+/* ============================================================================
+   Input Wrapper & Base Inputs
+   ============================================================================ */
+
+.form-field-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.form-field-input,
+.form-field-select {
+  width: 100%;
+  padding: var(--spacing-12) 14px;
+  background: transparent;
+  border: 1px solid var(--color-charcoal-grey);
+  border-radius: var(--radius-md);
+  color: var(--color-porcelain);
+  font-size: 14px;
+  font-weight: 400;
+  letter-spacing: -0.13px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  outline: none;
+}
+
+.form-field-input::placeholder,
+.form-field-select:disabled {
+  color: var(--color-fog-grey);
+}
+
+/* Focus state - enhanced visual feedback */
+.form-field-input:focus,
+.form-field-select:focus {
+  border-color: var(--color-neon-lime);
+  box-shadow: 0 0 0 3px rgba(228, 242, 34, 0.08);
+}
+
+/* Hover state */
+.form-field-input:hover:not(:disabled),
+.form-field-select:hover:not(:disabled) {
+  border-color: var(--color-muted-ash);
+}
+
+/* Disabled state */
+.form-field-input:disabled,
+.form-field-select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: var(--color-deep-slate);
+}
+
+/* Error state */
+.form-field.has-error .form-field-input,
+.form-field.has-error .form-field-select {
+  border-color: #ef4444; /* red-500 */
+}
+
+.form-field.has-error .form-field-input:focus,
+.form-field.has-error .form-field-select:focus {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+/* Input with icon or action */
+.form-field-input.with-icon {
+  padding-left: 38px;
+}
+
+.form-field-input.with-action {
+  padding-right: 40px;
+}
+
+/* ============================================================================
+   Icons and Actions
+   ============================================================================ */
+
+.form-field-icon {
+  position: absolute;
+  left: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-fog-grey);
+  pointer-events: none;
+}
+
+.form-field-action {
+  position: absolute;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding-right: var(--spacing-8);
+}
+
+/* ============================================================================
+   Password Field & Toggle
+   ============================================================================ */
+
+.password-field .form-field-input {
+  padding-right: 40px;
+}
+
+.password-toggle-btn {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  border: none;
+  color: var(--color-storm-cloud);
+  cursor: pointer;
+  padding: var(--spacing-12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s ease;
+}
+
+.password-toggle-btn:hover:not(:disabled) {
+  color: var(--color-porcelain);
+}
+
+.password-toggle-btn:focus {
+  outline: 2px solid var(--color-neon-lime);
+  outline-offset: 2px;
+}
+
+.password-toggle-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Password strength indicator */
+.password-strength-container {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-8);
+  padding: var(--spacing-8) 0;
+}
+
+.password-strength-bars {
+  display: flex;
+  gap: 4px;
+  flex: 1;
+}
+
+.strength-bar {
+  height: 4px;
+  flex: 1;
+  border-radius: 2px;
+  background: var(--color-charcoal-grey);
+  transition: background-color 0.2s ease;
+}
+
+.strength-bar.active {
+  background: var(--color-neon-lime);
+}
+
+.password-strength-label {
+  font-size: 11px;
+  font-weight: 510;
+  white-space: nowrap;
+  min-width: 70px;
+  text-align: right;
+}
+
+/**
+ * Select Field
+ */
+
+.select-field .form-field-input-wrapper {
+  position: relative;
+}
+
+.form-field-select {
+  appearance: none;
+  padding-right: 32px;
+  background-color: transparent;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2362666d' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+}
+
+/* Style select options */
+.form-field-select option {
+  background: var(--color-graphite);
+  color: var(--color-porcelain);
+  padding: var(--spacing-8);
+}
+
+.form-field-select option:checked {
+  background: linear-gradient(var(--color-neon-lime), var(--color-neon-lime));
+  background-color: var(--color-neon-lime);
+  color: var(--color-pitch-black);
+}
+
+.form-field-select option:disabled {
+  color: var(--color-fog-grey);
+}
+
+.select-field-chevron {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: var(--color-fog-grey);
+  transition: color 0.15s ease;
+}
+
+.form-field-select:hover:not(:disabled) ~ .select-field-chevron {
+  color: var(--color-storm-cloud);
+}
+
+.form-field-select:focus ~ .select-field-chevron {
+  color: var(--color-neon-lime);
+}
+
+/* ============================================================================
+   Helper Text, Hints & Errors
+   ============================================================================ */
+
+.form-field-hint {
+  font-size: 11px;
+  color: var(--color-fog-grey);
+  line-height: 1.4;
+}
+
+.form-field-helper {
+  font-size: 11px;
+  color: var(--color-fog-grey);
+  line-height: 1.4;
+}
+
+.form-field-error {
+  font-size: 11px;
+  color: #ef4444; /* red-500 */
+  font-weight: 510;
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  line-height: 1.4;
+  animation: slideDown 0.2s ease;
+}
+
+.form-field-error::before {
+  content: "•";
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+}
+
+.form-field-char-count {
+  font-size: 10px;
+  color: var(--color-fog-grey);
+  text-align: right;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================================================
+   Form Sections & Rows
+   ============================================================================ */
+
+.form-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-12);
+}
+
+.form-section-heading {
+  font-size: 11px;
+  font-weight: 510;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-fog-grey);
+  margin: 0;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--spacing-12);
+}
+
+.form-row.two-col {
+  grid-template-columns: 1fr 1fr;
+}
+
+.form-row.full-width {
+  grid-template-columns: 1fr;
+}
+
+/* ============================================================================
+   Responsive Design
+   ============================================================================ */
+
+@media (max-width: 640px) {
+  .form-field-label {
+    font-size: 13px;
+  }
+
+  .form-field-input,
+  .form-field-select {
+    font-size: 16px; /* Prevents zoom on mobile */
+    padding: var(--spacing-14) 14px;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-16);
+  }
+
+  .password-strength-container {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-4);
+  }
+
+  .password-strength-label {
+    text-align: left;
+    min-width: auto;
+  }
+}
+
+/* ============================================================================
+   Animation & Transitions
+   ============================================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .form-field-input,
+  .form-field-select,
+  .password-toggle-btn,
+  .form-field-error,
+  .strength-bar {
+    transition: none;
+  }
+}
