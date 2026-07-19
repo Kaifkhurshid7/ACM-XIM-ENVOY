@@ -1,4 +1,4 @@
-/* Auth pages — Linear design system */
+/* Auth pages — Premium Linear design system */
 
 .auth-wrapper {
   min-height: 100vh;
@@ -7,23 +7,45 @@
   justify-content: center;
   align-items: center;
   padding: var(--spacing-48) var(--spacing-16);
+  position: relative;
+  overflow-x: hidden;
+}
+
+.auth-wrapper::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(
+    circle at 20% 50%,
+    rgba(228, 242, 34, 0.03) 0%,
+    transparent 50%
+  );
+  pointer-events: none;
+  z-index: 0;
 }
 
 .auth-card {
   width: 100%;
   max-width: 400px;
   background: var(--color-graphite);
+  border: 1px solid var(--color-charcoal-grey);
   border-radius: var(--radius-lg);
   padding: var(--spacing-32);
   box-shadow: var(--shadow-card);
+  position: relative;
+  z-index: 1;
 }
 
 .auth-card.register-card {
-  max-width: 480px;
+  max-width: 520px;
 }
 
 .auth-card.admin-auth {
-  box-shadow: var(--shadow-card), inset 0 1px 0 rgba(228, 242, 34, 0.06);
+  box-shadow: var(--shadow-card), inset 0 1px 0 rgba(228, 242, 34, 0.08);
+  border: 1px solid rgba(228, 242, 34, 0.12);
 }
 
 /* Header */
@@ -34,8 +56,8 @@
 }
 
 .auth-logo-mark {
-  width: 40px;
-  height: 40px;
+  width: 48px;
+  height: 48px;
   margin: 0 auto var(--spacing-16);
   background: var(--color-neon-lime);
   border-radius: var(--radius-md);
@@ -117,11 +139,8 @@
 
 /* Inputs */
 .auth-form-grid input,
-.auth-form-grid select,
 .auth-form input,
-.auth-form select,
-.auth-card form input,
-.auth-card form select {
+.auth-card form input {
   width: 100%;
   padding: var(--spacing-12) 14px;
   background: transparent;
@@ -147,42 +166,9 @@
   color: var(--color-fog-grey);
 }
 
-.auth-form-grid select {
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2362666d' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-  padding-right: 32px;
-}
-
-/* Password toggle */
-.input-with-icon {
-  position: relative;
-}
-
-.input-with-icon input {
-  padding-right: 60px;
-}
-
-.toggle-pw {
-  position: absolute;
-  right: 14px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: var(--color-deep-slate);
-  border: 1px solid var(--color-charcoal-grey);
-  border-radius: var(--radius-sm);
-  color: var(--color-storm-cloud);
-  font-size: 10px;
-  font-weight: 590;
-  text-transform: uppercase;
-  letter-spacing: 0.4px;
-  padding: 3px 6px;
-}
-
-.toggle-pw:hover {
-  color: var(--color-storm-cloud);
-}
+/* ============================================================================
+   Helper Text, Hints & Errors (Auth-specific)
+   ============================================================================ */
 
 /* Hints */
 .form-hint {
@@ -239,18 +225,25 @@
   font-size: 13px;
   color: var(--color-fog-grey);
   margin: var(--spacing-4) 0;
+  line-height: 1.5;
 }
 
-.auth-card-footer span,
-.auth-footer span {
+.auth-card-footer .auth-link,
+.auth-footer .auth-link {
   color: var(--color-porcelain);
-  cursor: pointer;
   font-weight: 510;
+  transition: color 0.15s ease;
 }
 
-.auth-card-footer span:hover,
-.auth-footer span:hover {
+.auth-card-footer .auth-link:hover,
+.auth-footer .auth-link:hover {
   color: var(--color-neon-lime);
+}
+
+.auth-card-footer .auth-link:focus-visible,
+.auth-footer .auth-link:focus-visible {
+  outline: 2px solid var(--color-neon-lime);
+  outline-offset: 2px;
 }
 
 .auth-footer-alt {
@@ -281,5 +274,105 @@
   .field-row {
     grid-template-columns: 1fr;
     gap: var(--spacing-16);
+  }
+}
+
+/* ============================================================================
+   Enhanced Auth Form Styles for Production
+   ============================================================================ */
+
+/* Loading & Success States */
+.auth-submit-btn[aria-busy="true"] {
+  position: relative;
+  color: transparent;
+}
+
+.auth-submit-btn[aria-busy="true"]::after {
+  content: "";
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  border: 2px solid var(--color-pitch-black);
+  border-top-color: transparent;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+/* Success state */
+.auth-card.success {
+  border-color: rgba(34, 197, 94, 0.3);
+  box-shadow: var(--shadow-card), inset 0 1px 0 rgba(34, 197, 94, 0.15);
+}
+
+/* Form Grid Enhancement */
+.auth-form-grid,
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-16);
+}
+
+/* Duplicate submission prevention */
+.auth-submit-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Focus visible for keyboard navigation */
+.auth-submit-btn:focus-visible,
+.toggle-pw:focus-visible {
+  outline: 2px solid var(--color-neon-lime);
+  outline-offset: 2px;
+}
+
+/* ============================================================================
+   Form Field Integration with Auth System
+   ============================================================================ */
+
+/* Use FormField component styles which are imported separately */
+/* Ensure consistency by inheriting from FormField.css */
+
+.form-field {
+  width: 100%;
+}
+
+/* Override form-hint for auth context */
+.form-hint {
+  font-size: 11px;
+  color: var(--color-fog-grey);
+  line-height: 1.4;
+  margin-top: 2px;
+}
+
+/* Password strength positioning in auth context */
+.password-strength-container {
+  margin-top: var(--spacing-8);
+  margin-bottom: var(--spacing-4);
+}
+
+/* ============================================================================
+   Reduced Motion Support
+   ============================================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .auth-submit-btn,
+  .toggle-pw,
+  .field-group input,
+  .field-group select {
+    transition: none;
+  }
+
+  .auth-submit-btn[aria-busy="true"]::after {
+    animation: none;
+    border-top-color: var(--color-pitch-black);
   }
 }
