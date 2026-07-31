@@ -221,7 +221,7 @@ const Forum = () => {
         setActiveId((prev) => prev ?? data[0]?._id ?? null);
       })
       .catch(() => {
-        if (!cancelled) setToast({ type: "error", message: "Couldn't load discussions." });
+        if (!cancelled) setToast({ type: "error", message: "Couldn't load discussions. Please try again." });
       })
       .finally(() => {
         if (!cancelled) setIsLoading(false);
@@ -249,7 +249,7 @@ const Forum = () => {
       .catch(() => {
         if (!cancelled) {
           setSelected(null);
-          setToast({ type: "error", message: "Couldn't load discussion." });
+          setToast({ type: "error", message: "Couldn't load discussion. Please try again." });
         }
       })
       .finally(() => {
@@ -473,7 +473,7 @@ const Forum = () => {
       setActiveId(data._id);
       setNewThread({ title: "", description: "", category: "General Discussion", tags: "" });
       setShowComposer(false);
-      setToast({ type: "success", message: "Discussion created!" });
+      setToast({ type: "success", message: "Discussion created." });
     } catch (err) {
       setToast({ type: "error", message: FORUM.ERROR_CREATE });
     } finally {
@@ -500,7 +500,7 @@ const Forum = () => {
       setReplyText("");
       setReplyingTo(null);
       if (replyInputRef.current) replyInputRef.current.style.height = "80px";
-      setToast({ type: "success", message: "Reply added!" });
+      setToast({ type: "success", message: "Reply added." });
     } catch (err) {
       setToast({ type: "error", message: FORUM.ERROR_REPLY });
     } finally {
@@ -510,7 +510,7 @@ const Forum = () => {
 
   const handleLikeThread = async (thread) => {
     if (!user) {
-      setToast({ type: "error", message: "Sign in to like discussions." });
+      setToast({ type: "error", message: "Please sign in to join the discussion." });
       return;
     }
     try {
@@ -524,13 +524,13 @@ const Forum = () => {
           : prev
       );
     } catch (err) {
-      setToast({ type: "error", message: "Couldn't update like." });
+      setToast({ type: "error", message: "Couldn't update like. Please try again." });
     }
   };
 
   const handleLikeReply = async (reply) => {
     if (!user) {
-      setToast({ type: "error", message: "Sign in to like replies." });
+      setToast({ type: "error", message: "Please sign in to join the discussion." });
       return;
     }
     try {
@@ -541,7 +541,7 @@ const Forum = () => {
           : prev
       );
     } catch (err) {
-      setToast({ type: "error", message: "Couldn't update like." });
+      setToast({ type: "error", message: "Couldn't update like. Please try again." });
     }
   };
 
@@ -555,7 +555,7 @@ const Forum = () => {
       );
       setToast({ type: "success", message: "Answer accepted." });
     } catch (err) {
-      setToast({ type: "error", message: "Couldn't update discussion." });
+      setToast({ type: "error", message: "Couldn't update discussion. Please try again." });
     }
   };
 
@@ -567,7 +567,7 @@ const Forum = () => {
       setSelected((prev) => (prev ? { ...prev, discussion: data } : prev));
       setToast({ type: "success", message: "Discussion updated." });
     } catch (err) {
-      setToast({ type: "error", message: "Couldn't update discussion." });
+      setToast({ type: "error", message: "Couldn't update discussion. Please try again." });
     }
   };
 
@@ -598,7 +598,7 @@ const Forum = () => {
           );
           setToast({ type: "success", message: "Reply removed." });
         } catch (err) {
-          setToast({ type: "error", message: "Couldn't remove reply." });
+          setToast({ type: "error", message: "Couldn't remove reply. Please try again." });
         }
       },
     });
@@ -706,7 +706,7 @@ const Forum = () => {
                   <div className="composer-actions">
                     <input
                       type="text"
-                      placeholder="Tags (comma separated)"
+                      placeholder="Tags (comma-separated)"
                       value={newThread.tags}
                       onChange={(e) => setNewThread({ ...newThread, tags: e.target.value })}
                       aria-label="Tags"
@@ -727,7 +727,7 @@ const Forum = () => {
         {/* Feed */}
         <section className="discussion-feed" aria-label="Discussion threads">
           <div className="feed-toolbar">
-            <div className="segmented-control" role="tablist" aria-label="Sort discussions">
+            <div className="segmented-control" role="group" aria-label="Sort discussions">
               {[
                 { key: "trending", label: "Trending" },
                 { key: "latest", label: "Latest" },
@@ -740,6 +740,7 @@ const Forum = () => {
                   type="button"
                   className={sort === s.key ? "active" : ""}
                   onClick={() => setSort(s.key)}
+                  aria-pressed={sort === s.key}
                 >
                   {s.label}
                 </button>
@@ -990,7 +991,7 @@ const Forum = () => {
                     </form>
                   ) : (
                     <div className="login-prompt">
-                      <p>Sign in to reply to this discussion.</p>
+                      <p>Please sign in to join the discussion.</p>
                     </div>
                   )}
                 </>

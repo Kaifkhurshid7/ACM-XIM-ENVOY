@@ -13,6 +13,20 @@
 import React from "react";
 
 const ConnectionBadge = ({ isConnected }) => {
+  const palette = isConnected
+    ? {
+        text: "var(--color-emerald)",
+        bg: "rgba(39, 166, 68, 0.12)",
+        border: "rgba(39, 166, 68, 0.35)",
+        glow: "0 0 8px var(--color-emerald)",
+      }
+    : {
+        text: "var(--color-warning-red)",
+        bg: "rgba(235, 87, 87, 0.12)",
+        border: "rgba(235, 87, 87, 0.35)",
+        glow: "none",
+      };
+
   return (
     <div
       style={{
@@ -22,11 +36,9 @@ const ConnectionBadge = ({ isConnected }) => {
         fontSize: "0.75rem",
         padding: "0.2rem 0.6rem",
         borderRadius: "20px",
-        background: isConnected
-          ? "rgba(0, 255, 0, 0.1)"
-          : "rgba(255, 0, 0, 0.1)",
-        color: isConnected ? "#4ade80" : "#f87171",
-        border: `1px solid ${isConnected ? "#4ade8055" : "#f8717155"}`,
+        background: palette.bg,
+        color: palette.text,
+        border: `1px solid ${palette.border}`,
       }}
     >
       <span
@@ -34,11 +46,11 @@ const ConnectionBadge = ({ isConnected }) => {
           width: "6px",
           height: "6px",
           borderRadius: "50%",
-          background: isConnected ? "#4ade80" : "#f87171",
-          boxShadow: isConnected ? "0 0 8px #4ade80" : "none",
+          background: palette.text,
+          boxShadow: palette.glow,
         }}
       ></span>
-      {isConnected ? "LIVE" : "DISCONNECTED"}
+      {isConnected ? "Live" : "Offline"}
     </div>
   );
 };
