@@ -3,6 +3,14 @@
    Platform: ACM-XIM-ENVOY | Project: acmmedia
    ===================================================== */
 
+/* Token aliases — map the legacy names used below onto the app's design
+   system so these styles resolve instead of silently falling back. */
+:root {
+  --primary: #e4f222;
+  --secondary: #8a8f98;
+  --color-bg: #08090a;
+}
+
 /* ---------- Ticker Mode (Home Page) ---------- */
 .tech-ticker-container {
     background: #000;

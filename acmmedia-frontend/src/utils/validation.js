@@ -126,18 +126,19 @@ export const ValidationRules = {
   passwordStrength: () => (value) => {
     if (!value) return { isValid: true, error: null };
 
-    const hasLetters = /[a-zA-Z]/.test(value);
-    const hasNumbers = /\d/.test(value);
-    const hasSymbols = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(value);
+    const hasLower = /[a-z]/.test(value);
+    const hasUpper = /[A-Z]/.test(value);
+    const hasNumber = /\d/.test(value);
+    const hasSymbol = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(value);
 
-    const strength = [hasLetters, hasNumbers, hasSymbols].filter(Boolean).length;
-    const isValid = strength >= 2; // At least 2 out of 3
+    const strength = [hasLower, hasUpper, hasNumber, hasSymbol].filter(Boolean).length;
+    const isValid = strength >= 4; // lowercase + uppercase + number + symbol
 
     return {
       isValid,
-      error: isValid ? null : "Mix letters, numbers, and symbols for stronger security.",
+      error: isValid ? null : "Use a mix of uppercase, lowercase, numbers, and symbols.",
       errorType: ValidationErrors.PASSWORD_WEAK,
-      meta: { strength, maxStrength: 3 },
+      meta: { strength, maxStrength: 4 },
     };
   },
 
@@ -333,7 +334,7 @@ export const getPasswordStrength = (password) => {
   let strength = 0;
 
   // Length
-  if (password.length >= 6) strength++;
+  if (password.length >= 8) strength++;
   if (password.length >= 12) strength++;
 
   // Complexity
