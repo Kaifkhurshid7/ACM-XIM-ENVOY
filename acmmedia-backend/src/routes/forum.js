@@ -13,6 +13,8 @@ const mongoose = require("mongoose");
 const { DiscussionThread, DiscussionReply, Notification, User } = require("../models");
 const { DISCUSSION_CATEGORIES } = require("../models/DiscussionThread");
 const auth = require("../middlewares/auth");
+const jwt = require("jsonwebtoken");
+const JWT_SECRET = require("../config/jwt");
 const { AppError } = require("../middlewares/errorHandler");
 const {
   validateObjectIdParam,
@@ -42,6 +44,23 @@ const authorSnapshot = (user) => ({
   role: user?.role || ROLES.MEMBER,
   avatar: user?.avatar || null,
 });
+
+/**
+ * Best-effort user id extraction for public endpoints. Feed/detail reads are
+ * public, so a missing or invalid token must not reject the request — it just
+ * means `isLiked`/`isMuted` per-user flags resolve to false.
+ */
+const getOptionalUserId = (req) => {
+  const authHeader = req.header("Authorization");
+  if (!authHeader) return null;
+  try {
+    const token = authHeader.startsWith("Bearer ") ? authHeader.split(" ")[1] : authHeader;
+    const decoded = jwt.verify(token, JWT_SECRET);
+    return decoded?.id || decoded?._id || null;
+  } catch (err) {
+    return null;
+  }
+};
 
 const serializeDiscussion = (discussion, currentUserId) => {
   const doc = discussion.toObject ? discussion.toObject({ virtuals: true }) : discussion;
@@ -136,7 +155,7 @@ router.get("/", validateForumListQuery, async (req, res, next) => {
       ]),
     ]);
 
-    const currentUserId = req.header("Authorization") ? null : null;
+    const currentUserId = getOptionalUserId(req);
     const data = threads.map((thread) => serializeDiscussion(thread, currentUserId));
 
     return res.json({
@@ -210,14 +229,15 @@ router.get("/:id", validateObjectIdParam, async (req, res, next) => {
     ]);
     if (!thread) return next(new AppError(404, "Discussion not found"));
 
-    const replies = await DiscussionReply.find({ discussion: req.params.id })
+    const replies = await DiscussionReply.find({ discussion: req.params.id, removed: false })
       .sort({ createdAt: 1 })
       .populate("author", "name avatar role department year")
       .lean({ virtuals: true });
 
+    const currentUserId = getOptionalUserId(req);
     res.json({
-      discussion: serializeDiscussion(thread),
-      replies: buildReplyTree(replies),
+      discussion: serializeDiscussion(thread, currentUserId),
+      replies: buildReplyTree(replies, currentUserId),
     });
   } catch (err) {
     return next(err);
@@ -242,6 +262,12 @@ router.post("/:id/replies", auth, validateForumReply, async (req, res, next) => 
     if (req.body.parentReply) {
       parent = await DiscussionReply.findOne({ _id: req.body.parentReply, discussion: thread._id }).lean();
       if (!parent) return next(new AppError(404, "Parent reply not found"));
+    }
+
+    // A forged quotedReply must not reference a reply from another discussion.
+    if (req.body.quotedReply) {
+      const quoted = await DiscussionReply.exists({ _id: req.body.quotedReply, discussion: thread._id });
+      if (!quoted) return next(new AppError(404, "Quoted reply not found"));
     }
 
     const content = req.body.content || req.body.text;
@@ -402,6 +428,7 @@ router.delete("/:id", auth, validateObjectIdParam, async (req, res, next) => {
 
     await Promise.all([
       DiscussionReply.deleteMany({ discussion: thread._id }),
+      Notification.deleteMany({ discussion: thread._id }),
       thread.deleteOne(),
     ]);
     getIO().to("discussions").emit(SOCKET_EVENTS.DISCUSSION_UPDATED, { discussionId: thread._id, deleted: true });
@@ -423,11 +450,17 @@ router.delete("/replies/:replyId", auth, validateReplyIdParam, async (req, res, 
     );
     if (!reply) return next(new AppError(404, "Reply not found"));
 
-    getIO().to(`discussion:${reply.discussion}`).emit(SOCKET_EVENTS.DISCUSSION_UPDATED, {
+    // Keep the denormalized replyCount in sync so unanswered/solved filters stay accurate.
+    await DiscussionThread.updateOne({ _id: reply.discussion }, { $inc: { replyCount: -1 } });
+
+    const payload = {
       discussionId: reply.discussion,
       replyId: reply._id,
       removed: true,
-    });
+      replyCountDelta: -1,
+    };
+    getIO().to(`discussion:${reply.discussion}`).emit(SOCKET_EVENTS.DISCUSSION_UPDATED, payload);
+    getIO().to("discussions").emit(SOCKET_EVENTS.DISCUSSION_UPDATED, payload);
     res.json({ msg: "Reply removed" });
   } catch (err) {
     return next(err);
