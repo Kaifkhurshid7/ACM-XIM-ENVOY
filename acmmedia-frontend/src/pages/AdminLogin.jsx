@@ -1,8 +1,8 @@
 import { useState, useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
-import { getCurrentUser } from "../api/auth";
-import { extractErrorMessage, extractObject } from "../utils/api";
+import { login as apiLogin, getCurrentUser } from "../api/auth";
+import { extractErrorMessage, extractObject, extractToken } from "../utils/api";
 import { AUTH } from "../constants/copy";
 import Toast from "../components/Toast";
 import { EyeIcon, EyeOffIcon, ShieldIcon } from "../components/ui/Icons";
@@ -12,25 +12,35 @@ const AdminLogin = () => {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [toast, setToast] = useState(null);
-  const { login, logout } = useContext(AuthContext);
+  const { setSession } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    // Preserve the member's existing session: it must survive a denied admin
+    // attempt instead of being destroyed by the shared logout flow.
+    const previousToken = localStorage.getItem("token");
     try {
-      const loggedInUser = await login(formData.email, formData.password);
-      if (loggedInUser?.role === "admin") { navigate("/admin"); return; }
+      const { data } = await apiLogin({ email: formData.email, password: formData.password });
+      const token = extractToken(data);
+      if (!token) throw new Error("Login succeeded but no token was returned.");
 
-      const { data } = await getCurrentUser();
-      const currentUser = extractObject(data, ["user", "data"]);
-      if (currentUser?.role !== "admin") {
-        setToast({ type: "error", message: AUTH.ADMIN_LOGIN.ERROR_DENIED });
-        logout();
-      } else {
+      // Confirm the role with the freshly issued token before committing.
+      localStorage.setItem("token", token);
+      const { data: me } = await getCurrentUser();
+      const currentUser = extractObject(me, ["user", "data"]);
+
+      if (currentUser?.role === "admin") {
+        setSession(token, currentUser);
         navigate("/admin");
+      } else {
+        // Not an admin — restore the previous session and deny access.
+        if (previousToken) localStorage.setItem("token", previousToken);
+        setToast({ type: "error", message: AUTH.ADMIN_LOGIN.ERROR_DENIED });
       }
     } catch (err) {
+      if (previousToken) localStorage.setItem("token", previousToken);
       setToast({ type: "error", message: extractErrorMessage(err, AUTH.ADMIN_LOGIN.ERROR_CREDENTIALS) });
     } finally {
       setLoading(false);
@@ -41,9 +51,10 @@ const AdminLogin = () => {
     <div className="auth-wrapper">
       <div className="auth-card admin-auth">
         <header className="auth-card-header">
-          <div className="auth-logo-mark" style={{ background: "var(--color-primary-dark)" }}>
+          <div className="auth-logo-mark">
             <ShieldIcon size={18} />
           </div>
+          <p className="auth-eyebrow">{AUTH.ADMIN_LOGIN.EYEBROW}</p>
           <h1>{AUTH.ADMIN_LOGIN.HEADING}</h1>
           <p>{AUTH.ADMIN_LOGIN.SUBHEADING}</p>
         </header>
@@ -91,7 +102,17 @@ const AdminLogin = () => {
         </form>
 
         <div className="auth-card-footer">
-          <p>Not an admin? <span onClick={() => navigate("/login")} role="link" tabIndex={0} onKeyDown={(e) => e.key === "Enter" && navigate("/login")}>Back to sign in</span></p>
+          <p>
+            Not an admin?{" "}
+            <button
+              type="button"
+              className="auth-link"
+              onClick={() => navigate("/login")}
+              aria-label="Back to sign in page"
+            >
+              Back to sign in
+            </button>
+          </p>
         </div>
       </div>
 

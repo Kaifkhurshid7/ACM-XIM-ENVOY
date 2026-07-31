@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { extractErrorMessage } from "../utils/api";
 import { AUTH } from "../constants/copy";
 import Toast from "../components/Toast";
-import { EyeIcon, EyeOffIcon } from "../components/ui/Icons";
+import { EyeIcon, EyeOffIcon, ChapterIcon } from "../components/ui/Icons";
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
@@ -31,7 +31,10 @@ const Login = () => {
     <div className="auth-wrapper">
       <div className="auth-card">
         <header className="auth-card-header">
-          <div className="auth-logo-mark">E</div>
+          <div className="auth-logo-mark">
+            <ChapterIcon size={20} />
+          </div>
+          <p className="auth-eyebrow">{AUTH.LOGIN.EYEBROW}</p>
           <h1>{AUTH.LOGIN.HEADING}</h1>
           <p>{AUTH.LOGIN.SUBHEADING}</p>
         </header>
@@ -81,8 +84,28 @@ const Login = () => {
         </form>
 
         <div className="auth-card-footer">
-          <p>Don't have an account? <span onClick={() => navigate("/register")} role="link" tabIndex={0} onKeyDown={(e) => e.key === "Enter" && navigate("/register")}>Create account</span></p>
-          <p className="auth-footer-alt">Chapter admin? <span onClick={() => navigate("/admin-login")} role="link" tabIndex={0} onKeyDown={(e) => e.key === "Enter" && navigate("/admin-login")}>Admin access</span></p>
+          <p>
+            Don't have an account?{" "}
+            <button
+              type="button"
+              className="auth-link"
+              onClick={() => navigate("/register")}
+              aria-label="Go to create account page"
+            >
+              Create account
+            </button>
+          </p>
+          <p className="auth-footer-alt">
+            Chapter admin?{" "}
+            <button
+              type="button"
+              className="auth-link"
+              onClick={() => navigate("/admin-login")}
+              aria-label="Go to admin access page"
+            >
+              Admin access
+            </button>
+          </p>
         </div>
       </div>
 

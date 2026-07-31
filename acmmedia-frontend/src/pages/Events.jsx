@@ -9,12 +9,25 @@ import { CalendarIcon, MapPinIcon, ExternalLinkIcon, TrashIcon } from "../compon
 
 const Events = () => {
   const [events, setEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const [toast, setToast] = useState(null);
   const [confirm, setConfirm] = useState(null);
   const { user } = useContext(AuthContext);
 
   useEffect(() => {
-    fetchEvents().then((res) => setEvents(extractArray(res.data, ["data", "events"])));
+    const loadEvents = async () => {
+      try {
+        const res = await fetchEvents();
+        setEvents(extractArray(res.data, ["data", "events"]));
+        setError(null);
+      } catch (err) {
+        setError(EVENTS.ERROR_LOAD);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadEvents();
   }, []);
 
   const handleDeleteEvent = (id) => {
@@ -24,7 +37,7 @@ const Events = () => {
         try {
           await deleteEvent(id);
           setEvents(events.filter((e) => e._id !== id));
-          setToast({ type: "success", message: "Event removed." });
+          setToast({ type: "success", message: "Event deleted." });
         } catch (err) {
           setToast({ type: "error", message: EVENTS.ERROR_DELETE });
         }
@@ -39,7 +52,15 @@ const Events = () => {
         <p className="section-subtitle">{EVENTS.SUBHEADING}</p>
       </header>
 
-      {events.length === 0 ? (
+      {loading ? (
+        <div className="empty-state-container" role="status" aria-live="polite">
+          <p className="no-events">{EVENTS.LOADING}</p>
+        </div>
+      ) : error ? (
+        <div className="empty-state-container" role="alert">
+          <p className="no-events">{error}</p>
+        </div>
+      ) : events.length === 0 ? (
         <div className="empty-state-container" role="status">
           <CalendarIcon size={32} />
           <p className="no-events">{EVENTS.EMPTY}</p>
@@ -56,7 +77,7 @@ const Events = () => {
                     className="admin-delete-btn"
                     aria-label={`Delete event: ${event.title}`}
                   >
-                    <TrashIcon size={14} /> Remove
+                    <TrashIcon size={14} /> Delete
                   </button>
                 )}
               </div>
