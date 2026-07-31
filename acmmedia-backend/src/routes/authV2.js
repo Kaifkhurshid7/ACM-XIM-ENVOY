@@ -21,7 +21,8 @@ const User = require("../models/User");
 const securityService = require("../services/securityService");
 const emailService = require("../services/emailService");
 const authenticateToken = require("../middlewares/auth");
-const { validatePasswordStrength } = require("../middlewares/validators");
+const SECRET = require("../config/jwt");
+const { ALLOWED_DOMAINS } = require("../constants");
 const logger = require("../utils/logger");
 
 const APP_URL = process.env.APP_URL || "https://acm-xim.local";
@@ -32,7 +33,9 @@ const APP_URL = process.env.APP_URL || "https://acm-xim.local";
 
 function getClientInfo(req) {
   const userAgent = req.headers["user-agent"] || "Unknown";
-  const ipAddress = req.headers["x-forwarded-for"]?.split(",")[0] || req.ip || "0.0.0.0";
+  // req.ip is derived from the trusted proxy chain (see app.set("trust proxy", 1)).
+  // Reading the raw X-Forwarded-For header would let clients spoof their IP.
+  const ipAddress = req.ip || "0.0.0.0";
 
   // Simple browser/OS detection
   let browser = "Unknown";
@@ -82,6 +85,13 @@ router.post("/register", async (req, res) => {
     const sanitizedName = securityService.sanitizeInput(name);
     const sanitizedEmail = email.toLowerCase().trim();
 
+    // Enforce university email domain (mirrors validators.js validateRegister)
+    if (!ALLOWED_DOMAINS.some((domain) => sanitizedEmail.endsWith(domain))) {
+      return res.status(400).json({
+        error: `Email must use an allowed university domain (${ALLOWED_DOMAINS.join(", ")})`,
+      });
+    }
+
     // Check if email exists
     const existingEmail = await User.findOne({ email: sanitizedEmail });
     if (existingEmail) {
@@ -115,7 +125,7 @@ router.post("/register", async (req, res) => {
     await newUser.save();
 
     // Send welcome and verification emails
-    const verificationLink = `${APP_URL}/verify-email?token=${verificationTokenData.token}&email=${sanitizedEmail}`;
+    const verificationLink = `${APP_URL}/verify-email?token=${verificationTokenData.token}&email=${encodeURIComponent(sanitizedEmail)}`;
     await emailService.sendWelcomeEmail(sanitizedEmail, sanitizedName);
     await emailService.sendVerificationEmail(sanitizedEmail, sanitizedName, verificationLink);
 
@@ -224,7 +234,7 @@ router.post("/resend-verification", async (req, res) => {
     await user.save();
 
     // Send verification email
-    const verificationLink = `${APP_URL}/verify-email?token=${verificationTokenData.token}&email=${sanitizedEmail}`;
+    const verificationLink = `${APP_URL}/verify-email?token=${verificationTokenData.token}&email=${encodeURIComponent(sanitizedEmail)}`;
     await emailService.sendVerificationEmail(sanitizedEmail, user.name, verificationLink);
 
     res.json({ message: "Verification email sent" });
@@ -274,7 +284,7 @@ router.post("/forgot-password", async (req, res) => {
     await user.save();
 
     // Send password reset email
-    const resetLink = `${APP_URL}/reset-password?token=${resetTokenData.token}&email=${sanitizedEmail}`;
+    const resetLink = `${APP_URL}/reset-password?token=${resetTokenData.token}&email=${encodeURIComponent(sanitizedEmail)}`;
     await emailService.sendPasswordResetEmail(sanitizedEmail, user.name, resetLink);
 
     res.json({
@@ -426,7 +436,7 @@ router.post("/login", async (req, res) => {
     // Create JWT token (keep existing auth system compatible)
     const jwtToken = require("jsonwebtoken").sign(
       { id: user._id, email: user.email, role: user.role },
-      process.env.JWT_SECRET || "your-secret-key",
+      SECRET,
       { expiresIn: "7d" }
     );
 

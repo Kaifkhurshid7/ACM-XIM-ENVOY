@@ -45,22 +45,16 @@ const applySecurityMiddleware = (app) => {
   );
 
   // ─── CORS: Cross-Origin Resource Sharing ─────────────────────────────────
-  // In production, restrict to known frontend origins.
+  // In production, restrict to the exact frontend origins in
+  // config/frontendOrigins — no wildcard for third-party *.vercel.app sites.
   // In development, allow all origins for local testing.
-  const allowedOrigins = [
-    "http://localhost:5173",
-    "http://localhost:3000",
-    "https://acmmedia-frontend.vercel.app",
-    "https://acm-xim-envoy.vercel.app",
-  ];
+  const allowedOrigins = require("../config/frontendOrigins");
 
   app.use(
     cors({
       origin: (origin, callback) => {
-        if (!origin) return callback(null, true);
+        if (!origin) return callback(null, true); // non-browser requests
         if (allowedOrigins.includes(origin)) return callback(null, true);
-        // Allow any Vercel preview deployments
-        if (origin.endsWith(".vercel.app")) return callback(null, true);
         if (process.env.NODE_ENV === "production") {
           return callback(null, false);
         }

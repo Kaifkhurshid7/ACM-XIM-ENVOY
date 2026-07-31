@@ -16,6 +16,7 @@
 
 const { body, param, query, validationResult } = require("express-validator");
 const { DISCUSSION_CATEGORIES } = require("../models/DiscussionThread");
+const { ALLOWED_DOMAINS } = require("../constants");
 
 // ─── Sanitizers ──────────────────────────────────────────────────────────────
 
@@ -84,14 +85,28 @@ const validateRegister = [
     .isLength({ min: 2, max: 100 }).withMessage("Name must be 2-100 characters"),
   body("email")
     .trim().notEmpty().withMessage("Email is required")
-    .isEmail().withMessage("Invalid email format"),
+    .isEmail().withMessage("Invalid email format")
+    .custom((value) => {
+      const normalized = value.toLowerCase();
+      if (!ALLOWED_DOMAINS.some((domain) => normalized.endsWith(domain))) {
+        throw new Error(
+          `Email must use an allowed university domain (${ALLOWED_DOMAINS.join(", ")})`
+        );
+      }
+      return true;
+    }),
   body("password")
     .notEmpty().withMessage("Password is required")
-    .isLength({ min: 6 }).withMessage("Password must be at least 6 characters"),
-  body("role")
-    .optional()
-    .customSanitizer(normalizeRole)
-    .isIn(["member", "admin"]).withMessage("Role must be member or admin"),
+    .isStrongPassword({
+      minLength: 8,
+      minLowercase: 1,
+      minUppercase: 1,
+      minNumbers: 1,
+      minSymbols: 1,
+    })
+    .withMessage(
+      "Password must be at least 8 characters with a mix of letters, numbers, and symbols"
+    ),
   body("isAcmMember")
     .optional()
     .customSanitizer(normalizeBooleanLike)
@@ -274,7 +289,16 @@ const validatePasswordChange = [
     .notEmpty().withMessage("Current password is required"),
   body("newPassword")
     .notEmpty().withMessage("New password is required")
-    .isLength({ min: 6 }).withMessage("New password must be at least 6 characters"),
+    .isStrongPassword({
+      minLength: 8,
+      minLowercase: 1,
+      minUppercase: 1,
+      minNumbers: 1,
+      minSymbols: 1,
+    })
+    .withMessage(
+      "New password must be at least 8 characters with a mix of letters, numbers, and symbols"
+    ),
   body("confirmPassword")
     .notEmpty().withMessage("Confirm password is required")
     .custom((value, { req }) => {

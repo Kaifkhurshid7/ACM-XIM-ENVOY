@@ -110,12 +110,12 @@ const UserSchema = new mongoose.Schema(
     website: {
       type: String,
       default: "",
-      match: /^(https?:\/\/)?.*/,
+      match: /^https?:\/\/\S+$/,
     },
     portfolio: {
       type: String,
       default: "",
-      match: /^(https?:\/\/)?.*/,
+      match: /^https?:\/\/\S+$/,
     },
 
     // ─── Professional Links ────────────────────────────────────────────────────
