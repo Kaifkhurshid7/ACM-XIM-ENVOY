@@ -127,13 +127,13 @@ export const removeEventBookmark = (eventId) =>
 // ────────────────────────────────────────────────────────────────────────────
 
 export const addArticleBookmark = (url, title) =>
-  api.post(`${BASE_URL}/bookmarks/article`, {
+  api.post(`${BASE_URL_V2}/bookmarks/article`, {
     url,
     title,
   });
 
 export const removeArticleBookmark = (url) =>
-  api.delete(`${BASE_URL}/bookmarks/article`, {
+  api.delete(`${BASE_URL_V2}/bookmarks/article`, {
     data: { url },
   });
 
@@ -142,27 +142,27 @@ export const removeArticleBookmark = (url) =>
 // ────────────────────────────────────────────────────────────────────────────
 
 export const getAllBookmarks = (type = "all", page = 1, limit = 10) =>
-  api.get(`${BASE_URL}/bookmarks/all`, {
+  api.get(`${BASE_URL_V2}/bookmarks/all`, {
     params: { type, page, limit },
   });
 
 export const getPostBookmarks = (page = 1, limit = 10) =>
-  api.get(`${BASE_URL}/bookmarks/all`, {
+  api.get(`${BASE_URL_V2}/bookmarks/all`, {
     params: { type: "posts", page, limit },
   });
 
 export const getDiscussionBookmarks = (page = 1, limit = 10) =>
-  api.get(`${BASE_URL}/bookmarks/all`, {
+  api.get(`${BASE_URL_V2}/bookmarks/all`, {
     params: { type: "discussions", page, limit },
   });
 
 export const getEventBookmarks = (page = 1, limit = 10) =>
-  api.get(`${BASE_URL}/bookmarks/all`, {
+  api.get(`${BASE_URL_V2}/bookmarks/all`, {
     params: { type: "events", page, limit },
   });
 
 export const getArticleBookmarks = (page = 1, limit = 10) =>
-  api.get(`${BASE_URL}/bookmarks/all`, {
+  api.get(`${BASE_URL_V2}/bookmarks/all`, {
     params: { type: "articles", page, limit },
   });
 
@@ -171,7 +171,7 @@ export const getArticleBookmarks = (page = 1, limit = 10) =>
 // ────────────────────────────────────────────────────────────────────────────
 
 export const getAchievements = () =>
-  api.get(`${BASE_URL}/achievements`);
+  api.get(`${BASE_URL_V2}/achievements`);
 
 export default {
   // Profile retrieval
