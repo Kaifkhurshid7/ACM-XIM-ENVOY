@@ -248,7 +248,7 @@ const Admin = () => {
           <div className="analytics-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "1.5rem", marginTop: "2rem" }}>
             <div className="analytics-card" style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
               <h4>{ADMIN.ANALYTICS_USERS}</h4>
-              <p style={{ fontSize: "1.8rem", fontWeight: "bold", color: "#fff", margin: 0 }}>{stats.members || stats.users || "\u2014"}</p>
+              <p style={{ fontSize: "1.8rem", fontWeight: "bold", color: "#fff", margin: 0 }}>{stats.members ?? "\u2014"}</p>
             </div>
             <div className="analytics-card" style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
               <h4>{ADMIN.ANALYTICS_POSTS}</h4>

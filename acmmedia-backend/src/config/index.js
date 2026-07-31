@@ -17,7 +17,6 @@ const config = {
 
   // Authentication
   jwtSecret: require("./jwt"),
-  adminSecret: process.env.ADMIN_SECRET || "ADMIN_2026",
 
   // External APIs
   newsApiKey: process.env.NEWS_API_KEY,

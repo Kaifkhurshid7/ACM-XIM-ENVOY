@@ -20,37 +20,51 @@ export const AUTH = {
     LABEL_EMAIL: "University email",
     LABEL_EMAIL_HINT: "We accept @xim.edu.in and @stu.xim.edu.in addresses only.",
     LABEL_PASSWORD: "Password",
-    LABEL_PASSWORD_HINT: "Minimum 6 characters. Mix letters, numbers, and symbols for stronger security.",
+    LABEL_PASSWORD_HINT: "At least 8 characters with a mix of letters, numbers, and symbols.",
     LABEL_PASSWORD_CONFIRM: "Confirm password",
     LABEL_ACM_MEMBER: "Are you an ACM member?",
     LABEL_ACM_ID: "ACM membership ID",
     LABEL_ACM_ID_HINT: "Link your membership to unlock exclusive benefits and networking opportunities.",
     PLACEHOLDER_NAME: "John Doe",
     PLACEHOLDER_EMAIL: "name@stu.xim.edu.in",
-    PLACEHOLDER_PASSWORD: "Minimum 6 characters",
+    PLACEHOLDER_PASSWORD: "At least 8 characters",
     PLACEHOLDER_PASSWORD_CONFIRM: "Re-enter password",
     PLACEHOLDER_ACM_ID: "Your membership ID",
     BUTTON_SUBMIT: "Create Account",
     OPTION_NOT_YET: "Not yet",
     OPTION_YES: "Yes, I am",
-    SUCCESS: "Account created! You can now sign in.",
+    SUCCESS: "Account created. You can now sign in.",
     ERROR_INVALID_EMAIL: "Sign up using your XIM email (@stu.xim.edu.in or @xim.edu.in).",
-    ERROR_PASSWORD_SHORT: "Password must be at least 6 characters.",
+    ERROR_PASSWORD_SHORT: "Password must be at least 8 characters.",
     ERROR_PASSWORD_MISMATCH: "Passwords do not match. Please try again.",
     ERROR_GENERIC: "We couldn't create your account. Please check your information and try again.",
     LINK_SIGNIN: "Already have an account? Sign in",
     LINK_ADMIN: "Chapter admin? Admin access →",
+
+    // Brand / showcase panel
+    BRAND_EYEBROW: "ACM Student Chapter — XIM University",
+    BRAND_HEADLINE: "Build, learn, and belong.",
+    BRAND_SUBHEADLINE:
+      "One account for everything the chapter offers: events, workshops, and a forum where members build together.",
+    VALUE_1_TITLE: "Events & workshops",
+    VALUE_1_DESC: "Hackathons, seminars, and hands-on sessions curated by the chapter.",
+    VALUE_2_TITLE: "Community forum",
+    VALUE_2_DESC: "Ask questions, share insights, and collaborate with fellow members.",
+    VALUE_3_TITLE: "Member perks",
+    VALUE_3_DESC: "Exclusive networking and career opportunities with ACM XIM.",
+    BRAND_LEGAL: "By joining, you agree to the ACM XIM Code of Conduct.",
   },
 
   // Login
   LOGIN: {
+    EYEBROW: "Student chapter",
     HEADING: "Welcome back",
     SUBHEADING: "Sign in to access announcements, events, and discussions.",
     LABEL_EMAIL: "Email address",
     LABEL_PASSWORD: "Password",
     PLACEHOLDER_EMAIL: "name@stu.xim.edu.in",
     PLACEHOLDER_PASSWORD: "Enter your password",
-    BUTTON_SUBMIT: "Sign In Securely",
+    BUTTON_SUBMIT: "Sign In",
     SUCCESS: "Signed in successfully.",
     ERROR_CREDENTIALS: "Email or password is incorrect. Please try again.",
     ERROR_GENERIC: "We couldn't sign you in. Please check your information and try again.",
@@ -60,13 +74,14 @@ export const AUTH = {
 
   // Admin Login
   ADMIN_LOGIN: {
+    EYEBROW: "Admin access",
     HEADING: "Admin access",
     SUBHEADING: "Restricted to chapter coordinators and core committee members.",
     LABEL_EMAIL: "Admin email",
     LABEL_PASSWORD: "Password",
     PLACEHOLDER_EMAIL: "admin@xim.edu.in",
     PLACEHOLDER_PASSWORD: "Enter admin password",
-    BUTTON_SUBMIT: "Access Admin Panel",
+    BUTTON_SUBMIT: "Sign In",
     ERROR_DENIED: "Access denied. This account doesn't have admin privileges.",
     ERROR_CREDENTIALS: "Email or password is incorrect. Please try again.",
     ERROR_GENERIC: "We couldn't verify your admin access. Please try again.",
@@ -86,13 +101,13 @@ export const PROFILE = {
   AVATAR_HEADING: "Profile picture",
   AVATAR_BUTTON_UPLOAD: "Upload new photo",
   AVATAR_BUTTON_REMOVE: "Remove picture",
-  AVATAR_HINT: "JPEG, PNG, GIF, or WebP. Max 2MB. Square images work best.",
+  AVATAR_HINT: "JPEG, PNG, GIF, or WebP. Max 5MB. Square images work best.",
   AVATAR_OVERLAY: "Change",
   AVATAR_UPLOADING: "Uploading...",
-  AVATAR_ERROR_SIZE: "Image too large. Please use a file under 2MB.",
+  AVATAR_ERROR_SIZE: "Image too large. Please use a file under 5MB.",
   AVATAR_ERROR_GENERIC: "Couldn't upload your photo. Please try again.",
   AVATAR_REMOVED: "Profile picture removed.",
-  AVATAR_UPLOADED: "Profile picture updated!",
+  AVATAR_UPLOADED: "Profile picture updated.",
 
   // Personal info section
   INFO_HEADING: "Personal information",
@@ -112,26 +127,26 @@ export const PROFILE = {
   LABEL_LINKEDIN: "LinkedIn profile",
   LABEL_LINKEDIN_PLACEHOLDER: "https://linkedin.com/in/username",
   LABEL_LINKEDIN_HINT: "Optional. Helps members connect professionally.",
-  BUTTON_SAVE: "Save Profile Updates",
+  BUTTON_SAVE: "Save Changes",
   SAVING: "Saving...",
-  SAVED: "Profile updated successfully!",
+  SAVED: "Profile updated.",
 
   // Password section
   PASSWORD_HEADING: "Change password",
   PASSWORD_SUBHEADING: "For security, enter your current password to set a new one. You'll be signed out after changing.",
   LABEL_CURRENT: "Current password",
   LABEL_NEW: "New password",
-  LABEL_NEW_HINT: "Minimum 6 characters.",
+  LABEL_NEW_HINT: "At least 8 characters with a mix of letters, numbers, and symbols.",
   LABEL_CONFIRM: "Confirm new password",
   PLACEHOLDER_CURRENT: "Enter current password",
-  PLACEHOLDER_NEW: "Enter new password (min 6 characters)",
+  PLACEHOLDER_NEW: "Enter new password (at least 8 characters)",
   PLACEHOLDER_CONFIRM: "Re-enter new password",
-  BUTTON_CHANGE: "Update Password",
+  BUTTON_CHANGE: "Change Password",
   CHANGING: "Updating...",
   ERROR_MISMATCH: "New passwords do not match.",
-  ERROR_SHORT: "New password must be at least 6 characters.",
+  ERROR_SHORT: "New password must be at least 8 characters with a mix of letters, numbers, and symbols.",
   ERROR_GENERIC: "Couldn't update your password. Please try again.",
-  SUCCESS: "Password updated! Please sign in again.",
+  SUCCESS: "Password updated. Please sign in again.",
 
   // Account info section
   ACCOUNT_HEADING: "Account details",
@@ -153,7 +168,7 @@ export const HOME = {
   HEADING: "Chapter feed",
   SUBHEADING: "Announcements, achievements, and updates from the ACM Student Chapter.",
   LOADING: "Loading latest updates...",
-  EMPTY: "No announcements yet.\n\nCheck back soon or follow us on social media for updates.",
+  EMPTY: "No announcements yet. Check back soon or follow us on social media for updates.",
   ERROR: "Couldn't load updates right now. Please try again shortly.",
 };
 
@@ -161,6 +176,8 @@ export const EVENTS = {
   HEADING: "Events & workshops",
   SUBHEADING: "Workshops, hackathons, seminars, and technical sessions curated by ACM XIM.",
   EMPTY: "No upcoming events. Follow our social media for announcements or contact us to suggest an event.",
+  LOADING: "Loading events…",
+  ERROR_LOAD: "Couldn't load events. Please try again.",
   LABEL_DATE: "Date",
   LABEL_LOCATION: "Location",
   BUTTON_REGISTER: "Register →",
@@ -184,7 +201,7 @@ export const ADMIN = {
   POST_PLACEHOLDER_CONTENT: "Add event details, results, wins, or key announcements here...",
   POST_BUTTON: "Publish Announcement",
   POST_PUBLISHING: "Publishing...",
-  POST_SUCCESS: "Post published successfully!",
+  POST_SUCCESS: "Post published.",
   POST_ERROR: "Couldn't publish post. Please try again.",
 
   // Event creation
@@ -201,7 +218,7 @@ export const ADMIN = {
   EVENT_PLACEHOLDER_DESCRIPTION: "Add event details: agenda, speakers, eligibility, prerequisites, or requirements...",
   EVENT_BUTTON: "Schedule Event",
   EVENT_CREATING: "Creating...",
-  EVENT_SUCCESS: "Event created successfully!",
+  EVENT_SUCCESS: "Event created.",
   EVENT_ERROR: "Couldn't create event. Please try again.",
 
   // Content moderation
@@ -278,8 +295,8 @@ export const FORM = {
   SAVING: "Saving...",
   SUBMITTING: "Submitting...",
   LOADING: "Loading...",
-  SAVED: "Saved successfully!",
-  SUBMITTED: "Submitted successfully!",
+  SAVED: "Saved successfully.",
+  SUBMITTED: "Submitted successfully.",
 
   // Helpers
   CHAR_COUNT: (current, max) => `${current}/${max}`,
@@ -311,7 +328,7 @@ export const BUTTONS = {
   CONTINUE: "Continue",
   
   // Loading states
-  LOADING_SUFFIX: "...",
+  LOADING_SUFFIX: "…",
 };
 
 export const CONFIRMATIONS = {
