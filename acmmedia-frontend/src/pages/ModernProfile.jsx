@@ -178,7 +178,7 @@ const ModernProfile = () => {
     if (!file) return;
 
     if (file.size > 5 * 1024 * 1024) {
-      setToast({ type: "error", message: "Avatar must be under 5MB" });
+      setToast({ type: "error", message: "Avatar must be under 5MB." });
       return;
     }
 
@@ -188,7 +188,7 @@ const ModernProfile = () => {
       const next = { ...profile, avatar: res.data.avatar };
       setProfile(next);
       setCompletion(computeCompletion(next));
-      setToast({ type: "success", message: "Avatar updated" });
+      setToast({ type: "success", message: "Avatar updated." });
     } catch (err) {
       setToast({ type: "error", message: extractErrorMessage(err) });
     } finally {
@@ -201,7 +201,7 @@ const ModernProfile = () => {
     if (!file) return;
 
     if (file.size > 5 * 1024 * 1024) {
-      setToast({ type: "error", message: "Banner must be under 5MB" });
+      setToast({ type: "error", message: "Banner must be under 5MB." });
       return;
     }
 
@@ -209,7 +209,7 @@ const ModernProfile = () => {
       setUploading(true);
       const res = await uploadBanner(file);
       setProfile((prev) => ({ ...prev, bannerImage: res.data.bannerImage }));
-      setToast({ type: "success", message: "Banner updated" });
+      setToast({ type: "success", message: "Banner updated." });
     } catch (err) {
       setToast({ type: "error", message: extractErrorMessage(err) });
     } finally {
@@ -226,7 +226,7 @@ const ModernProfile = () => {
       setProfile((prev) => ({ ...prev, ...updated }));
       setCompletion(computeCompletion({ ...profile, ...updated }));
       setEditMode(false);
-      setToast({ type: "success", message: "Profile updated" });
+      setToast({ type: "success", message: "Profile updated." });
     } catch (err) {
       setToast({ type: "error", message: extractErrorMessage(err) });
     } finally {
@@ -308,19 +308,33 @@ const ModernProfile = () => {
       {/* Profile Header */}
       <div className="profile-header-section">
         <div className="profile-avatar-container">
-          <div
-            className="profile-avatar"
-            onClick={isOwnProfile ? handleAvatarClick : undefined}
-            style={{ cursor: isOwnProfile ? "pointer" : "default" }}
-          >
-            {avatarSrc ? (
-              <img src={avatarSrc} alt={profile.name} />
-            ) : (
-              <div className="avatar-placeholder">
-                {profile.name?.charAt(0).toUpperCase()}
-              </div>
-            )}
-          </div>
+          {isOwnProfile ? (
+            <button
+              type="button"
+              className="profile-avatar"
+              onClick={handleAvatarClick}
+              disabled={uploading}
+              aria-label="Change profile picture"
+            >
+              {avatarSrc ? (
+                <img src={avatarSrc} alt={profile.name} />
+              ) : (
+                <div className="avatar-placeholder">
+                  {profile.name?.charAt(0).toUpperCase()}
+                </div>
+              )}
+            </button>
+          ) : (
+            <div className="profile-avatar">
+              {avatarSrc ? (
+                <img src={avatarSrc} alt={profile.name} />
+              ) : (
+                <div className="avatar-placeholder">
+                  {profile.name?.charAt(0).toUpperCase()}
+                </div>
+              )}
+            </div>
+          )}
           {isOwnProfile && (
             <button
               className="avatar-edit-btn"
@@ -328,7 +342,7 @@ const ModernProfile = () => {
               disabled={uploading}
               aria-label="Change profile picture"
             >
-              {uploading ? "..." : <UploadIcon size={13} />}
+              {uploading ? "Uploading…" : <UploadIcon size={13} />}
             </button>
           )}
           <input
@@ -395,7 +409,7 @@ const ModernProfile = () => {
           <div className="completion-bar">
             <div className="completion-fill" style={{ width: `${completion}%` }} />
           </div>
-          <span className="completion-text">{completion}% Complete</span>
+          <span className="completion-text">{completion}% complete</span>
         </div>
       )}
 
@@ -528,11 +542,11 @@ const EditProfileForm = ({ formData, setFormData, onSave, saving }) => {
           id="edit-bio"
           value={formData.bio}
           onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
-          maxLength={500}
+          maxLength={300}
           rows={4}
-          placeholder="Tell us about yourself..."
+          placeholder="Tell us about yourself…"
         />
-        <span className="char-count">{formData.bio.length}/500</span>
+        <span className="char-count">{formData.bio.length}/300</span>
       </div>
 
       <div className="form-row">

@@ -188,13 +188,15 @@ function isValidEmail(email) {
 }
 
 /**
- * Validate URL format
+ * Validate URL format.
+ * Only http/https schemes are allowed so user-supplied links can never
+ * carry javascript:/data: payloads into an <a href> rendered by the client.
  */
 function isValidUrl(url) {
   if (!url) return true; // Optional field
   try {
-    new URL(url);
-    return true;
+    const parsed = new URL(url);
+    return parsed.protocol === "http:" || parsed.protocol === "https:";
   } catch {
     return false;
   }

@@ -16,7 +16,8 @@
 
 import api from "./client";
 
-const BASE_URL = "/api/v1/auth/v2";
+// The axios client already prefixes every request with /api/v1.
+const BASE_URL = "/auth/v2";
 
 // ────────────────────────────────────────────────────────────────────────────
 // Registration & Email Verification
