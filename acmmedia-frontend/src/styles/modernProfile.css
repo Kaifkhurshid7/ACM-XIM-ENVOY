@@ -109,6 +109,7 @@
 .profile-avatar {
   width: 132px;
   height: 132px;
+  padding: 0;
   border-radius: 50%;
   border: 3px solid var(--color-pitch-black);
   box-shadow: 0 0 0 1px var(--hairline-strong), var(--shadow-sm);
