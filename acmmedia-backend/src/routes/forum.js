@@ -55,7 +55,7 @@ const getOptionalUserId = (req) => {
   if (!authHeader) return null;
   try {
     const token = authHeader.startsWith("Bearer ") ? authHeader.split(" ")[1] : authHeader;
-    const decoded = jwt.verify(token, JWT_SECRET);
+    const decoded = jwt.verify(token, JWT_SECRET, { algorithms: ["HS256"] });
     return decoded?.id || decoded?._id || null;
   } catch (err) {
     return null;

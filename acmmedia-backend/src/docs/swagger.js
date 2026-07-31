@@ -50,9 +50,7 @@ const options = {
           properties: {
             name: { type: "string" },
             email: { type: "string", format: "email" },
-            password: { type: "string", minLength: 6 },
-            role: { type: "string", enum: ["member", "admin"] },
-            adminSecret: { type: "string" },
+            password: { type: "string", minLength: 8 },
             isAcmMember: { type: "boolean" },
             acmId: { type: "string" },
           },

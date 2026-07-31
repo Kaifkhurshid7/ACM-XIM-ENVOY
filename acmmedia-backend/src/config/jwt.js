@@ -12,11 +12,11 @@
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
-if (!JWT_SECRET && process.env.NODE_ENV === "production") {
+if (!JWT_SECRET) {
   throw new Error(
-    "JWT_SECRET environment variable is required in production. " +
-    "Set a strong, unique secret key."
+    "JWT_SECRET environment variable is required. " +
+    "Set a strong, unique secret key (openssl rand -hex 32)."
   );
 }
 
-module.exports = JWT_SECRET || "dev_secret_change_in_production";
+module.exports = JWT_SECRET;
