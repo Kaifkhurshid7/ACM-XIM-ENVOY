@@ -44,6 +44,11 @@ const logger = require("./src/utils/logger");
 
 const app = express();
 
+// Trust the first hop of the deployment proxy (Render) so req.ip resolves to
+// the real client IP. Without this, express-rate-limit either throws on
+// X-Forwarded-For or buckets every user under a single shared IP.
+app.set("trust proxy", 1);
+
 // ─── Security & Performance Middleware ───────────────────────────────────────
 // Applied BEFORE routes. Order is critical for security.
 applySecurityMiddleware(app);
@@ -62,8 +67,9 @@ app.get("/api/v1", (req, res) => res.send("API v1: Health OK"));
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // ─── Static Files ────────────────────────────────────────────────────────────
-// Serve uploaded images (avatars, post images) with cross-origin headers
-app.use("/uploads", express.static("uploads"));
+// Serve uploaded images (avatars, post images) with cross-origin headers.
+// dotfiles are denied and no directory index is rendered.
+app.use("/uploads", express.static("uploads", { dotfiles: "deny", index: false }));
 
 // ─── API Routes ──────────────────────────────────────────────────────────────
 mountRoutes(app);
