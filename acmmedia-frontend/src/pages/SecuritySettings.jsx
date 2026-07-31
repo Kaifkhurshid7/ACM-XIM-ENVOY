@@ -90,17 +90,17 @@ const SecuritySettings = () => {
     const { currentPassword, newPassword, confirmPassword } = passwordForm;
 
     if (!currentPassword || !newPassword || !confirmPassword) {
-      setToast({ type: "error", message: "All fields required" });
+      setToast({ type: "error", message: "Please fill in all fields." });
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      setToast({ type: "error", message: "Passwords do not match" });
+      setToast({ type: "error", message: "Passwords do not match." });
       return;
     }
 
     if (!passwordValidation.isValid) {
-      setToast({ type: "error", message: `Password too weak: ${passwordValidation.errors[0]}` });
+      setToast({ type: "error", message: "Password is too weak." });
       return;
     }
 
@@ -108,7 +108,7 @@ const SecuritySettings = () => {
       setLoading(true);
       await changePassword(currentPassword, newPassword);
       setPasswordForm({ currentPassword: "", newPassword: "", confirmPassword: "" });
-      setToast({ type: "success", message: "Password changed successfully" });
+      setToast({ type: "success", message: "Password changed successfully." });
     } catch (err) {
       setToast({ type: "error", message: extractErrorMessage(err, "Failed to change password") });
     } finally {
@@ -125,7 +125,7 @@ const SecuritySettings = () => {
       const historyRes = await getLoginHistory();
       setLoginHistory(historyRes.data.data || []);
     } catch (err) {
-      setToast({ type: "error", message: "Failed to load sessions" });
+      setToast({ type: "error", message: "Couldn't load your sessions. Please try again." });
     } finally {
       setSessionsLoading(false);
     }
@@ -137,7 +137,7 @@ const SecuritySettings = () => {
       const res = await getSecurityLogs();
       setSecurityLogs(res.data.data || []);
     } catch (err) {
-      setToast({ type: "error", message: "Failed to load security logs" });
+      setToast({ type: "error", message: "Couldn't load security logs. Please try again." });
     } finally {
       setLogsLoading(false);
     }
@@ -147,26 +147,26 @@ const SecuritySettings = () => {
     try {
       await revokeSession(sessionId);
       setSessions(sessions.filter((s) => s.sessionId !== sessionId));
-      setToast({ type: "success", message: "Session revoked" });
+      setToast({ type: "success", message: "Session revoked." });
     } catch (err) {
-      setToast({ type: "error", message: "Failed to revoke session" });
+      setToast({ type: "error", message: "Couldn't revoke this session. Please try again." });
     }
   };
 
   const handleLogoutAllDevices = () => {
     setConfirm({
-      title: "Logout from all devices?",
-      message: "You will be signed out from all active sessions. This cannot be undone immediately.",
+      title: "Sign out of all devices?",
+      message: "You'll be signed out of all active sessions. This cannot be undone.",
       onConfirm: async () => {
         try {
           await logoutAllDevices();
-          setToast({ type: "success", message: "Signed out from all devices" });
+          setToast({ type: "success", message: "Signed out of all devices." });
           navigate("/login");
         } catch (err) {
-          setToast({ type: "error", message: "Failed to logout all devices" });
+          setToast({ type: "error", message: "Couldn't sign out of all devices. Please try again." });
         }
       },
-      confirmText: "Sign Out All",
+      confirmText: "Sign out all devices",
       isDanger: true,
     });
   };
@@ -219,7 +219,7 @@ const SecuritySettings = () => {
           <div className="tab-pane">
             <div className="security-section">
               <h2>Change Password</h2>
-              <p>Update your password to keep your account secure. Use a strong password with mixed case, numbers, and symbols.</p>
+              <p>Update your password to keep your account secure. Use at least 8 characters with a mix of letters, numbers, and symbols.</p>
 
               <div className="password-form">
                 <div className="form-group">
@@ -330,7 +330,7 @@ const SecuritySettings = () => {
                   <li>Include uppercase and lowercase letters</li>
                   <li>Add numbers and special characters</li>
                   <li>Avoid using personal information</li>
-                  <li>Use a unique password not used elsewhere</li>
+                  <li>Don't reuse passwords from other accounts.</li>
                 </ul>
               </div>
             </div>
@@ -431,7 +431,7 @@ const SecuritySettings = () => {
                       ))}
                     </div>
                   ) : (
-                    <p className="placeholder-text">No security logs available</p>
+                    <p className="placeholder-text">No security logs yet</p>
                   )}
                 </>
               )}
