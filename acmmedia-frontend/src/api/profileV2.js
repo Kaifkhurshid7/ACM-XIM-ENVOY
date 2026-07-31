@@ -15,33 +15,52 @@
 
 import api from "./client";
 
-const BASE_URL = "/api/v1/profile/v2";
+const BASE_URL_V2 = "/profile/v2";
+const BASE_URL_V1 = "/profile";
 
 // ────────────────────────────────────────────────────────────────────────────
-// Profile Retrieval
+// Profile Retrieval (with v1 fallback for deployed backends without v2)
 // ────────────────────────────────────────────────────────────────────────────
 
-export const getCurrentProfile = () =>
-  api.get(BASE_URL);
+export const getCurrentProfile = async () => {
+  try {
+    const res = await api.get(BASE_URL_V2);
+    return res;
+  } catch (err) {
+    // If v2 endpoint doesn't exist on the backend, fall back to v1
+    if (err.response?.status === 404 || err.response?.data?.message?.includes("route not found")) {
+      const res = await api.get(BASE_URL_V1);
+      // Normalize v1 response shape to match what ModernProfile expects
+      return {
+        data: {
+          user: res.data,
+          profileCompletion: { percentage: 0, suggestions: [] },
+        },
+      };
+    }
+    throw err;
+  }
+};
 
 export const getPublicProfile = (username) =>
-  api.get(`${BASE_URL}/${username}`);
-
-export const getProfileStats = () =>
-  api.get(`${BASE_URL}/stats/summary`);
+  api.get(`${BASE_URL_V2}/${username}`).catch(() =>
+    api.get(`${BASE_URL_V1}/${username}`)
+  );
 
 // ────────────────────────────────────────────────────────────────────────────
 // Profile Update
 // ────────────────────────────────────────────────────────────────────────────
 
 export const updateProfile = (profileData) =>
-  api.patch(BASE_URL, profileData);
+  api.patch(BASE_URL_V2, profileData).catch(() =>
+    api.patch(BASE_URL_V1, profileData)
+  );
 
 export const updatePrivacy = (privacySettings) =>
-  api.patch(`${BASE_URL}/privacy`, privacySettings);
+  api.patch(`${BASE_URL_V2}/privacy`, privacySettings);
 
 export const updateNotifications = (notificationSettings) =>
-  api.patch(`${BASE_URL}/notifications`, notificationSettings);
+  api.patch(`${BASE_URL_V2}/notifications`, notificationSettings);
 
 // ────────────────────────────────────────────────────────────────────────────
 // File Uploads
@@ -50,54 +69,58 @@ export const updateNotifications = (notificationSettings) =>
 export const uploadAvatar = (file) => {
   const formData = new FormData();
   formData.append("avatar", file);
-  return api.post(`${BASE_URL}/avatar`, formData, {
+  return api.post(`${BASE_URL_V2}/avatar`, formData, {
     headers: { "Content-Type": "multipart/form-data" },
-  });
+  }).catch(() =>
+    api.post(`${BASE_URL_V1}/avatar`, formData)
+  );
 };
 
 export const uploadBanner = (file) => {
   const formData = new FormData();
   formData.append("banner", file);
-  return api.post(`${BASE_URL}/banner`, formData, {
+  return api.post(`${BASE_URL_V2}/banner`, formData, {
     headers: { "Content-Type": "multipart/form-data" },
   });
 };
 
 export const deleteAvatar = () =>
-  api.delete(`${BASE_URL}/avatar`);
+  api.delete(`${BASE_URL_V2}/avatar`).catch(() =>
+    api.delete(`${BASE_URL_V1}/avatar`)
+  );
 
 export const deleteBanner = () =>
-  api.delete(`${BASE_URL}/banner`);
+  api.delete(`${BASE_URL_V2}/banner`);
 
 // ────────────────────────────────────────────────────────────────────────────
 // Bookmarks - Posts
 // ────────────────────────────────────────────────────────────────────────────
 
 export const addPostBookmark = (postId) =>
-  api.post(`${BASE_URL}/bookmarks/post/${postId}`);
+  api.post(`${BASE_URL_V2}/bookmarks/post/${postId}`);
 
 export const removePostBookmark = (postId) =>
-  api.delete(`${BASE_URL}/bookmarks/post/${postId}`);
+  api.delete(`${BASE_URL_V2}/bookmarks/post/${postId}`);
 
 // ────────────────────────────────────────────────────────────────────────────
 // Bookmarks - Discussions
 // ────────────────────────────────────────────────────────────────────────────
 
 export const addDiscussionBookmark = (discussionId) =>
-  api.post(`${BASE_URL}/bookmarks/discussion/${discussionId}`);
+  api.post(`${BASE_URL_V2}/bookmarks/discussion/${discussionId}`);
 
 export const removeDiscussionBookmark = (discussionId) =>
-  api.delete(`${BASE_URL}/bookmarks/discussion/${discussionId}`);
+  api.delete(`${BASE_URL_V2}/bookmarks/discussion/${discussionId}`);
 
 // ────────────────────────────────────────────────────────────────────────────
 // Bookmarks - Events
 // ────────────────────────────────────────────────────────────────────────────
 
 export const addEventBookmark = (eventId) =>
-  api.post(`${BASE_URL}/bookmarks/event/${eventId}`);
+  api.post(`${BASE_URL_V2}/bookmarks/event/${eventId}`);
 
 export const removeEventBookmark = (eventId) =>
-  api.delete(`${BASE_URL}/bookmarks/event/${eventId}`);
+  api.delete(`${BASE_URL_V2}/bookmarks/event/${eventId}`);
 
 // ────────────────────────────────────────────────────────────────────────────
 // Bookmarks - External Articles
@@ -154,7 +177,6 @@ export default {
   // Profile retrieval
   getCurrentProfile,
   getPublicProfile,
-  getProfileStats,
 
   // Profile updates
   updateProfile,

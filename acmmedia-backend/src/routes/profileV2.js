@@ -26,7 +26,7 @@ const path = require("path");
 const fs = require("fs");
 const User = require("../models/User");
 const securityService = require("../services/securityService");
-const { authenticateToken } = require("../middlewares/auth");
+const authenticateToken = require("../middlewares/auth");
 const logger = require("../utils/logger");
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -134,6 +134,29 @@ router.get("/", authenticateToken, async (req, res) => {
   } catch (error) {
     logger.error({ err: error }, "Get profile error");
     res.status(500).json({ error: "Failed to fetch profile" });
+  }
+});
+
+// ────────────────────────────────────────────────────────────────────────────
+// GET /achievements - Get user achievements
+// NOTE: Must be registered BEFORE /:username so the wildcard param route
+// doesn't swallow it.
+// ────────────────────────────────────────────────────────────────────────────
+
+router.get("/achievements", authenticateToken, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.json({
+      achievements: user.achievements,
+      total: user.achievements.length,
+    });
+  } catch (error) {
+    logger.error({ err: error }, "Get achievements error");
+    res.status(500).json({ error: "Failed to fetch achievements" });
   }
 });
 
@@ -773,27 +796,6 @@ router.get("/bookmarks/all", authenticateToken, async (req, res) => {
   } catch (error) {
     logger.error({ err: error }, "Get bookmarks error");
     res.status(500).json({ error: "Failed to fetch bookmarks" });
-  }
-});
-
-// ────────────────────────────────────────────────────────────────────────────
-// GET /achievements - Get user achievements
-// ────────────────────────────────────────────────────────────────────────────
-
-router.get("/achievements", authenticateToken, async (req, res) => {
-  try {
-    const user = await User.findById(req.user.id);
-    if (!user) {
-      return res.status(404).json({ error: "User not found" });
-    }
-
-    res.json({
-      achievements: user.achievements,
-      total: user.achievements.length,
-    });
-  } catch (error) {
-    logger.error({ err: error }, "Get achievements error");
-    res.status(500).json({ error: "Failed to fetch achievements" });
   }
 });
 
