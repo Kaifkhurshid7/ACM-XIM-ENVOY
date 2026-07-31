@@ -9,3 +9,4 @@ export const replyToThread = (id, data) => client.post(`/discussions/${id}/repli
 export const likeThread = (id) => client.post(`/discussions/${id}/like`);
 export const likeReply = (replyId) => client.post(`/discussions/replies/${replyId}/like`);
 export const moderateThread = (id, data) => client.patch(`/discussions/${id}/moderation`, data);
+export const removeReply = (replyId) => client.delete(`/discussions/replies/${replyId}`);
