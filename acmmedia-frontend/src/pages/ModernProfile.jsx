@@ -1,31 +1,72 @@
 /**
  * Modern Profile Page - Production Ready
- * 
+ *
  * Features:
- * - Large cover banner with avatar overlay
- * - Profile completion percentage
- * - Statistics cards (reputation, contributions, etc.)
+ * - Cover banner with avatar overlay (own profile)
+ * - Profile completion percentage (own profile)
+ * - Statistics cards (reputation, contributions, profile views, achievements)
  * - Tabbed interface (Overview, Activity, Bookmarks, Achievements)
  * - Profile editing with validation
  * - Social links management
- * - Privacy and notification settings
- * - Security information
  * - Responsive design
  * - Skeleton loaders
- * 
- * Similar to: GitHub + LinkedIn + Discord profiles
- * 
+ *
  * @page
  */
 
 import { useState, useEffect, useContext, useRef } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { useNavigate, useParams } from "react-router-dom";
-import { getCurrentProfile, getPublicProfile, updateProfile, uploadAvatar, uploadBanner, getProfileStats, getAchievements, getAllBookmarks } from "../api/profileV2.js";
+import {
+  getCurrentProfile,
+  getPublicProfile,
+  updateProfile,
+  uploadAvatar,
+  uploadBanner,
+  getAchievements,
+} from "../api/profileV2.js";
 import { extractErrorMessage } from "../utils/api";
 import Toast from "../components/Toast";
-import { UploadIcon, TrashIcon, LockIcon, HeartIcon, FileTextIcon, CalendarIcon, ExternalLinkIcon } from "../components/ui/Icons";
+import {
+  UploadIcon,
+  LockIcon,
+  ExternalLinkIcon,
+  MapPinIcon,
+  ClockIcon,
+  HeartIcon,
+  SparkleIcon,
+} from "../components/ui/Icons";
 import "../styles/modernProfile.css";
+
+/**
+ * Mirrors the backend completion weights in models/User.js so the
+ * completion bar stays accurate after edits without an extra round-trip.
+ */
+const COMPLETION_FIELDS = [
+  { name: "name", weight: 15 },
+  { name: "avatar", weight: 15 },
+  { name: "bio", weight: 10 },
+  { name: "department", weight: 10 },
+  { name: "batch", weight: 10 },
+  { name: "username", weight: 10 },
+  { name: "skills", weight: 10, isArray: true },
+  { name: "interests", weight: 10, isArray: true },
+];
+
+const computeCompletion = (profile) => {
+  if (!profile) return 0;
+  let completed = 0;
+  let total = 0;
+  COMPLETION_FIELDS.forEach((field) => {
+    total += field.weight;
+    const value = profile[field.name];
+    const isDone = field.isArray
+      ? Array.isArray(value) && value.length > 0
+      : Boolean(value);
+    if (isDone) completed += field.weight;
+  });
+  return total ? Math.round((completed / total) * 100) : 0;
+};
 
 const ModernProfile = () => {
   const { user: currentUser } = useContext(AuthContext);
@@ -34,13 +75,15 @@ const ModernProfile = () => {
   const fileInputRef = useRef(null);
   const bannerInputRef = useRef(null);
 
-  const isOwnProfile = !username || username === currentUser?.username || username === currentUser?.email?.split("@")[0];
+  const isOwnProfile =
+    !username ||
+    username === currentUser?.username ||
+    username === currentUser?.email?.split("@")[0];
 
   // ─── State ────────────────────────────────────────────────────────────
   const [profile, setProfile] = useState(null);
-  const [stats, setStats] = useState(null);
   const [achievements, setAchievements] = useState([]);
-  const [bookmarks, setBookmarks] = useState([]);
+  const [completion, setCompletion] = useState(0);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -48,7 +91,6 @@ const ModernProfile = () => {
 
   const [activeTab, setActiveTab] = useState("overview");
   const [editMode, setEditMode] = useState(false);
-  const [showSettings, setShowSettings] = useState(false);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -68,12 +110,11 @@ const ModernProfile = () => {
     },
   });
 
-  const [privacySettings, setPrivacySettings] = useState({
-    profilePublic: true,
-    showEmail: false,
-    showActivity: true,
-    showContributions: true,
-  });
+  // ─── Auth guard ───────────────────────────────────────────────────────
+  // Own profile requires a session; public profiles stay accessible to guests.
+  useEffect(() => {
+    if (isOwnProfile && !currentUser) navigate("/login");
+  }, [isOwnProfile, currentUser, navigate]);
 
   // ─── Load Profile ────────────────────────────────────────────────────
   useEffect(() => {
@@ -84,20 +125,22 @@ const ModernProfile = () => {
 
         if (isOwnProfile) {
           const res = await getCurrentProfile();
-          profileData = res.data.data;
+          profileData = res.data.user;
+          setCompletion(res.data.profileCompletion?.percentage ?? 0);
 
-          // Load stats and achievements for own profile
-          const [statsRes, achievementsRes] = await Promise.all([
-            getProfileStats(),
-            getAchievements(),
-          ]);
-          setStats(statsRes.data.data);
-          setAchievements(achievementsRes.data.data || []);
-          setPrivacySettings(profileData.privacy || privacySettings);
+          // Achievements are supplementary — never block the profile on them.
+          try {
+            const achievementsRes = await getAchievements();
+            setAchievements(achievementsRes.data.achievements || []);
+          } catch (err) {
+            console.error("Failed to load achievements", err);
+          }
         } else {
           const res = await getPublicProfile(username);
-          profileData = res.data.data;
+          profileData = res.data.user;
         }
+
+        if (!profileData) throw new Error("Profile data missing from response");
 
         setProfile(profileData);
         setFormData({
@@ -113,7 +156,10 @@ const ModernProfile = () => {
           socialLinks: profileData.socialLinks || {},
         });
       } catch (err) {
-        setToast({ type: "error", message: extractErrorMessage(err, "Failed to load profile") });
+        setToast({
+          type: "error",
+          message: extractErrorMessage(err, "Failed to load profile"),
+        });
       } finally {
         setLoading(false);
       }
@@ -139,7 +185,9 @@ const ModernProfile = () => {
     try {
       setUploading(true);
       const res = await uploadAvatar(file);
-      setProfile({ ...profile, avatar: res.data.avatar });
+      const next = { ...profile, avatar: res.data.avatar };
+      setProfile(next);
+      setCompletion(computeCompletion(next));
       setToast({ type: "success", message: "Avatar updated" });
     } catch (err) {
       setToast({ type: "error", message: extractErrorMessage(err) });
@@ -160,7 +208,7 @@ const ModernProfile = () => {
     try {
       setUploading(true);
       const res = await uploadBanner(file);
-      setProfile({ ...profile, bannerImage: res.data.banner });
+      setProfile((prev) => ({ ...prev, bannerImage: res.data.bannerImage }));
       setToast({ type: "success", message: "Banner updated" });
     } catch (err) {
       setToast({ type: "error", message: extractErrorMessage(err) });
@@ -173,7 +221,10 @@ const ModernProfile = () => {
     try {
       setSaving(true);
       const res = await updateProfile(formData);
-      setProfile(res.data.data);
+      // Merge — the PATCH response omits avatar/banner/privacy/analytics.
+      const updated = res.data.user;
+      setProfile((prev) => ({ ...prev, ...updated }));
+      setCompletion(computeCompletion({ ...profile, ...updated }));
       setEditMode(false);
       setToast({ type: "success", message: "Profile updated" });
     } catch (err) {
@@ -185,7 +236,6 @@ const ModernProfile = () => {
 
   // ─── Render Helpers ──────────────────────────────────────────────────
 
-  const completionPercentage = profile?.getProfileCompletionPercentage?.() || 0;
   const backendBase = import.meta.env.VITE_API_BASE_URL
     ? import.meta.env.VITE_API_BASE_URL.replace("/api/v1", "")
     : import.meta.env.DEV
@@ -196,11 +246,33 @@ const ModernProfile = () => {
   const bannerSrc = profile?.bannerImage ? `${backendBase}${profile.bannerImage}` : null;
 
   if (loading) {
-    return <div className="profile-skeleton">Loading profile...</div>;
+    return (
+      <div className="profile-skeleton" role="status" aria-live="polite">
+        <div className="skeleton-banner" />
+        <div className="skeleton-body">
+          <div className="skeleton-avatar" />
+          <div className="skeleton-lines">
+            <div className="skeleton-line w60" />
+            <div className="skeleton-line w40" />
+            <div className="skeleton-line w80" />
+          </div>
+        </div>
+      </div>
+    );
   }
 
   if (!profile) {
-    return <div className="profile-error">Profile not found</div>;
+    return (
+      <div className="profile-error">
+        <div className="profile-error-card">
+          <h2>Profile not found</h2>
+          <p>The profile you're looking for doesn't exist or isn't public.</p>
+          <button className="btn-ghost" onClick={() => navigate("/")}>
+            Back to Home
+          </button>
+        </div>
+      </div>
+    );
   }
 
   // ─── Render ─────────────────────────────────────────────────────────
@@ -221,7 +293,7 @@ const ModernProfile = () => {
             disabled={uploading}
             aria-label="Change cover banner"
           >
-            <UploadIcon size={16} /> Edit Cover
+            <UploadIcon size={14} /> Edit Cover
           </button>
         )}
         <input
@@ -244,7 +316,9 @@ const ModernProfile = () => {
             {avatarSrc ? (
               <img src={avatarSrc} alt={profile.name} />
             ) : (
-              <div className="avatar-placeholder">{profile.name?.charAt(0).toUpperCase()}</div>
+              <div className="avatar-placeholder">
+                {profile.name?.charAt(0).toUpperCase()}
+              </div>
             )}
           </div>
           {isOwnProfile && (
@@ -254,7 +328,7 @@ const ModernProfile = () => {
               disabled={uploading}
               aria-label="Change profile picture"
             >
-              {uploading ? "..." : <UploadIcon size={14} />}
+              {uploading ? "..." : <UploadIcon size={13} />}
             </button>
           )}
           <input
@@ -267,27 +341,29 @@ const ModernProfile = () => {
         </div>
 
         <div className="profile-header-info">
+          <p className="profile-eyebrow">
+            <span className="eyebrow-dot" />
+            {isOwnProfile ? "Your Profile" : "Chapter Member"}
+          </p>
           <div className="profile-name-row">
             <h1>{profile.name}</h1>
-            {profile.emailVerified && <span className="verified-badge" title="Email verified">✓</span>}
+            {profile.emailVerified && (
+              <span className="verified-badge" title="Email verified">✓</span>
+            )}
           </div>
           <p className="profile-username">@{profile.username || profile.email?.split("@")[0]}</p>
           {profile.bio && <p className="profile-bio">{profile.bio}</p>}
 
           <div className="profile-meta">
             {profile.location && (
-              <span>
-                <span className="meta-icon">📍</span> {profile.location}
+              <span className="meta-item">
+                <MapPinIcon size={13} /> {profile.location}
               </span>
             )}
-            {profile.department && (
-              <span>
-                <span className="meta-icon">🎓</span> {profile.department}
-              </span>
-            )}
-            {profile.batch && <span>{profile.batch}</span>}
+            {profile.department && <span className="meta-chip">{profile.department}</span>}
+            {profile.batch && <span className="meta-chip">{profile.batch}</span>}
             {profile.website && (
-              <a href={profile.website} target="_blank" rel="noreferrer">
+              <a href={profile.website} target="_blank" rel="noreferrer" className="meta-link">
                 <ExternalLinkIcon size={12} /> Website
               </a>
             )}
@@ -298,11 +374,15 @@ const ModernProfile = () => {
           <div className="profile-actions">
             <button
               className={`btn-edit ${editMode ? "active" : ""}`}
-              onClick={() => setEditMode(!editMode)}
+              onClick={() => setEditMode((m) => !m)}
             >
               {editMode ? "Cancel" : "Edit Profile"}
             </button>
-            <button className="btn-settings" onClick={() => setShowSettings(!showSettings)}>
+            <button
+              className="btn-settings"
+              onClick={() => navigate("/security")}
+              aria-label="Account and security settings"
+            >
               <LockIcon size={14} /> Settings
             </button>
           </div>
@@ -310,62 +390,67 @@ const ModernProfile = () => {
       </div>
 
       {/* Completion Bar */}
-      {isOwnProfile && completionPercentage < 100 && (
+      {isOwnProfile && completion < 100 && (
         <div className="profile-completion">
           <div className="completion-bar">
-            <div
-              className="completion-fill"
-              style={{ width: `${completionPercentage}%` }}
-            />
+            <div className="completion-fill" style={{ width: `${completion}%` }} />
           </div>
-          <span className="completion-text">{completionPercentage}% Complete</span>
+          <span className="completion-text">{completion}% Complete</span>
         </div>
       )}
 
       {/* Statistics */}
-      {stats && (
-        <div className="profile-stats">
-          <div className="stat-card">
-            <h4>Reputation</h4>
-            <p className="stat-value">{stats.reputation}</p>
-          </div>
-          <div className="stat-card">
-            <h4>Contributions</h4>
-            <p className="stat-value">{stats.contributionScore}</p>
-          </div>
-          <div className="stat-card">
-            <h4>Profile Views</h4>
-            <p className="stat-value">{stats.profileViews}</p>
-          </div>
-          <div className="stat-card">
-            <h4>Achievements</h4>
-            <p className="stat-value">{stats.achievementsCount}</p>
-          </div>
+      <div className="profile-stats">
+        <div className="stat-card">
+          <h4>Reputation</h4>
+          <p className="stat-value">{profile?.reputation ?? 0}</p>
         </div>
-      )}
+        <div className="stat-card">
+          <h4>Contributions</h4>
+          <p className="stat-value">{profile?.contributionScore ?? 0}</p>
+        </div>
+        <div className="stat-card">
+          <h4>Profile Views</h4>
+          <p className="stat-value">{profile?.profileViews ?? 0}</p>
+        </div>
+        <div className="stat-card">
+          <h4>Achievements</h4>
+          <p className="stat-value">{profile?.achievements ?? 0}</p>
+        </div>
+      </div>
 
       {/* Tabs */}
-      <div className="profile-tabs">
+      <div className="profile-tabs" role="tablist" aria-label="Profile sections">
         <button
+          role="tab"
+          aria-selected={activeTab === "overview"}
           className={`tab ${activeTab === "overview" ? "active" : ""}`}
           onClick={() => setActiveTab("overview")}
         >
           Overview
         </button>
         <button
+          role="tab"
+          aria-selected={activeTab === "activity"}
           className={`tab ${activeTab === "activity" ? "active" : ""}`}
           onClick={() => setActiveTab("activity")}
         >
           Activity
         </button>
-        <button
-          className={`tab ${activeTab === "bookmarks" ? "active" : ""}`}
-          onClick={() => setActiveTab("bookmarks")}
-        >
-          Bookmarks
-        </button>
+        {isOwnProfile && (
+          <button
+            role="tab"
+            aria-selected={activeTab === "bookmarks"}
+            className={`tab ${activeTab === "bookmarks" ? "active" : ""}`}
+            onClick={() => setActiveTab("bookmarks")}
+          >
+            Bookmarks
+          </button>
+        )}
         {achievements.length > 0 && (
           <button
+            role="tab"
+            aria-selected={activeTab === "achievements"}
             className={`tab ${activeTab === "achievements" ? "active" : ""}`}
             onClick={() => setActiveTab("achievements")}
           >
@@ -393,7 +478,7 @@ const ModernProfile = () => {
 
         {activeTab === "activity" && (
           <div className="tab-pane">
-            <ActivityTimeline profile={profile} />
+            <ActivityTimeline />
           </div>
         )}
 
@@ -419,10 +504,17 @@ const ModernProfile = () => {
 
 const EditProfileForm = ({ formData, setFormData, onSave, saving }) => {
   return (
-    <form className="edit-profile-form" onSubmit={(e) => { e.preventDefault(); onSave(); }}>
+    <form
+      className="edit-profile-form"
+      onSubmit={(e) => {
+        e.preventDefault();
+        onSave();
+      }}
+    >
       <div className="form-group">
-        <label>Name</label>
+        <label htmlFor="edit-name">Name</label>
         <input
+          id="edit-name"
           type="text"
           value={formData.name}
           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
@@ -431,8 +523,9 @@ const EditProfileForm = ({ formData, setFormData, onSave, saving }) => {
       </div>
 
       <div className="form-group">
-        <label>Bio</label>
+        <label htmlFor="edit-bio">Bio</label>
         <textarea
+          id="edit-bio"
           value={formData.bio}
           onChange={(e) => setFormData({ ...formData, bio: e.target.value })}
           maxLength={500}
@@ -444,16 +537,18 @@ const EditProfileForm = ({ formData, setFormData, onSave, saving }) => {
 
       <div className="form-row">
         <div className="form-group">
-          <label>Department</label>
+          <label htmlFor="edit-department">Department</label>
           <input
+            id="edit-department"
             type="text"
             value={formData.department}
             onChange={(e) => setFormData({ ...formData, department: e.target.value })}
           />
         </div>
         <div className="form-group">
-          <label>Batch</label>
+          <label htmlFor="edit-batch">Batch</label>
           <input
+            id="edit-batch"
             type="text"
             value={formData.batch}
             onChange={(e) => setFormData({ ...formData, batch: e.target.value })}
@@ -462,8 +557,9 @@ const EditProfileForm = ({ formData, setFormData, onSave, saving }) => {
       </div>
 
       <div className="form-group">
-        <label>Location</label>
+        <label htmlFor="edit-location">Location</label>
         <input
+          id="edit-location"
           type="text"
           value={formData.location}
           onChange={(e) => setFormData({ ...formData, location: e.target.value })}
@@ -472,8 +568,9 @@ const EditProfileForm = ({ formData, setFormData, onSave, saving }) => {
 
       <div className="form-row">
         <div className="form-group">
-          <label>Website</label>
+          <label htmlFor="edit-website">Website</label>
           <input
+            id="edit-website"
             type="url"
             value={formData.website}
             onChange={(e) => setFormData({ ...formData, website: e.target.value })}
@@ -481,8 +578,9 @@ const EditProfileForm = ({ formData, setFormData, onSave, saving }) => {
           />
         </div>
         <div className="form-group">
-          <label>Portfolio</label>
+          <label htmlFor="edit-portfolio">Portfolio</label>
           <input
+            id="edit-portfolio"
             type="url"
             value={formData.portfolio}
             onChange={(e) => setFormData({ ...formData, portfolio: e.target.value })}
@@ -492,21 +590,33 @@ const EditProfileForm = ({ formData, setFormData, onSave, saving }) => {
       </div>
 
       <div className="form-group">
-        <label>Skills (comma-separated)</label>
+        <label htmlFor="edit-skills">Skills (comma-separated)</label>
         <input
+          id="edit-skills"
           type="text"
           value={formData.skills.join(", ")}
-          onChange={(e) => setFormData({ ...formData, skills: e.target.value.split(",").map((s) => s.trim()) })}
+          onChange={(e) =>
+            setFormData({
+              ...formData,
+              skills: e.target.value.split(",").map((s) => s.trim()).filter(Boolean),
+            })
+          }
           placeholder="React, Node.js, TypeScript..."
         />
       </div>
 
       <div className="form-group">
-        <label>Interests (comma-separated)</label>
+        <label htmlFor="edit-interests">Interests (comma-separated)</label>
         <input
+          id="edit-interests"
           type="text"
           value={formData.interests.join(", ")}
-          onChange={(e) => setFormData({ ...formData, interests: e.target.value.split(",").map((s) => s.trim()) })}
+          onChange={(e) =>
+            setFormData({
+              ...formData,
+              interests: e.target.value.split(",").map((s) => s.trim()).filter(Boolean),
+            })
+          }
           placeholder="Web Development, AI, Design..."
         />
       </div>
@@ -514,38 +624,47 @@ const EditProfileForm = ({ formData, setFormData, onSave, saving }) => {
       <div className="social-links-section">
         <h3>Social Links</h3>
         <div className="form-group">
-          <label>GitHub</label>
+          <label htmlFor="edit-github">GitHub</label>
           <input
+            id="edit-github"
             type="url"
             value={formData.socialLinks.github || ""}
-            onChange={(e) => setFormData({
-              ...formData,
-              socialLinks: { ...formData.socialLinks, github: e.target.value },
-            })}
+            onChange={(e) =>
+              setFormData({
+                ...formData,
+                socialLinks: { ...formData.socialLinks, github: e.target.value },
+              })
+            }
             placeholder="https://github.com/username"
           />
         </div>
         <div className="form-group">
-          <label>LinkedIn</label>
+          <label htmlFor="edit-linkedin">LinkedIn</label>
           <input
+            id="edit-linkedin"
             type="url"
             value={formData.socialLinks.linkedin || ""}
-            onChange={(e) => setFormData({
-              ...formData,
-              socialLinks: { ...formData.socialLinks, linkedin: e.target.value },
-            })}
+            onChange={(e) =>
+              setFormData({
+                ...formData,
+                socialLinks: { ...formData.socialLinks, linkedin: e.target.value },
+              })
+            }
             placeholder="https://linkedin.com/in/username"
           />
         </div>
         <div className="form-group">
-          <label>Twitter/X</label>
+          <label htmlFor="edit-twitter">Twitter/X</label>
           <input
+            id="edit-twitter"
             type="url"
             value={formData.socialLinks.twitter || ""}
-            onChange={(e) => setFormData({
-              ...formData,
-              socialLinks: { ...formData.socialLinks, twitter: e.target.value },
-            })}
+            onChange={(e) =>
+              setFormData({
+                ...formData,
+                socialLinks: { ...formData.socialLinks, twitter: e.target.value },
+              })
+            }
             placeholder="https://twitter.com/username"
           />
         </div>
@@ -559,6 +678,9 @@ const EditProfileForm = ({ formData, setFormData, onSave, saving }) => {
 };
 
 const ProfileOverview = ({ profile }) => {
+  const hasConnectLinks =
+    Object.values(profile.socialLinks || {}).some((link) => link) || Boolean(profile.website);
+
   return (
     <div className="overview-content">
       <div className="overview-section">
@@ -592,7 +714,7 @@ const ProfileOverview = ({ profile }) => {
         </div>
       )}
 
-      {Object.values(profile.socialLinks || {}).some((link) => link) && (
+      {hasConnectLinks && (
         <div className="overview-section">
           <h3>Connect</h3>
           <div className="social-links">
@@ -611,6 +733,16 @@ const ProfileOverview = ({ profile }) => {
                 Twitter/X
               </a>
             )}
+            {profile.socialLinks?.portfolio && (
+              <a href={profile.socialLinks.portfolio} target="_blank" rel="noreferrer">
+                Portfolio
+              </a>
+            )}
+            {profile.website && (
+              <a href={profile.website} target="_blank" rel="noreferrer">
+                Website
+              </a>
+            )}
           </div>
         </div>
       )}
@@ -618,18 +750,31 @@ const ProfileOverview = ({ profile }) => {
   );
 };
 
-const ActivityTimeline = ({ profile }) => {
+const ActivityTimeline = () => {
   return (
-    <div className="activity-timeline">
-      <p className="placeholder-text">Activity timeline coming soon</p>
+    <div className="empty-state">
+      <span className="empty-state-icon">
+        <ClockIcon size={24} />
+      </span>
+      <h4>No activity yet</h4>
+      <p>
+        Your recent discussions, replies, and contributions will appear here as you engage
+        with the chapter.
+      </p>
     </div>
   );
 };
 
 const BookmarksView = () => {
   return (
-    <div className="bookmarks-view">
-      <p className="placeholder-text">Your bookmarks will appear here</p>
+    <div className="empty-state">
+      <span className="empty-state-icon">
+        <HeartIcon size={24} />
+      </span>
+      <h4>No bookmarks yet</h4>
+      <p>
+        Save posts, discussions, events, and articles to revisit them later from your profile.
+      </p>
     </div>
   );
 };
@@ -638,10 +783,20 @@ const AchievementsGrid = ({ achievements }) => {
   return (
     <div className="achievements-grid">
       {achievements.map((achievement) => (
-        <div key={achievement.badge} className="achievement-card">
-          <div className="achievement-icon">{achievement.badge}</div>
-          <h4>{achievement.badge}</h4>
+        <div key={achievement.badge || achievement.unlockedAt} className="achievement-card">
+          <span className="achievement-icon">
+            <SparkleIcon size={20} />
+          </span>
+          <span className="achievement-badge">{achievement.badge}</span>
           <p>{achievement.description}</p>
+          {achievement.unlockedAt && (
+            <span className="achievement-date">
+              {new Date(achievement.unlockedAt).toLocaleDateString("en-US", {
+                month: "short",
+                year: "numeric",
+              })}
+            </span>
+          )}
         </div>
       ))}
     </div>
