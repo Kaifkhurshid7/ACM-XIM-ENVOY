@@ -34,10 +34,10 @@ const Toast = ({ toast, onClose }) => {
   };
 
   const colors = {
-    success: "#10b981",
-    error: "#ef4444",
-    warning: "#f59e0b",
-    info: "#3b82f6",
+    success: "var(--color-emerald)",
+    error: "var(--color-warning-red)",
+    warning: "#f59e0b", // amber — not in the token palette
+    info: "var(--color-aether-blue)",
   };
 
   return (

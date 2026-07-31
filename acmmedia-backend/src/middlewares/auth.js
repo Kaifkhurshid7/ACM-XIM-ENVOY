@@ -31,7 +31,7 @@ const authenticate = (req, res, next) => {
     : authHeader;
 
   try {
-    req.user = jwt.verify(token, SECRET);
+    req.user = jwt.verify(token, SECRET, { algorithms: ["HS256"] });
     next();
   } catch (err) {
     res.status(401).json({ msg: "Invalid token" });

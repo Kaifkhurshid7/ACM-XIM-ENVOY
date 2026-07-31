@@ -37,4 +37,25 @@ client.interceptors.request.use((req) => {
   return req;
 });
 
+// On an expired/invalid token (401), clear it and send the user to sign in.
+// Login and session-check requests are excluded so they never trigger a
+// redirect loop.
+client.interceptors.response.use(
+  (res) => res,
+  (err) => {
+    const status = err.response?.status;
+    const url = err.config?.url || "";
+    const isAuthEntry = /(login|me)$/.test(url);
+
+    if (status === 401 && !isAuthEntry && localStorage.getItem("token")) {
+      localStorage.removeItem("token");
+      if (window.location.pathname !== "/login") {
+        window.location.href = "/login";
+      }
+    }
+
+    return Promise.reject(err);
+  }
+);
+
 export default client;
