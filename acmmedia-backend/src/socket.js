@@ -49,7 +49,7 @@ const emitDiscussionPresence = (discussionId) => {
 const init = (httpServer) => {
   io = require("socket.io")(httpServer, {
     cors: {
-      origin: "*",
+      origin: require("./config/frontendOrigins"),
       methods: ["GET", "POST", "PUT", "DELETE"],
     },
     // ─── Performance Tuning ──────────────────────────────────────────────
@@ -71,7 +71,7 @@ const init = (httpServer) => {
     // Admin authentication - join privileged room
     socket.on("auth", (token) => {
       try {
-        const decoded = jwt.verify(token, SECRET);
+        const decoded = jwt.verify(token, SECRET, { algorithms: ["HS256"] });
         if (decoded.role === "admin") {
           socket.join("admins");
           // Send current analytics immediately on admin connect
