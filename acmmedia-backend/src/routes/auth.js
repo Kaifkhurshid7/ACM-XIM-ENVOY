@@ -11,7 +11,7 @@
  * 
  * Security:
  * - Passwords are hashed with bcrypt (10 rounds)
- * - Admin registration requires a secret key
+ * - Admin accounts are provisioned via the admin-only /create-admin endpoint
  * - Emails are normalized to lowercase for consistency
  * 
  * @module routes/auth
@@ -45,38 +45,28 @@ router.get("/me", auth, async (req, res, next) => {
 
 /**
  * POST /register - Creates a new user account.
- * 
+ *
  * Business Rules:
  * - Email must be unique (case-insensitive)
- * - Admin registration requires matching ADMIN_SECRET
- * - Default role is "member" unless admin secret is provided
+ * - Accounts are always created as members
+ * - Admin accounts are provisioned exclusively via /create-admin (admin-only)
  * - Emits analytics update for admin dashboard
  */
 router.post("/register", validateRegister, async (req, res, next) => {
   try {
-    const { name, email, password, role: requestedRole, adminSecret, isAcmMember, acmId } = req.body;
+    const { name, email, password, isAcmMember, acmId } = req.body;
     const emailLower = email.toLowerCase();
 
     // Check for existing user
     const existing = await User.findOne({ email: emailLower });
     if (existing) return next(new AppError(400, "User already exists"));
 
-    // Determine user role - admin requires secret verification
-    let userRole = ROLES.MEMBER;
-    if (requestedRole === ROLES.ADMIN) {
-      const secret = process.env.ADMIN_SECRET || "ADMIN_2026";
-      if (adminSecret !== secret) {
-        return next(new AppError(400, "Invalid Admin Secret Key"));
-      }
-      userRole = ROLES.ADMIN;
-    }
-
     const hashed = await bcrypt.hash(password, 10);
     await User.create({
       name,
       email: emailLower,
       password: hashed,
-      role: userRole,
+      role: ROLES.MEMBER,
       isAcmMember,
       acmId,
     });
@@ -140,7 +130,9 @@ router.post("/login", validateLogin, async (req, res, next) => {
     const isPasswordValid = await bcrypt.compare(req.body.password, user.password);
     if (!isPasswordValid) return next(new AppError(400, "Wrong password"));
 
-    const token = jwt.sign({ id: user._id, role: user.role }, SECRET);
+    const token = jwt.sign({ id: user._id, role: user.role }, SECRET, {
+      expiresIn: "7d",
+    });
     res.json({ token });
   } catch (err) {
     return next(err);

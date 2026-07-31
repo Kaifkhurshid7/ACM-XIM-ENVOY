@@ -13,18 +13,36 @@
  */
 
 const router = require("express").Router();
+const { body, param } = require("express-validator");
 const { Comment } = require("../models");
 const auth = require("../middlewares/auth");
 const role = require("../middlewares/role");
+const { validateRequest } = require("../middlewares/validators");
 const { emitAnalytics } = require("../socket");
 const { ROLES } = require("../constants");
 const { parsePagination, paginatedResponse } = require("../utils/pagination");
+
+const validateCommentCreate = [
+  body("postId").isMongoId().withMessage("Invalid post id format"),
+  body("text")
+    .trim()
+    .notEmpty()
+    .withMessage("Comment text is required")
+    .isLength({ max: 1000 })
+    .withMessage("Comment must be at most 1000 characters"),
+  validateRequest,
+];
+
+const validateCommentList = [
+  param("postId").isMongoId().withMessage("Invalid post id format"),
+  validateRequest,
+];
 
 /**
  * Get all comments for a specific post with pagination.
  * Populates user name for display. Uses compound index for performance.
  */
-router.get("/:postId", async (req, res) => {
+router.get("/:postId", validateCommentList, async (req, res) => {
   try {
     const { page, limit, skip } = parsePagination(req.query, { limit: 30 });
     const filter = { postId: req.params.postId };
@@ -49,7 +67,7 @@ router.get("/:postId", async (req, res) => {
  * Add a comment to a post.
  * Returns the populated comment for immediate frontend display.
  */
-router.post("/", auth, async (req, res) => {
+router.post("/", auth, validateCommentCreate, async (req, res) => {
   try {
     const newComment = new Comment({
       postId: req.body.postId,

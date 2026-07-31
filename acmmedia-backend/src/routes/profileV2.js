@@ -40,13 +40,24 @@ if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
 
+// Map an allowed MIME type to the extension we write to disk. The stored
+// extension is derived from the (server-checked) MIME type — never from the
+// client-supplied original filename, which could be "avatar.html".
+const MIME_EXTENSIONS = {
+  "image/jpeg": ".jpg",
+  "image/png": ".png",
+  "image/gif": ".gif",
+  "image/webp": ".webp",
+};
+
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
     const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    cb(null, `${req.user.id}-${uniqueSuffix}${path.extname(file.originalname)}`);
+    const ext = MIME_EXTENSIONS[file.mimetype] || ".img";
+    cb(null, `${req.user.id}-${uniqueSuffix}${ext}`);
   },
 });
 
@@ -54,11 +65,15 @@ const upload = multer({
   storage,
   limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
   fileFilter: (req, file, cb) => {
-    const allowedMimes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
-    if (allowedMimes.includes(file.mimetype)) {
+    // Accept only when the declared MIME type maps to an allowed image type
+    // AND the original filename's extension is a known image extension.
+    const expectedExt = MIME_EXTENSIONS[file.mimetype];
+    const providedExt = path.extname(file.originalname || "").toLowerCase();
+    const allowedExts = [".jpg", ".jpeg", ".png", ".gif", ".webp"];
+    if (expectedExt && allowedExts.includes(providedExt)) {
       cb(null, true);
     } else {
-      cb(new Error("Only JPEG, PNG, GIF, WebP allowed"));
+      cb(new Error("Only JPEG, PNG, GIF, WebP images are allowed"));
     }
   },
 });
@@ -79,7 +94,9 @@ function deleteFile(filePath) {
 
 function getClientInfo(req) {
   const userAgent = req.headers["user-agent"] || "Unknown";
-  const ipAddress = req.headers["x-forwarded-for"]?.split(",")[0] || req.ip || "0.0.0.0";
+  // req.ip is derived from the trusted proxy chain; never trust the raw
+  // X-Forwarded-For header, which clients can set to any value.
+  const ipAddress = req.ip || "0.0.0.0";
   return { ipAddress, userAgent };
 }
 
@@ -283,6 +300,12 @@ router.patch("/", authenticateToken, async (req, res) => {
       }
       if (socialLinks.twitter && !securityService.isValidSocialLink("twitter", socialLinks.twitter)) {
         return res.status(400).json({ error: "Invalid Twitter URL" });
+      }
+      if (socialLinks.portfolio && !securityService.isValidUrl(socialLinks.portfolio)) {
+        return res.status(400).json({ error: "Invalid portfolio URL" });
+      }
+      if (socialLinks.website && !securityService.isValidUrl(socialLinks.website)) {
+        return res.status(400).json({ error: "Invalid website URL" });
       }
 
       if (socialLinks.github) user.socialLinks.github = socialLinks.github;
