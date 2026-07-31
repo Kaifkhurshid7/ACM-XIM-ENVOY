@@ -43,6 +43,19 @@ const APP_URL = process.env.APP_URL || "https://acm-xim.local";
 const FROM_EMAIL = process.env.FROM_EMAIL || "noreply@acmxim.space";
 
 /**
+ * Escape a string for safe interpolation into HTML email bodies.
+ * Prevents stored values (e.g. a user's display name) from injecting markup.
+ */
+function escapeHtml(value) {
+  return String(value == null ? "" : value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+/**
  * Base HTML email template
  */
 function getEmailTemplate(title, content, actionUrl, actionText) {
@@ -77,7 +90,7 @@ function getEmailTemplate(title, content, actionUrl, actionText) {
             ${content}
             ${
               actionUrl
-                ? `<center><a href="${actionUrl}" class="button">${actionText || "View"}</a></center>`
+                ? `<center><a href="${escapeHtml(actionUrl)}" class="button">${actionText || "View"}</a></center>`
                 : ""
             }
             <p style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; color: #999; font-size: 12px;">
@@ -98,6 +111,7 @@ function getEmailTemplate(title, content, actionUrl, actionText) {
  * Send welcome email
  */
 async function sendWelcomeEmail(email, name) {
+  name = escapeHtml(name);
   const content = `
     <p>Welcome to <strong>${APP_NAME}</strong>, ${name}!</p>
     <p>We're excited to have you join our community of tech enthusiasts and builders.</p>
@@ -121,6 +135,7 @@ async function sendWelcomeEmail(email, name) {
  * Send email verification email
  */
 async function sendVerificationEmail(email, name, verificationLink) {
+  name = escapeHtml(name);
   const content = `
     <p>Hi ${name},</p>
     <p>Please verify your email address to activate your account.</p>
@@ -138,6 +153,7 @@ async function sendVerificationEmail(email, name, verificationLink) {
  * Send password reset email
  */
 async function sendPasswordResetEmail(email, name, resetLink) {
+  name = escapeHtml(name);
   const content = `
     <p>Hi ${name},</p>
     <p>We received a request to reset your password. Click the button below to set a new password:</p>
@@ -162,6 +178,7 @@ async function sendPasswordResetEmail(email, name, resetLink) {
  * Send password changed confirmation
  */
 async function sendPasswordChangedEmail(email, name, ipAddress, timestamp) {
+  name = escapeHtml(name);
   const content = `
     <p>Hi ${name},</p>
     <div class="success">
@@ -183,6 +200,7 @@ async function sendPasswordChangedEmail(email, name, ipAddress, timestamp) {
  * Send suspicious login alert
  */
 async function sendLoginAlertEmail(email, name, ipAddress, browser, location) {
+  name = escapeHtml(name);
   const content = `
     <p>Hi ${name},</p>
     <div class="warning">
@@ -206,6 +224,7 @@ async function sendLoginAlertEmail(email, name, ipAddress, browser, location) {
  * Send account security alert
  */
 async function sendSecurityAlertEmail(email, name, alertType, details) {
+  name = escapeHtml(name);
   const alertMessages = {
     FAILED_LOGIN_ATTEMPTS: {
       subject: "Multiple Failed Login Attempts",
@@ -217,7 +236,7 @@ async function sendSecurityAlertEmail(email, name, alertType, details) {
     },
     EMAIL_CHANGED: {
       subject: "Email Address Changed",
-      content: `<p>Your email address was changed to: ${details.newEmail}. If you didn't make this change, contact support immediately.</p>`,
+      content: `<p>Your email address was changed to: ${escapeHtml(details.newEmail)}. If you didn't make this change, contact support immediately.</p>`,
     },
   };
 

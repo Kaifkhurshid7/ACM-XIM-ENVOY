@@ -34,7 +34,12 @@ import {
   Sanitize,
   getPasswordStrength,
 } from "../utils/validation";
-import { SparkleIcon } from "../components/ui/Icons";
+import {
+  ChapterIcon,
+  CalendarIcon,
+  MessageCircleIcon,
+  ShieldIcon,
+} from "../components/ui/Icons";
 import "../components/FormField.css";
 import "./Register.css";
 
@@ -94,12 +99,12 @@ const Register = () => {
     ),
     password: composeValidators(
       ValidationRules.required("Password"),
-      ValidationRules.minLength(6),
+      ValidationRules.minLength(8),
       ValidationRules.passwordStrength()
     ),
     confirmPassword: composeValidators(
       ValidationRules.required("Confirm password"),
-      ValidationRules.minLength(6)
+      ValidationRules.minLength(8)
     ),
     acmId: ValidationRules.minLength(1),
   };
@@ -310,183 +315,238 @@ const Register = () => {
   // ============================================================================
 
   return (
-    <div className="auth-wrapper">
-      <div className="auth-card register-card">
-        {/* Header */}
-        <header className="auth-card-header">
-          <div className="auth-logo-mark">
-            <SparkleIcon size={24} />
+    <div className="register-page">
+      <div className="register-shell">
+        {/* ── Brand / showcase panel ── */}
+        <aside className="register-brand">
+          <div className="register-brand-inner">
+            <div className="register-brand-mark">
+              <ChapterIcon size={22} />
+            </div>
+            <p className="register-eyebrow">{AUTH.REGISTER.BRAND_EYEBROW}</p>
+            <h2 className="register-headline">{AUTH.REGISTER.BRAND_HEADLINE}</h2>
+            <p className="register-subheadline">
+              {AUTH.REGISTER.BRAND_SUBHEADLINE}
+            </p>
+
+            <ul className="register-value-props">
+              <li className="register-value-prop">
+                <span className="register-value-icon" aria-hidden="true">
+                  <CalendarIcon size={16} />
+                </span>
+                <span className="register-value-text">
+                  <strong>{AUTH.REGISTER.VALUE_1_TITLE}</strong>
+                  <span>{AUTH.REGISTER.VALUE_1_DESC}</span>
+                </span>
+              </li>
+              <li className="register-value-prop">
+                <span className="register-value-icon" aria-hidden="true">
+                  <MessageCircleIcon size={16} />
+                </span>
+                <span className="register-value-text">
+                  <strong>{AUTH.REGISTER.VALUE_2_TITLE}</strong>
+                  <span>{AUTH.REGISTER.VALUE_2_DESC}</span>
+                </span>
+              </li>
+              <li className="register-value-prop">
+                <span className="register-value-icon" aria-hidden="true">
+                  <ShieldIcon size={16} />
+                </span>
+                <span className="register-value-text">
+                  <strong>{AUTH.REGISTER.VALUE_3_TITLE}</strong>
+                  <span>{AUTH.REGISTER.VALUE_3_DESC}</span>
+                </span>
+              </li>
+            </ul>
+
+            <p className="register-legal">{AUTH.REGISTER.BRAND_LEGAL}</p>
           </div>
-          <h1>{AUTH.REGISTER.HEADING}</h1>
-          <p>{AUTH.REGISTER.SUBHEADING}</p>
-        </header>
+        </aside>
 
-        {/* Form */}
-        <form
-          onSubmit={handleSubmit}
-          className="auth-form-grid"
-          noValidate
-          aria-label="Account creation form"
-        >
-          {/* Personal Information Section */}
-          <FormSection heading="Basic Information">
-            {/* Full Name */}
-            <TextField
-              label={AUTH.REGISTER.LABEL_NAME}
-              id="register-name"
-              type="text"
-              placeholder={AUTH.REGISTER.PLACEHOLDER_NAME}
-              value={formData.name}
-              onChange={(e) => handleFieldChange("name", e.target.value)}
-              onBlur={() => handleFieldBlur("name")}
-              error={fieldTouched.name ? fieldErrors.name : null}
-              required
-              autoComplete="name"
-              disabled={loading}
-            />
+        {/* ── Form panel ── */}
+        <main className="register-form-panel">
+          <div className="register-form-card">
+            <header className="register-form-header">
+              <h1>{AUTH.REGISTER.HEADING}</h1>
+              <p>{AUTH.REGISTER.SUBHEADING}</p>
+            </header>
 
-            {/* University Email */}
-            <TextField
-              label={AUTH.REGISTER.LABEL_EMAIL}
-              id="register-email"
-              type="email"
-              placeholder={AUTH.REGISTER.PLACEHOLDER_EMAIL}
-              value={formData.email}
-              onChange={(e) => handleFieldChange("email", e.target.value)}
-              onBlur={() => handleFieldBlur("email")}
-              error={fieldTouched.email ? fieldErrors.email : null}
-              hint={AUTH.REGISTER.LABEL_EMAIL_HINT}
-              required
-              autoComplete="email"
-              disabled={loading}
-            />
-          </FormSection>
-
-          {/* Security Section */}
-          <FormSection heading="Security">
-            {/* Password Fields Row */}
-            <FormRow className="two-col">
-              {/* Password */}
-              <PasswordField
-                label={AUTH.REGISTER.LABEL_PASSWORD}
-                id="register-password"
-                placeholder={AUTH.REGISTER.PLACEHOLDER_PASSWORD}
-                value={formData.password}
-                onChange={(e) => handleFieldChange("password", e.target.value)}
-                onBlur={() => handleFieldBlur("password")}
-                error={fieldTouched.password ? fieldErrors.password : null}
-                hint={AUTH.REGISTER.LABEL_PASSWORD_HINT}
-                required
-                showStrength={true}
-                strengthIndicator={passwordStrength}
-                showToggle={true}
-                disabled={loading}
-              />
-
-              {/* Confirm Password */}
-              <PasswordField
-                label={AUTH.REGISTER.LABEL_PASSWORD_CONFIRM}
-                id="register-confirm"
-                placeholder={AUTH.REGISTER.PLACEHOLDER_PASSWORD_CONFIRM}
-                value={formData.confirmPassword}
-                onChange={(e) =>
-                  handleFieldChange("confirmPassword", e.target.value)
-                }
-                onBlur={() => handleFieldBlur("confirmPassword")}
-                error={
-                  fieldTouched.confirmPassword
-                    ? fieldErrors.confirmPassword
-                    : null
-                }
-                required
-                showToggle={false}
-                disabled={loading}
-              />
-            </FormRow>
-          </FormSection>
-
-          {/* ACM Membership Section */}
-          <FormSection heading="Chapter Membership">
-            {/* ACM Member Status */}
-            <FormRow className="two-col">
-              <SelectField
-                label={AUTH.REGISTER.LABEL_ACM_MEMBER}
-                id="register-acm"
-                value={formData.isAcmMember}
-                onChange={(e) =>
-                  setFormData({
-                    ...formData,
-                    isAcmMember: e.target.value,
-                  })
-                }
-                options={[
-                  { value: "no", label: AUTH.REGISTER.OPTION_NOT_YET },
-                  { value: "yes", label: AUTH.REGISTER.OPTION_YES },
-                ]}
-                required
-                disabled={loading}
-              />
-
-              {/* ACM ID (conditional) */}
-              {formData.isAcmMember === "yes" && (
+            {/* Form */}
+            <form
+              onSubmit={handleSubmit}
+              className="register-form"
+              noValidate
+              aria-label="Account creation form"
+            >
+              {/* Personal Information Section */}
+              <FormSection heading="Basic Information">
+                {/* Full Name */}
                 <TextField
-                  label={AUTH.REGISTER.LABEL_ACM_ID}
-                  id="register-acm-id"
+                  label={AUTH.REGISTER.LABEL_NAME}
+                  id="register-name"
                   type="text"
-                  placeholder={AUTH.REGISTER.PLACEHOLDER_ACM_ID}
-                  value={formData.acmId}
-                  onChange={(e) => handleFieldChange("acmId", e.target.value)}
-                  onBlur={() => handleFieldBlur("acmId")}
-                  error={fieldTouched.acmId ? fieldErrors.acmId : null}
-                  hint={AUTH.REGISTER.LABEL_ACM_ID_HINT}
+                  placeholder={AUTH.REGISTER.PLACEHOLDER_NAME}
+                  value={formData.name}
+                  onChange={(e) => handleFieldChange("name", e.target.value)}
+                  onBlur={() => handleFieldBlur("name")}
+                  error={fieldTouched.name ? fieldErrors.name : null}
+                  required
+                  autoComplete="name"
                   disabled={loading}
                 />
-              )}
-            </FormRow>
-          </FormSection>
 
-          {/* Submit Button */}
-          <button
-            ref={submitButtonRef}
-            type="submit"
-            className="auth-submit-btn"
-            disabled={loading}
-            aria-busy={loading}
-            aria-label={
-              loading
-                ? "Creating account, please wait..."
-                : "Create account"
-            }
-          >
-            {loading ? "Creating account..." : AUTH.REGISTER.BUTTON_SUBMIT}
-          </button>
-        </form>
+                {/* University Email */}
+                <TextField
+                  label={AUTH.REGISTER.LABEL_EMAIL}
+                  id="register-email"
+                  type="email"
+                  placeholder={AUTH.REGISTER.PLACEHOLDER_EMAIL}
+                  value={formData.email}
+                  onChange={(e) => handleFieldChange("email", e.target.value)}
+                  onBlur={() => handleFieldBlur("email")}
+                  error={fieldTouched.email ? fieldErrors.email : null}
+                  hint={AUTH.REGISTER.LABEL_EMAIL_HINT}
+                  required
+                  autoComplete="email"
+                  disabled={loading}
+                />
+              </FormSection>
 
-        {/* Footer */}
-        <div className="auth-card-footer">
-          <p>
-            Already have an account?{" "}
-            <button
-              type="button"
-              className="auth-link"
-              onClick={() => navigate("/login")}
-              aria-label="Go to sign in page"
-            >
-              Sign in
-            </button>
-          </p>
-          <p className="auth-footer-alt">
-            Chapter admin?{" "}
-            <button
-              type="button"
-              className="auth-link"
-              onClick={() => navigate("/admin-login")}
-              aria-label="Go to admin access page"
-            >
-              Admin access →
-            </button>
-          </p>
-        </div>
+              {/* Security Section */}
+              <FormSection heading="Security">
+                {/* Password Fields Row */}
+                <FormRow className="two-col">
+                  {/* Password */}
+                  <PasswordField
+                    label={AUTH.REGISTER.LABEL_PASSWORD}
+                    id="register-password"
+                    placeholder={AUTH.REGISTER.PLACEHOLDER_PASSWORD}
+                    value={formData.password}
+                    onChange={(e) =>
+                      handleFieldChange("password", e.target.value)
+                    }
+                    onBlur={() => handleFieldBlur("password")}
+                    error={
+                      fieldTouched.password ? fieldErrors.password : null
+                    }
+                    hint={AUTH.REGISTER.LABEL_PASSWORD_HINT}
+                    required
+                    showStrength={true}
+                    strengthIndicator={passwordStrength}
+                    showToggle={true}
+                    disabled={loading}
+                  />
+
+                  {/* Confirm Password */}
+                  <PasswordField
+                    label={AUTH.REGISTER.LABEL_PASSWORD_CONFIRM}
+                    id="register-confirm"
+                    placeholder={AUTH.REGISTER.PLACEHOLDER_PASSWORD_CONFIRM}
+                    value={formData.confirmPassword}
+                    onChange={(e) =>
+                      handleFieldChange("confirmPassword", e.target.value)
+                    }
+                    onBlur={() => handleFieldBlur("confirmPassword")}
+                    error={
+                      fieldTouched.confirmPassword
+                        ? fieldErrors.confirmPassword
+                        : null
+                    }
+                    required
+                    showToggle={false}
+                    disabled={loading}
+                  />
+                </FormRow>
+              </FormSection>
+
+              {/* ACM Membership Section */}
+              <FormSection heading="Chapter Membership">
+                {/* ACM Member Status */}
+                <FormRow className="two-col">
+                  <SelectField
+                    label={AUTH.REGISTER.LABEL_ACM_MEMBER}
+                    id="register-acm"
+                    value={formData.isAcmMember}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        isAcmMember: e.target.value,
+                      })
+                    }
+                    options={[
+                      { value: "no", label: AUTH.REGISTER.OPTION_NOT_YET },
+                      { value: "yes", label: AUTH.REGISTER.OPTION_YES },
+                    ]}
+                    required
+                    disabled={loading}
+                  />
+
+                  {/* ACM ID (conditional) */}
+                  {formData.isAcmMember === "yes" && (
+                    <TextField
+                      label={AUTH.REGISTER.LABEL_ACM_ID}
+                      id="register-acm-id"
+                      type="text"
+                      placeholder={AUTH.REGISTER.PLACEHOLDER_ACM_ID}
+                      value={formData.acmId}
+                      onChange={(e) =>
+                        handleFieldChange("acmId", e.target.value)
+                      }
+                      onBlur={() => handleFieldBlur("acmId")}
+                      error={fieldTouched.acmId ? fieldErrors.acmId : null}
+                      hint={AUTH.REGISTER.LABEL_ACM_ID_HINT}
+                      disabled={loading}
+                    />
+                  )}
+                </FormRow>
+              </FormSection>
+
+              {/* Submit Button */}
+              <button
+                ref={submitButtonRef}
+                type="submit"
+                className="auth-submit-btn"
+                disabled={loading}
+                aria-busy={loading}
+                aria-label={
+                  loading
+                    ? "Creating account, please wait..."
+                    : "Create account"
+                }
+              >
+                {loading
+                  ? "Creating account..."
+                  : AUTH.REGISTER.BUTTON_SUBMIT}
+              </button>
+            </form>
+
+            {/* Footer */}
+            <div className="register-footer">
+              <p>
+                Already have an account?{" "}
+                <button
+                  type="button"
+                  className="auth-link"
+                  onClick={() => navigate("/login")}
+                  aria-label="Go to sign in page"
+                >
+                  Sign in
+                </button>
+              </p>
+              <p className="register-footer-alt">
+                Chapter admin?{" "}
+                <button
+                  type="button"
+                  className="auth-link"
+                  onClick={() => navigate("/admin-login")}
+                  aria-label="Go to admin access page"
+                >
+                  Admin access →
+                </button>
+              </p>
+            </div>
+          </div>
+        </main>
       </div>
 
       {/* Toast Notification */}
