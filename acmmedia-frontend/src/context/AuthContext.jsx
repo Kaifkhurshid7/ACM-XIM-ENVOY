@@ -18,6 +18,7 @@
 
 import React, { createContext, useState, useEffect } from "react";
 import * as authApi from "../api/auth";
+import { logout as logoutSession } from "../api/authV2";
 import { extractObject, extractToken } from "../utils/api";
 
 export const AuthContext = createContext();
@@ -79,14 +80,27 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  /**
+   * Commits an already-authenticated session (token + user) without running
+   * the full login flow. Used by AdminLogin to adopt an admin session only
+   * after the role has been confirmed.
+   */
+  const setSession = (token, user) => {
+    if (token) localStorage.setItem("token", token);
+    setUser(user || null);
+  };
+
   /** Clears authentication state and removes stored token */
   const logout = () => {
+    // Best-effort server-side logout so a security log entry is written.
+    // Fire-and-forget — client logout must never be blocked by the network.
+    logoutSession().catch(() => {});
     localStorage.removeItem("token");
     setUser(null);
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, login, logout, setSession, loading }}>
       {children}
     </AuthContext.Provider>
   );

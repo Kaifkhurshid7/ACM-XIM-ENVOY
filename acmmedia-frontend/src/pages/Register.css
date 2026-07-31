@@ -1,13 +1,303 @@
-/**
- * Register Page Specific Styles
- * 
- * Complements the FormField.css and auth.css with 
- * page-specific layout and spacing adjustments.
- */
+/* ─────────────────────────────────────────────────────────────────────────────
+   Register — Premium SaaS split signup
+   Flat black canvas, precision hairlines, mono uppercase eyebrows, one
+   restrained accent (brand lime). Mirrors the forum + modern profile design
+   language so every page reads as one system.
+   ───────────────────────────────────────────────────────────────────────────── */
 
-/* ============================================================================
-   Footer Link Styling
-   ============================================================================ */
+.register-page {
+  --surface: #0f1113;
+  --surface-raised: #15171a;
+  --surface-input: #0b0d0f;
+  --hairline: rgba(255, 255, 255, 0.07);
+  --hairline-strong: rgba(255, 255, 255, 0.14);
+  --text-1: #f2f4f6;
+  --text-2: #b6bcc6;
+  --text-3: #7d838d;
+  --accent: var(--color-neon-lime);
+  --accent-ink: var(--color-pitch-black);
+  --accent-soft: rgba(228, 242, 34, 0.08);
+
+  min-height: 100vh;
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
+  background: var(--color-pitch-black);
+  color: var(--text-1);
+  animation: register-fade 0.28s ease;
+}
+
+@keyframes register-fade {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ─── Split shell ─────────────────────────────────────────────────────────── */
+
+.register-shell {
+  display: grid;
+  grid-template-columns: minmax(360px, 5fr) minmax(0, 7fr);
+  min-height: 100vh;
+}
+
+/* ─── Brand / showcase panel ──────────────────────────────────────────────── */
+
+.register-brand {
+  position: sticky;
+  top: 64px;
+  height: calc(100vh - 64px);
+  background:
+    radial-gradient(900px 520px at 20% -10%, rgba(228, 242, 34, 0.06), transparent 60%),
+    linear-gradient(180deg, #0d0f11, #090a0b);
+  border-right: 1px solid var(--hairline);
+  padding: var(--spacing-48) var(--spacing-40);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.register-brand-inner {
+  max-width: 400px;
+  width: 100%;
+}
+
+.register-brand-mark {
+  width: 44px;
+  height: 44px;
+  background: var(--accent);
+  color: var(--accent-ink);
+  border-radius: var(--radius-md);
+  display: grid;
+  place-items: center;
+  margin-bottom: var(--spacing-24);
+}
+
+.register-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: 0 0 6px;
+}
+
+.register-eyebrow::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.register-headline {
+  margin: 0;
+  font-size: clamp(30px, 3.4vw, 44px);
+  font-weight: 650;
+  letter-spacing: -0.03em;
+  line-height: 1.08;
+}
+
+.register-subheadline {
+  margin: 14px 0 0;
+  color: var(--text-2);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+/* Value props */
+
+.register-value-props {
+  list-style: none;
+  margin: 32px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 14px;
+}
+
+.register-value-prop {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.register-value-icon {
+  flex: 0 0 auto;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-md);
+  background: var(--accent-soft);
+  color: var(--accent);
+  display: grid;
+  place-items: center;
+}
+
+.register-value-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.register-value-text strong {
+  font-size: 13.5px;
+  color: var(--text-1);
+  font-weight: 600;
+}
+
+.register-value-text span {
+  font-size: 12.5px;
+  color: var(--text-3);
+  line-height: 1.5;
+}
+
+.register-legal {
+  margin: 24px 0 0;
+  font-size: 11.5px;
+  color: var(--text-3);
+  line-height: 1.5;
+}
+
+/* ─── Form panel ──────────────────────────────────────────────────────────── */
+
+.register-form-panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-48) var(--spacing-32);
+  min-height: 100vh;
+}
+
+.register-form-card {
+  width: 100%;
+  max-width: 560px;
+  background: var(--surface);
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-lg);
+  padding: 40px 40px 32px;
+}
+
+.register-form-header h1 {
+  margin: 0 0 6px;
+  font-size: 24px;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+}
+
+.register-form-header p {
+  margin: 0 0 28px;
+  color: var(--text-2);
+  font-size: 13.5px;
+  line-height: 1.55;
+}
+
+.register-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-20);
+}
+
+/* ─── Scoped form-field overrides (register page only) ───────────────────── */
+
+.register-page .form-section {
+  gap: 14px;
+}
+
+.register-page .form-section-heading {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-3);
+}
+
+.register-page .form-field-label {
+  color: var(--text-2);
+}
+
+.register-page .form-field-input,
+.register-page .form-field-select {
+  background: var(--surface-input);
+  border-color: var(--hairline);
+  color: var(--text-1);
+  transition: border-color 0.16s ease, box-shadow 0.16s ease;
+}
+
+.register-page .form-field-input::placeholder,
+.register-page .form-field-select::placeholder {
+  color: var(--text-3);
+}
+
+.register-page .form-field-input:focus,
+.register-page .form-field-select:focus {
+  border-color: rgba(228, 242, 34, 0.5);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.register-page .form-field-hint {
+  color: var(--text-3);
+}
+
+.register-page .strength-bar {
+  background: var(--hairline-strong);
+}
+
+/* Submit button — re-skins auth.css's .auth-submit-btn (keeps its spinner) */
+
+.register-page .auth-submit-btn {
+  width: 100%;
+  min-height: 42px;
+  padding: 0 16px;
+  margin-top: var(--spacing-8);
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--accent);
+  color: var(--accent-ink);
+  font-size: 13.5px;
+  font-weight: 650;
+  transition: transform 0.14s ease, box-shadow 0.14s ease, filter 0.14s ease, opacity 0.14s ease;
+}
+
+.register-page .auth-submit-btn:hover:not(:disabled) {
+  opacity: 1; /* neutralizes auth.css hover opacity */
+  filter: brightness(1.07);
+  box-shadow: 0 4px 20px rgba(228, 242, 34, 0.22);
+}
+
+.register-page .auth-submit-btn:active {
+  transform: translateY(0.5px);
+}
+
+.register-page .auth-submit-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+/* ─── Footer ──────────────────────────────────────────────────────────────── */
+
+.register-footer {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid var(--hairline);
+}
+
+.register-footer p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-3);
+  line-height: 1.5;
+}
+
+.register-footer-alt {
+  margin-top: 8px;
+  font-size: 12px;
+}
+
+/* Footer link buttons */
 
 .auth-link {
   background: none;
@@ -31,52 +321,7 @@
   outline-offset: 2px;
 }
 
-/* ============================================================================
-   Responsive Adjustments
-   ============================================================================ */
-
-@media (max-width: 640px) {
-  .auth-card.register-card {
-    max-width: 100%;
-  }
-
-  .form-row.two-col {
-    grid-template-columns: 1fr;
-  }
-
-  .auth-form-grid {
-    gap: var(--spacing-20);
-  }
-
-  .form-section {
-    gap: var(--spacing-16);
-  }
-}
-
-/* ============================================================================
-   Accessibility: Focus Management
-   ============================================================================ */
-
-/* Skip to main content link (for screen readers) */
-.skip-to-main {
-  position: absolute;
-  top: -40px;
-  left: 0;
-  background: var(--color-neon-lime);
-  color: var(--color-pitch-black);
-  padding: var(--spacing-8) var(--spacing-12);
-  text-decoration: none;
-  z-index: 100;
-  font-weight: 590;
-}
-
-.skip-to-main:focus {
-  top: 0;
-}
-
-/* ============================================================================
-   Loading State
-   ============================================================================ */
+/* ─── Shared auth fade-in (also used by Login / AdminLogin) ──────────────── */
 
 @keyframes fadeIn {
   from {
@@ -93,11 +338,66 @@
   animation: fadeIn 0.3s ease;
 }
 
-/* ============================================================================
-   Motion Preferences
-   ============================================================================ */
+/* ─── Responsive ──────────────────────────────────────────────────────────── */
+
+@media (max-width: 1024px) {
+  .register-brand {
+    padding: var(--spacing-32);
+  }
+}
+
+@media (max-width: 900px) {
+  .register-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .register-brand {
+    position: static;
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--hairline);
+    padding: 28px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .register-brand-inner {
+    max-width: none;
+  }
+
+  .register-brand-mark {
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .register-subheadline,
+  .register-value-props,
+  .register-legal {
+    display: none;
+  }
+
+  .register-form-panel {
+    min-height: 0;
+    align-items: flex-start;
+    padding: 32px 16px 48px;
+  }
+}
+
+@media (max-width: 640px) {
+  .register-form-card {
+    padding: 24px 16px;
+    border-radius: var(--radius-md);
+  }
+}
+
+/* ─── Motion preferences ──────────────────────────────────────────────────── */
 
 @media (prefers-reduced-motion: reduce) {
+  .register-page,
+  .register-brand,
+  .register-form-card,
   .auth-card,
   .auth-link,
   .form-field-input,

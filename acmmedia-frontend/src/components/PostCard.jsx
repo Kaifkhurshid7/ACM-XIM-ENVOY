@@ -184,7 +184,7 @@ const PostCard = ({ post, onDelete }) => {
                 <div key={c._id} style={{ padding: "0.8rem 0", borderBottom: "1px solid rgba(255,255,255,0.05)" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.2rem" }}>
                     <span style={{ fontWeight: "bold", color: "#fff", fontSize: "0.9rem" }}>
-                      {c.user?.name || "Member"}
+                      {c.user?.name || "ACM Member"}
                     </span>
                     {isAdmin && (
                       <button
