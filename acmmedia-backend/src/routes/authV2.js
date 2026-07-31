@@ -20,7 +20,7 @@ const router = express.Router();
 const User = require("../models/User");
 const securityService = require("../services/securityService");
 const emailService = require("../services/emailService");
-const { authenticateToken } = require("../middlewares/auth");
+const authenticateToken = require("../middlewares/auth");
 const { validatePasswordStrength } = require("../middlewares/validators");
 const logger = require("../utils/logger");
 

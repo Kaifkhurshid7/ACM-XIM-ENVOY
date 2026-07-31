@@ -134,7 +134,7 @@ router.post("/create-admin", auth, role(ROLES.ADMIN), async (req, res, next) => 
  */
 router.post("/login", validateLogin, async (req, res, next) => {
   try {
-    const user = await User.findOne({ email: req.body.email.toLowerCase() });
+    const user = await User.findOne({ email: req.body.email.toLowerCase() }).select("+password");
     if (!user) return next(new AppError(400, "User not found"));
 
     const isPasswordValid = await bcrypt.compare(req.body.password, user.password);
