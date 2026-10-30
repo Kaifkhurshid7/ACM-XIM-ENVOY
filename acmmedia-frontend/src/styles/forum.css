@@ -13,9 +13,9 @@
   --text-1: #f2f4f6;
   --text-2: #b6bcc6;
   --text-3: #7d838d;
-  --accent: var(--color-neon-lime);
+  --accent: var(--color-accent);
   --accent-ink: var(--color-pitch-black);
-  --accent-soft: rgba(228, 242, 34, 0.08);
+  --accent-soft: rgba(255, 255, 255, 0.08);
   --danger: #f07171;
 
   min-height: 100vh;
@@ -181,7 +181,7 @@
 .discussion-composer select:focus,
 .discussion-composer textarea:focus,
 .reply-composer textarea:focus {
-  border-color: rgba(228, 242, 34, 0.5);
+  border-color: rgba(255, 255, 255, 0.5);
   box-shadow: 0 0 0 3px var(--accent-soft);
 }
 
@@ -254,7 +254,7 @@
 
 .composer-toggle:hover {
   filter: brightness(1.07);
-  box-shadow: 0 4px 20px rgba(228, 242, 34, 0.22);
+  box-shadow: 0 4px 20px rgba(255, 255, 255, 0.22);
 }
 
 .composer-toggle:active {
@@ -310,7 +310,7 @@
 .discussion-composer button[type="submit"]:hover:not(:disabled),
 .reply-composer button[type="submit"]:hover:not(:disabled) {
   filter: brightness(1.07);
-  box-shadow: 0 4px 20px rgba(228, 242, 34, 0.22);
+  box-shadow: 0 4px 20px rgba(255, 255, 255, 0.22);
 }
 
 .discussion-composer button[type="submit"]:disabled,
@@ -694,7 +694,7 @@
 
 .thread-actions button.active {
   color: var(--accent);
-  border-color: rgba(228, 242, 34, 0.35);
+  border-color: rgba(255, 255, 255, 0.35);
   background: var(--accent-soft);
 }
 

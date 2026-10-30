@@ -6,7 +6,7 @@
 /* Token aliases — map the legacy names used below onto the app's design
    system so these styles resolve instead of silently falling back. */
 :root {
-  --primary: #e4f222;
+  --primary: #ffffff;
   --secondary: #8a8f98;
   --color-bg: #08090a;
 }
