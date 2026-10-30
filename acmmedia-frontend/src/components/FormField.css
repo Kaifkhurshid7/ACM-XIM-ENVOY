@@ -80,8 +80,8 @@
 /* Focus state - enhanced visual feedback */
 .form-field-input:focus,
 .form-field-select:focus {
-  border-color: var(--color-neon-lime);
-  box-shadow: 0 0 0 3px rgba(228, 242, 34, 0.08);
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.08);
 }
 
 /* Hover state */
@@ -172,7 +172,7 @@
 }
 
 .password-toggle-btn:focus {
-  outline: 2px solid var(--color-neon-lime);
+  outline: 2px solid var(--color-accent);
   outline-offset: 2px;
 }
 
@@ -204,7 +204,7 @@
 }
 
 .strength-bar.active {
-  background: var(--color-neon-lime);
+  background: var(--color-accent);
 }
 
 .password-strength-label {
@@ -240,8 +240,8 @@
 }
 
 .form-field-select option:checked {
-  background: linear-gradient(var(--color-neon-lime), var(--color-neon-lime));
-  background-color: var(--color-neon-lime);
+  background: linear-gradient(var(--color-accent), var(--color-accent));
+  background-color: var(--color-accent);
   color: var(--color-pitch-black);
 }
 
@@ -264,7 +264,7 @@
 }
 
 .form-field-select:focus ~ .select-field-chevron {
-  color: var(--color-neon-lime);
+  color: var(--color-accent);
 }
 
 /* ============================================================================
