@@ -672,3 +672,395 @@
 @media (max-width: 640px) {
   .al-page .form-row.two-col { grid-template-columns: 1fr; }
 }
+
+/* ─── Register: membership card + perks ───────────────────────────────────── */
+
+.rc { margin-top: var(--spacing-32); max-width: 480px; perspective: 1000px; }
+
+.rc-card {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  aspect-ratio: 1.586;
+  padding: 26px 28px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 22px;
+  background:
+    radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1.2px) 0 0 / 16px 16px,
+    linear-gradient(145deg, #1b1b1b, #070707 70%);
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.03) inset;
+  transform: rotateX(4deg) rotateY(-8deg) rotateZ(-2deg);
+  transition: transform 0.5s ease;
+}
+
+.rc:hover .rc-card { transform: rotateX(0) rotateY(0) rotateZ(0) scale(1.02); }
+
+/* Holographic sheen sweeping across the card */
+.rc-sheen {
+  position: absolute;
+  inset: -40%;
+  background: linear-gradient(115deg, transparent 40%, rgba(255, 255, 255, 0.16) 50%, transparent 60%);
+  animation: rc-sweep 5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes rc-sweep {
+  0% { transform: translateX(-60%); }
+  55%, 100% { transform: translateX(60%); }
+}
+
+.rc-top { display: flex; align-items: center; justify-content: space-between; }
+
+.rc-brand {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  color: #fff;
+}
+
+.rc-chip {
+  width: 40px;
+  height: 30px;
+  border-radius: 7px;
+  background:
+    linear-gradient(90deg, transparent 48%, rgba(0, 0, 0, 0.35) 49% 51%, transparent 52%),
+    linear-gradient(0deg, transparent 48%, rgba(0, 0, 0, 0.35) 49% 51%, transparent 52%),
+    linear-gradient(135deg, #e5e5e5, #8a8a8a);
+}
+
+.rc-label {
+  margin-top: auto;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--color-fog-grey);
+}
+
+.rc-name {
+  margin-top: 4px;
+  font-size: clamp(22px, 2.4vw, 30px);
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  color: #fff;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rc-name.is-empty { color: rgba(255, 255, 255, 0.28); }
+
+.rc-bottom {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--spacing-16);
+  margin-top: var(--spacing-20);
+}
+
+.rc-bottom .rc-label { margin-top: 0; }
+.rc-meta { margin-top: 3px; font-size: 13px; color: var(--color-light-steel); }
+
+.rc-bars {
+  width: 96px;
+  height: 34px;
+  background: repeating-linear-gradient(90deg, #fff 0 2px, transparent 2px 4px, #fff 4px 5px, transparent 5px 8px, #fff 8px 11px, transparent 11px 13px);
+  opacity: 0.85;
+}
+
+.rc-perks {
+  display: grid;
+  gap: var(--spacing-12);
+  margin-top: var(--spacing-32);
+  list-style: none;
+}
+
+.rc-perks li {
+  display: flex;
+  gap: var(--spacing-12);
+  font-size: 14.5px;
+  line-height: 1.5;
+  color: var(--color-storm-cloud);
+}
+
+.rc-perks strong { color: var(--color-porcelain); font-weight: 590; }
+
+.rc-check {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  margin-top: 1px;
+  font-size: 11px;
+  font-weight: 800;
+  color: #000;
+  background: #fff;
+  border-radius: 50%;
+}
+
+@media (max-width: 960px) {
+  .rc-card { transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rc-sheen { animation: none; }
+  .rc-card { transition: none; }
+}
+
+/* ─── Register headline: stacked words with a drawn underline ─────────────── */
+
+.al-visual-main h2 .rh {
+  display: flex;
+  flex-direction: column;
+  background: none;
+  -webkit-text-fill-color: initial;
+  color: inherit;
+}
+
+.rh-tag {
+  margin-bottom: var(--spacing-16);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-storm-cloud);
+  -webkit-text-fill-color: var(--color-storm-cloud);
+}
+
+.rh-line {
+  display: block;
+  font-size: clamp(54px, 7vw, 96px);
+  font-weight: 800;
+  line-height: 0.92;
+  letter-spacing: -0.055em;
+  color: #fff;
+  -webkit-text-fill-color: #fff;
+}
+
+.rh-line--dim { color: #8a8a8a; -webkit-text-fill-color: #8a8a8a; }
+
+.rh-line--last { position: relative; width: fit-content; padding-bottom: 0.1em; }
+
+.rh-scribble {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -0.02em;
+  width: 100%;
+  height: 0.16em;
+  overflow: visible;
+}
+
+.rh-scribble path {
+  fill: none;
+  stroke: #fff;
+  stroke-width: 4;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  stroke-dasharray: 340;
+  stroke-dashoffset: 340;
+  animation: rh-draw 1s 0.5s ease forwards;
+}
+
+@keyframes rh-draw { to { stroke-dashoffset: 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .rh-scribble path { animation: none; stroke-dashoffset: 0; }
+}
+
+@media (max-width: 960px) {
+  .rh-line { font-size: 52px; }
+}
+
+/* ─── Register perks as a connected timeline ──────────────────────────────── */
+
+.rc-perks { gap: 0; margin-top: var(--spacing-32); }
+
+.rc-perks li {
+  position: relative;
+  padding-bottom: var(--spacing-20);
+  color: var(--color-storm-cloud);
+  opacity: 1;
+}
+
+.rc-perks li:last-child { padding-bottom: 0; }
+
+/* Line through the tick circles */
+.rc-perks li:not(:last-child)::before {
+  content: "";
+  position: absolute;
+  left: 13px;
+  top: 28px;
+  bottom: 2px;
+  width: 1px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.45), rgba(255, 255, 255, 0.1));
+}
+
+.rc-check {
+  width: 28px;
+  height: 28px;
+  margin-top: 0;
+  font-size: 13px;
+  box-shadow: 0 0 0 5px rgba(255, 255, 255, 0.08);
+}
+
+.rc-perk-text { display: flex; flex-direction: column; gap: 3px; padding-top: 3px; }
+.rc-perk-text strong { font-size: 16px; color: #fff; }
+.rc-perk-text span { font-size: 14px; line-height: 1.5; color: var(--color-storm-cloud); }
+
+/* Footer row of the visual panel */
+.al-visual-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--spacing-8) var(--spacing-16);
+  padding-top: var(--spacing-16);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.rf-links { display: inline-flex; gap: var(--spacing-16); }
+.rf-links a { color: var(--color-storm-cloud); transition: color 0.15s; }
+.rf-links a:hover { color: #fff; }
+
+/* ─── Register form as a numbered journey ─────────────────────────────────── */
+
+.al-form--register {
+  counter-reset: step;
+  gap: 0;
+}
+
+.al-form--register .form-section {
+  position: relative;
+  counter-increment: step;
+  padding: 0 0 var(--spacing-40) 64px;
+  background: none;
+  border: none;
+  border-radius: 0;
+}
+
+/* Rail connecting the step badges */
+.al-form--register .form-section::before {
+  content: "";
+  position: absolute;
+  left: 21px;
+  top: 46px;
+  bottom: 6px;
+  width: 2px;
+  background: repeating-linear-gradient(180deg, rgba(255, 255, 255, 0.28) 0 6px, transparent 6px 12px);
+}
+
+.al-form--register .form-section:last-of-type { padding-bottom: var(--spacing-24); }
+.al-form--register .form-section:last-of-type::before { display: none; }
+
+.al-form--register .form-section-heading {
+  position: relative;
+  min-height: 44px;
+  align-items: center;
+  font-family: var(--font-sans);
+  font-size: 19px;
+  font-weight: 650;
+  letter-spacing: -0.02em;
+  text-transform: none;
+  color: #fff;
+}
+
+.al-form--register .form-section-heading::after { display: none; }
+
+.al-form--register .form-section-heading::before {
+  content: counter(step);
+  position: absolute;
+  left: -64px;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  font-family: var(--font-mono);
+  font-size: 16px;
+  font-weight: 700;
+  color: #000;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: 0 0 0 6px rgba(255, 255, 255, 0.08);
+}
+
+.al-form--register .al-submit { margin-top: var(--spacing-8); }
+
+@media (max-width: 640px) {
+  .al-form--register .form-section { padding-left: 52px; }
+  .al-form--register .form-section::before { left: 17px; top: 38px; }
+  .al-form--register .form-section-heading { min-height: 36px; font-size: 17px; }
+  .al-form--register .form-section-heading::before { left: -52px; width: 36px; height: 36px; font-size: 14px; }
+}
+
+/* ─── ACM membership choice cards (replaces the native select) ────────────── */
+
+.acm-choice { border: none; min-width: 0; }
+
+.acm-choice legend {
+  margin-bottom: 8px;
+  font-size: 13px;
+  font-weight: 590;
+  color: var(--color-light-steel);
+}
+
+.acm-choice-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-12); }
+
+.acm-option {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-12);
+  padding: 14px 16px;
+  text-align: left;
+  color: var(--color-storm-cloud);
+  background: #0a0a0a;
+  border: 1px solid var(--color-charcoal-grey);
+  border-radius: 14px;
+  transition: border-color 0.15s, background 0.15s, transform 0.15s;
+}
+
+.acm-option:hover { border-color: var(--color-storm-cloud); }
+.acm-option:active { transform: scale(0.98); }
+
+.acm-option.selected {
+  color: var(--color-light-steel);
+  border-color: #fff;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.acm-radio {
+  position: relative;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  border: 2px solid var(--color-gunmetal);
+  border-radius: 50%;
+  transition: border-color 0.15s;
+}
+
+.acm-option.selected .acm-radio { border-color: #fff; }
+
+.acm-option.selected .acm-radio::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+  background: #fff;
+}
+
+.acm-option-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.acm-option-text strong { font-size: 15px; font-weight: 590; color: #fff; }
+.acm-option-text span { font-size: 12.5px; }
+
+.acm-option:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+
+@media (max-width: 480px) {
+  .acm-choice-grid { grid-template-columns: 1fr; }
+}
