@@ -90,7 +90,7 @@
   align-items: center;
   gap: 4px;
   padding: var(--spacing-8) var(--spacing-16);
-  background: var(--color-neon-lime);
+  background: var(--color-accent);
   color: var(--color-pitch-black);
   border-radius: var(--radius-md);
   font-size: 13px;
