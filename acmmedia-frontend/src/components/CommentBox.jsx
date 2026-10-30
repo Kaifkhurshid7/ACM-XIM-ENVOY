@@ -26,7 +26,7 @@ const CommentBox = ({ onAdd }) => {
       <button
         onClick={handleSubmit}
         aria-label="Submit comment"
-        style={{ padding: "0.6rem 1rem", background: "var(--color-neon-lime)", color: "var(--color-pitch-black)", border: "none", borderRadius: "var(--radius-sm)", fontSize: "13px", fontWeight: 600, display: "flex", alignItems: "center", gap: "0.3rem", cursor: "pointer" }}
+        style={{ padding: "0.6rem 1rem", background: "var(--color-accent)", color: "var(--color-pitch-black)", border: "none", borderRadius: "var(--radius-sm)", fontSize: "13px", fontWeight: 600, display: "flex", alignItems: "center", gap: "0.3rem", cursor: "pointer" }}
       >
         <SendIcon size={13} /> {POSTS.COMMENTS_BUTTON}
       </button>
