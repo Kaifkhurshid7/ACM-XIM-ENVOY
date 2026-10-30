@@ -93,7 +93,7 @@
 .admin-card button[type="submit"] {
   align-self: flex-start;
   padding: var(--spacing-8) var(--spacing-20);
-  background: var(--color-neon-lime);
+  background: var(--color-accent);
   color: var(--color-pitch-black);
   border: none;
   border-radius: var(--radius-md);
