@@ -18,8 +18,10 @@
  * @component
  */
 
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { useEffect } from "react";
+import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -30,10 +32,23 @@ import AdminLogin from "./pages/AdminLogin";
 import News from "./pages/News";
 import ModernProfile from "./pages/ModernProfile";
 import SecuritySettings from "./pages/SecuritySettings";
+import Privacy from "./pages/Privacy";
+import Terms from "./pages/Terms";
+import Conduct from "./pages/Conduct";
+
+/** Footer and menu links keep the old scroll position; start each new page at the top. */
+const ScrollToTop = () => {
+  const { pathname, hash } = useLocation();
+  useEffect(() => {
+    if (!hash) window.scrollTo(0, 0);
+  }, [pathname, hash]);
+  return null;
+};
 
 const App = () => {
   return (
     <Router>
+      <ScrollToTop />
       <Navbar />
       <main id="main-content">
         <Routes>
@@ -49,8 +64,12 @@ const App = () => {
           <Route path="/profile" element={<ModernProfile />} />
           <Route path="/profile/:username" element={<ModernProfile />} />
           <Route path="/security" element={<SecuritySettings />} />
+          <Route path="/privacy" element={<Privacy />} />
+          <Route path="/terms" element={<Terms />} />
+          <Route path="/conduct" element={<Conduct />} />
         </Routes>
       </main>
+      <Footer />
     </Router>
   );
 };
