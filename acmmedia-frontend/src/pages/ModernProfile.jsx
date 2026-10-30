@@ -85,6 +85,8 @@ const ModernProfile = () => {
   const [achievements, setAchievements] = useState([]);
   const [completion, setCompletion] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [loadStatus, setLoadStatus] = useState(null); // HTTP status of a failed load
+  const [reloadKey, setReloadKey] = useState(0);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [toast, setToast] = useState(null);
@@ -121,6 +123,7 @@ const ModernProfile = () => {
     const loadProfile = async () => {
       try {
         setLoading(true);
+        setLoadStatus(null);
         let profileData;
 
         if (isOwnProfile) {
@@ -156,6 +159,7 @@ const ModernProfile = () => {
           socialLinks: profileData.socialLinks || {},
         });
       } catch (err) {
+        setLoadStatus(err.response?.status ?? 0);
         setToast({
           type: "error",
           message: extractErrorMessage(err, "Failed to load profile"),
@@ -166,7 +170,7 @@ const ModernProfile = () => {
     };
 
     loadProfile();
-  }, [username, isOwnProfile, currentUser]);
+  }, [username, isOwnProfile, currentUser, reloadKey]);
 
   // ─── Handlers ────────────────────────────────────────────────────────
 
@@ -262,11 +266,24 @@ const ModernProfile = () => {
   }
 
   if (!profile) {
+    // 404 means the profile genuinely doesn't exist; anything else is a failed request.
+    const missing = loadStatus === 404;
     return (
       <div className="profile-error">
         <div className="profile-error-card">
-          <h2>Profile not found</h2>
-          <p>The profile you're looking for doesn't exist or isn't public.</p>
+          <h2>{missing ? "Profile not found" : "Couldn't load this profile"}</h2>
+          <p>
+            {missing
+              ? "The profile you're looking for doesn't exist or isn't public."
+              : loadStatus === 429
+                ? "Too many requests. Wait a minute and try again."
+                : "The server didn't respond. It may be waking up, so try again in a few seconds."}
+          </p>
+          {!missing && (
+            <button className="btn-ghost" onClick={() => setReloadKey((k) => k + 1)}>
+              Try again
+            </button>
+          )}
           <button className="btn-ghost" onClick={() => navigate("/")}>
             Back to Home
           </button>
@@ -429,7 +446,7 @@ const ModernProfile = () => {
         </div>
         <div className="stat-card">
           <h4>Achievements</h4>
-          <p className="stat-value">{profile?.achievements ?? 0}</p>
+          <p className="stat-value">{Array.isArray(profile?.achievements) ? profile.achievements.length : profile?.achievements ?? 0}</p>
         </div>
       </div>
 
