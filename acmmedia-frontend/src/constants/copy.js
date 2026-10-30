@@ -188,6 +188,36 @@ export const EVENTS = {
   },
 };
 
+export const EVENT_DETAIL = {
+  BREADCRUMB_HOME: "Home",
+  BREADCRUMB_EVENTS: "Events",
+  BACK: "All events",
+
+  LOADING: "Loading event details…",
+  ERROR_LOAD: "Unable to load this event right now. Please try again.",
+  NOT_FOUND_TITLE: "Event not found",
+  NOT_FOUND_MESSAGE:
+    "This event may have been removed or the link may be incorrect.",
+
+  LABEL_DATE: "Date",
+  LABEL_TIME: "Time",
+  LABEL_VENUE: "Venue",
+  LABEL_ONLINE_VENUE: "Platform",
+  LABEL_ORGANISER: "Organised by",
+  ORGANISER_VALUE: "ACM Student Chapter, XIM University",
+
+  ABOUT_HEADING: "About this event",
+  REGISTRATION_HEADING: "Registration",
+  BUTTON_REGISTER: "Register for this event",
+  REGISTER_NOTE:
+    "Registration opens in a new tab on the form the chapter is using for this event.",
+  CONTACT_HEADING: "Questions about this event?",
+  CONTACT_MESSAGE:
+    "Reach the chapter through any of the channels below and a coordinator will get back to you.",
+
+  RELATED_HEADING: "Other upcoming events",
+};
+
 export const ADMIN = {
   HEADING: "Dashboard",
   SUBHEADING: "Manage content, monitor engagement, and keep the chapter running smoothly.",

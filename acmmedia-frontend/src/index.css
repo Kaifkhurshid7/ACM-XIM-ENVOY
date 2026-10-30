@@ -153,3 +153,541 @@ h1, h2, h3, h4, h5, h6 {
 .skip-link:focus {
   top: 0;
 }
+
+/* ─── Motion preferences ──────────────────────────────────────────────────── */
+
+/* Respect users who have asked the OS to reduce motion. Animations are
+   decorative here, so they can be reduced to near-instant without loss. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ─── Shared layout primitives ────────────────────────────────────────────── */
+
+/* Standard reading-width page shell. Pages should use this instead of
+   redefining their own max-width and padding. */
+.page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: var(--spacing-32) var(--spacing-16) var(--spacing-64);
+}
+
+.page--wide {
+  max-width: 1120px;
+}
+
+.page-header {
+  margin-bottom: var(--spacing-32);
+  padding-bottom: var(--spacing-24);
+  border-bottom: 1px solid var(--color-charcoal-grey);
+}
+
+/* Page-level heading. One per page, always an <h1>. */
+.page-title {
+  font-size: 28px;
+  font-weight: 590;
+  color: var(--color-porcelain);
+  letter-spacing: -0.4px;
+  margin-bottom: var(--spacing-8);
+}
+
+.page-subtitle {
+  font-size: 14px;
+  color: var(--color-storm-cloud);
+  line-height: 1.6;
+  max-width: 65ch;
+}
+
+/* Section heading inside a page. Always an <h2>. */
+.section-heading {
+  font-size: 18px;
+  font-weight: 590;
+  color: var(--color-porcelain);
+  letter-spacing: -0.2px;
+}
+
+.section-note {
+  font-size: 13px;
+  color: var(--color-fog-grey);
+}
+
+@media (max-width: 600px) {
+  .page {
+    padding: var(--spacing-20) var(--spacing-12) var(--spacing-48);
+  }
+
+  .page-title {
+    font-size: 22px;
+  }
+}
+
+/* ─── Buttons ─────────────────────────────────────────────────────────────── */
+
+/* Single button foundation with variant modifiers, so every page shares the
+   same height, radius, focus ring, and disabled behaviour. */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-8);
+  padding: 0 var(--spacing-16);
+  min-height: 36px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 590;
+  line-height: 1;
+  letter-spacing: -0.1px;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease,
+    opacity 0.15s ease;
+}
+
+.btn:disabled,
+.btn[aria-disabled="true"] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn--primary {
+  background: var(--color-neon-lime);
+  color: var(--color-pitch-black);
+}
+
+.btn--primary:hover:not(:disabled) {
+  background: #eef95f;
+}
+
+.btn--secondary {
+  background: var(--color-charcoal-grey);
+  color: var(--color-porcelain);
+  border-color: var(--color-muted-ash);
+}
+
+.btn--secondary:hover:not(:disabled) {
+  background: var(--color-muted-ash);
+}
+
+.btn--outline {
+  background: transparent;
+  color: var(--color-light-steel);
+  border-color: var(--color-charcoal-grey);
+}
+
+.btn--outline:hover:not(:disabled) {
+  background: var(--color-deep-slate);
+  color: var(--color-porcelain);
+  border-color: var(--color-gunmetal);
+}
+
+.btn--danger {
+  background: var(--color-warning-red);
+  color: #fff;
+}
+
+.btn--danger:hover:not(:disabled) {
+  background: #f06a6a;
+}
+
+/* Low-emphasis destructive action, e.g. an inline admin delete. */
+.btn--danger-quiet {
+  background: transparent;
+  color: var(--color-warning-red);
+  border-color: rgba(235, 87, 87, 0.35);
+}
+
+.btn--danger-quiet:hover:not(:disabled) {
+  background: rgba(235, 87, 87, 0.12);
+}
+
+.btn--sm {
+  min-height: 28px;
+  padding: 0 var(--spacing-12);
+  font-size: 12px;
+}
+
+.btn--block {
+  width: 100%;
+}
+
+/* ─── Badges ──────────────────────────────────────────────────────────────── */
+
+/* Status badges pair a colour with a text label, never colour alone, so the
+   meaning survives for colour-blind and screen-reader users. */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  padding: 3px var(--spacing-8);
+  border: 1px solid transparent;
+  border-radius: var(--radius-pill);
+  font-size: 11px;
+  font-weight: 590;
+  letter-spacing: 0.2px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.badge--live {
+  background: rgba(228, 242, 34, 0.12);
+  border-color: rgba(228, 242, 34, 0.35);
+  color: var(--color-neon-lime);
+}
+
+.badge--upcoming {
+  background: rgba(94, 106, 210, 0.14);
+  border-color: rgba(94, 106, 210, 0.4);
+  color: #9aa4f2;
+}
+
+.badge--open {
+  background: rgba(39, 166, 68, 0.14);
+  border-color: rgba(39, 166, 68, 0.4);
+  color: #4ed172;
+}
+
+.badge--closed {
+  background: rgba(138, 143, 152, 0.12);
+  border-color: rgba(138, 143, 152, 0.3);
+  color: var(--color-storm-cloud);
+}
+
+.badge--pending {
+  background: rgba(245, 158, 11, 0.12);
+  border-color: rgba(245, 158, 11, 0.35);
+  color: #f0b64d;
+}
+
+/* ─── Cards ───────────────────────────────────────────────────────────────── */
+
+.card {
+  background: var(--color-graphite);
+  border: 1px solid var(--color-charcoal-grey);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-20);
+}
+
+.card--interactive {
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.card--interactive:hover {
+  border-color: var(--color-gunmetal);
+  background: var(--color-deep-slate);
+}
+
+/* ─── Metadata rows ───────────────────────────────────────────────────────── */
+
+.meta-list {
+  display: grid;
+  gap: var(--spacing-12);
+}
+
+.meta-list--inline {
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.meta-block {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.meta-key {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  font-size: 11px;
+  font-weight: 510;
+  color: var(--color-fog-grey);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.meta-val {
+  font-size: 13px;
+  color: var(--color-light-steel);
+  line-height: 1.5;
+}
+
+/* ─── Prose ───────────────────────────────────────────────────────────────── */
+
+/* For admin-authored body text. `pre-wrap` preserves the line breaks authors
+   typed into the textarea without needing to render raw HTML. */
+.prose {
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--color-light-steel);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  max-width: 70ch;
+}
+
+/* ─── Breadcrumbs ─────────────────────────────────────────────────────────── */
+
+.breadcrumb {
+  margin-bottom: var(--spacing-20);
+  font-size: 12px;
+  color: var(--color-fog-grey);
+}
+
+.breadcrumb ol {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--spacing-8);
+  list-style: none;
+}
+
+.breadcrumb a {
+  color: var(--color-storm-cloud);
+  border-radius: var(--radius-sm);
+}
+
+.breadcrumb a:hover {
+  color: var(--color-porcelain);
+  text-decoration: underline;
+}
+
+.breadcrumb [aria-current="page"] {
+  color: var(--color-light-steel);
+}
+
+.breadcrumb-sep {
+  color: var(--color-muted-ash);
+}
+
+/* ─── Empty and error states ──────────────────────────────────────────────── */
+
+.state-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-12);
+  padding: var(--spacing-48) var(--spacing-24);
+  background: var(--color-graphite);
+  border: 1px dashed var(--color-charcoal-grey);
+  border-radius: var(--radius-md);
+  text-align: center;
+  color: var(--color-storm-cloud);
+}
+
+.state-panel svg {
+  color: var(--color-muted-ash);
+}
+
+.state-title {
+  font-size: 15px;
+  font-weight: 590;
+  color: var(--color-porcelain);
+}
+
+.state-message {
+  font-size: 13px;
+  color: var(--color-storm-cloud);
+  max-width: 46ch;
+  line-height: 1.6;
+}
+
+/* ─── Skeleton loaders ────────────────────────────────────────────────────── */
+
+/* Placeholder blocks that mirror the shape of the content being loaded, so the
+   layout does not jump once data arrives. */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--color-deep-slate) 25%,
+    var(--color-charcoal-grey) 37%,
+    var(--color-deep-slate) 63%
+  );
+  background-size: 400% 100%;
+  border-radius: var(--radius-sm);
+  animation: skeletonShimmer 1.4s ease-in-out infinite;
+}
+
+.skeleton-line {
+  height: 12px;
+  margin-bottom: var(--spacing-8);
+}
+
+.skeleton-line:last-child {
+  margin-bottom: 0;
+}
+
+.skeleton-line--title {
+  height: 16px;
+  width: 55%;
+}
+
+.skeleton-line--short {
+  width: 35%;
+}
+
+@keyframes skeletonShimmer {
+  0% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0 50%;
+  }
+}
+
+/* ─── Form primitives ────────────────────────────────────────────────────── */
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+  margin-bottom: var(--spacing-16);
+}
+
+/* Labels are always visible. Placeholders alone are not accessible labels. */
+.field-label {
+  font-size: 13px;
+  font-weight: 510;
+  color: var(--color-light-steel);
+}
+
+.field-required {
+  color: var(--color-warning-red);
+  margin-left: 2px;
+}
+
+.field-hint {
+  font-size: 12px;
+  color: var(--color-fog-grey);
+  line-height: 1.5;
+}
+
+.field-error {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  font-size: 12px;
+  font-weight: 510;
+  color: #f5878a;
+}
+
+.field-input,
+.field-textarea,
+.field-select {
+  width: 100%;
+  padding: var(--spacing-8) var(--spacing-12);
+  background: var(--color-deep-slate);
+  border: 1px solid var(--color-charcoal-grey);
+  border-radius: var(--radius-md);
+  color: var(--color-porcelain);
+  font-size: 14px;
+  transition: border-color 0.15s ease;
+}
+
+.field-input::placeholder,
+.field-textarea::placeholder {
+  color: var(--color-fog-grey);
+}
+
+.field-input:hover,
+.field-textarea:hover,
+.field-select:hover {
+  border-color: var(--color-gunmetal);
+}
+
+.field-input[aria-invalid="true"],
+.field-textarea[aria-invalid="true"] {
+  border-color: var(--color-warning-red);
+}
+
+.field-textarea {
+  min-height: 120px;
+  resize: vertical;
+  line-height: 1.6;
+}
+
+/* ─── Modal ───────────────────────────────────────────────────────────────── */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-16);
+  background: rgba(8, 9, 10, 0.72);
+  animation: modalFadeIn 0.15s ease-out;
+}
+
+.modal-panel {
+  width: 100%;
+  max-width: 420px;
+  padding: var(--spacing-24);
+  background: var(--color-graphite);
+  border: 1px solid var(--color-charcoal-grey);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xl);
+  animation: modalSlideUp 0.2s ease-out;
+}
+
+.modal-title {
+  font-size: 16px;
+  font-weight: 590;
+  color: var(--color-porcelain);
+  margin-bottom: var(--spacing-8);
+}
+
+.modal-message {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--color-storm-cloud);
+  margin-bottom: var(--spacing-24);
+}
+
+.modal-actions {
+  display: flex;
+  gap: var(--spacing-8);
+  justify-content: flex-end;
+}
+
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modalSlideUp {
+  from {
+    transform: translateY(12px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* ─── Visually hidden but focusable ──────────────────────────────────────── */
+
+/* Utility for links that only matter to keyboard users. */
+.sr-only-focusable:not(:focus):not(:focus-within) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
