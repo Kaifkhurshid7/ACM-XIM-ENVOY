@@ -1,31 +1,70 @@
-# Dependencies
+# ─── Dependencies ────────────────────────────────────────────────────────────
 node_modules/
+.pnp
+.pnp.js
+.npm/
+.yarn/*
+!.yarn/patches
+!.yarn/releases
+!.yarn/plugins
+.pnpm-store/
 
-# Environment variables
+# ─── Environment & secrets ───────────────────────────────────────────────────
+# Ignore every .env variant, but keep the committed templates.
 .env
-.env.local
-.env.production
+.env.*
+!.env.example
+*.pem
+*.key
 
-# Build outputs
+# ─── Build outputs ───────────────────────────────────────────────────────────
 dist/
+build/
+out/
+.vercel/
+*.tsbuildinfo
 
-# Vite cache
+# ─── Tool caches ─────────────────────────────────────────────────────────────
 .vite/
+.cache/
+.eslintcache
+.parcel-cache/
+.nyc_output/
+coverage/
 
-# Uploaded files
+# ─── User-generated content ──────────────────────────────────────────────────
 uploads/
 
-# OS files
-.DS_Store
-Thumbs.db
-
-# IDE
-.vscode/
-.idea/
-
-# Logs
+# ─── Logs & runtime ──────────────────────────────────────────────────────────
+logs/
 *.log
 npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+*.pid
+*.pid.lock
 
-# Agent/workflow files
+# ─── Temporary files ─────────────────────────────────────────────────────────
+tmp/
+temp/
+*.tmp
+*.bak
+*.swp
+*~
+
+# ─── OS files ────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# ─── IDE / editor ────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.sublime-workspace
+
+# ─── AI agent / workflow tooling ─────────────────────────────────────────────
 .agent/
+.claude/settings.local.json
+.claude/worktrees/
