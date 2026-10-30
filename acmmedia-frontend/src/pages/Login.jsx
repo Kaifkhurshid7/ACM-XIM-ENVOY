@@ -1,15 +1,15 @@
 import { useState, useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { extractErrorMessage } from "../utils/api";
 import { AUTH } from "../constants/copy";
 import Toast from "../components/Toast";
-import { EyeIcon, EyeOffIcon, ChapterIcon } from "../components/ui/Icons";
+import { LockIcon } from "../components/ui/Icons";
+import AuthLayout, { AuthField, MailIcon } from "../components/AuthLayout";
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [loading, setLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
   const [toast, setToast] = useState(null);
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -28,89 +28,53 @@ const Login = () => {
   };
 
   return (
-    <div className="auth-wrapper">
-      <div className="auth-card">
-        <header className="auth-card-header">
-          <div className="auth-logo-mark">
-            <ChapterIcon size={20} />
-          </div>
-          <p className="auth-eyebrow">{AUTH.LOGIN.EYEBROW}</p>
-          <h1>{AUTH.LOGIN.HEADING}</h1>
-          <p>{AUTH.LOGIN.SUBHEADING}</p>
-        </header>
+    <AuthLayout
+      eyebrow={AUTH.LOGIN.EYEBROW}
+      title={AUTH.LOGIN.HEADING}
+      subtitle={AUTH.LOGIN.SUBHEADING}
+      aside={<>New here?<Link to="/register">Create account</Link></>}
+      footer={
+        <p className="al-footnote">
+          Chapter admin? <Link to="/admin-login">Admin access</Link>
+        </p>
+      }
+    >
+      <form onSubmit={handleSubmit} className="al-form" noValidate>
+        <AuthField
+          id="login-email"
+          type="email"
+          label={AUTH.LOGIN.LABEL_EMAIL}
+          icon={<MailIcon />}
+          placeholder={AUTH.LOGIN.PLACEHOLDER_EMAIL}
+          value={formData.email}
+          onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+          required
+          autoComplete="email"
+          aria-required="true"
+        />
+        <AuthField
+          id="login-password"
+          password
+          label={AUTH.LOGIN.LABEL_PASSWORD}
+          icon={<LockIcon size={18} />}
+          placeholder={AUTH.LOGIN.PLACEHOLDER_PASSWORD}
+          value={formData.password}
+          onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+          required
+          autoComplete="current-password"
+          aria-required="true"
+        />
 
-        <form onSubmit={handleSubmit} className="auth-form-grid" noValidate>
-          <div className="field-group full-width">
-            <label htmlFor="login-email">{AUTH.LOGIN.LABEL_EMAIL}</label>
-            <input
-              id="login-email"
-              type="email"
-              placeholder={AUTH.LOGIN.PLACEHOLDER_EMAIL}
-              value={formData.email}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              required
-              autoComplete="email"
-              aria-required="true"
-            />
-          </div>
+        <button type="submit" className="al-submit" disabled={loading} aria-busy={loading}>
+          {loading ? "Signing in..." : <>{AUTH.LOGIN.BUTTON_SUBMIT} <span aria-hidden="true">→</span></>}
+        </button>
+      </form>
 
-          <div className="field-group full-width">
-            <label htmlFor="login-password">{AUTH.LOGIN.LABEL_PASSWORD}</label>
-            <div className="input-with-icon">
-              <input
-                id="login-password"
-                type={showPassword ? "text" : "password"}
-                placeholder={AUTH.LOGIN.PLACEHOLDER_PASSWORD}
-                value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                required
-                autoComplete="current-password"
-                aria-required="true"
-              />
-              <button
-                type="button"
-                className="toggle-pw"
-                onClick={() => setShowPassword(!showPassword)}
-                aria-label={showPassword ? "Hide password" : "Show password"}
-              >
-                {showPassword ? <EyeOffIcon size={16} /> : <EyeIcon size={16} />}
-              </button>
-            </div>
-          </div>
-
-          <button type="submit" className="auth-submit-btn" disabled={loading} aria-busy={loading}>
-            {loading ? "Signing in..." : AUTH.LOGIN.BUTTON_SUBMIT}
-          </button>
-        </form>
-
-        <div className="auth-card-footer">
-          <p>
-            Don't have an account?{" "}
-            <button
-              type="button"
-              className="auth-link"
-              onClick={() => navigate("/register")}
-              aria-label="Go to create account page"
-            >
-              Create account
-            </button>
-          </p>
-          <p className="auth-footer-alt">
-            Chapter admin?{" "}
-            <button
-              type="button"
-              className="auth-link"
-              onClick={() => navigate("/admin-login")}
-              aria-label="Go to admin access page"
-            >
-              Admin access
-            </button>
-          </p>
-        </div>
-      </div>
+      <div className="al-divider">or</div>
+      <Link to="/register" className="al-secondary">Create a free account</Link>
 
       <Toast toast={toast} onClose={() => setToast(null)} />
-    </div>
+    </AuthLayout>
   );
 };
 

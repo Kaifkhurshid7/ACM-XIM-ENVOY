@@ -75,6 +75,9 @@ export const INDEXABLE_ROUTES = [
   { path: "/forum", changefreq: "daily", priority: "0.7" },
   { path: "/register", changefreq: "monthly", priority: "0.6" },
   { path: "/login", changefreq: "yearly", priority: "0.3" },
+  { path: "/privacy", changefreq: "yearly", priority: "0.3" },
+  { path: "/terms", changefreq: "yearly", priority: "0.3" },
+  { path: "/conduct", changefreq: "yearly", priority: "0.3" },
 ];
 
 /**
