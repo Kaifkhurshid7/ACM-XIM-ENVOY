@@ -15,7 +15,7 @@
 
 import { useState, useRef, useCallback, useEffect } from "react";
 import { signup } from "../api/auth";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { extractErrorMessage } from "../utils/api";
 import { ALLOWED_DOMAINS } from "../constants";
 import { AUTH } from "../constants/copy";
@@ -23,7 +23,6 @@ import Toast from "../components/Toast";
 import {
   TextField,
   PasswordField,
-  SelectField,
   FormSection,
   FormRow,
 } from "../components/FormField";
@@ -34,14 +33,15 @@ import {
   Sanitize,
   getPasswordStrength,
 } from "../utils/validation";
-import {
-  ChapterIcon,
-  CalendarIcon,
-  MessageCircleIcon,
-  ShieldIcon,
-} from "../components/ui/Icons";
+import { CalendarIcon, MessageCircleIcon, ShieldIcon } from "../components/ui/Icons";
+import AuthLayout from "../components/AuthLayout";
 import "../components/FormField.css";
-import "./Register.css";
+
+const PERKS = [
+  { icon: <CalendarIcon size={20} />, title: AUTH.REGISTER.VALUE_1_TITLE, desc: AUTH.REGISTER.VALUE_1_DESC },
+  { icon: <MessageCircleIcon size={20} />, title: AUTH.REGISTER.VALUE_2_TITLE, desc: AUTH.REGISTER.VALUE_2_DESC },
+  { icon: <ShieldIcon size={20} />, title: AUTH.REGISTER.VALUE_3_TITLE, desc: AUTH.REGISTER.VALUE_3_DESC },
+];
 
 const Register = () => {
   // Form state
@@ -247,11 +247,16 @@ const Register = () => {
         type: "error",
         message: "Please fix the errors above and try again.",
       });
-      // Focus first error field
-      if (fieldErrors.name) {
-        document.getElementById("register-name")?.focus();
-      } else if (fieldErrors.email) {
-        document.getElementById("register-email")?.focus();
+      // Reveal every error, not only those on fields the user already touched
+      setFieldTouched({ name: true, email: true, password: true, confirmPassword: true, acmId: true });
+
+      // Focus the first invalid field (fieldErrors is stale until the next render)
+      const ids = { name: "register-name", email: "register-email", password: "register-password", confirmPassword: "register-confirm" };
+      const first = Object.keys(ids).find((f) => validateField(f, formData[f]) || (f === "confirmPassword" && formData.password !== formData.confirmPassword));
+      if (first) {
+        const el = document.getElementById(ids[first]);
+        el?.focus();
+        el?.scrollIntoView({ behavior: "smooth", block: "center" });
       }
       return;
     }
@@ -315,66 +320,78 @@ const Register = () => {
   // ============================================================================
 
   return (
-    <div className="register-page">
-      <div className="register-shell">
-        {/* ── Brand / showcase panel ── */}
-        <aside className="register-brand">
-          <div className="register-brand-inner">
-            <div className="register-brand-mark">
-              <ChapterIcon size={22} />
+    <AuthLayout
+      wide
+      headline={
+        <span className="rh">
+          <span className="rh-tag">// One account · every perk</span>
+          <span className="rh-line">Build.</span>
+          <span className="rh-line rh-line--dim">Learn.</span>
+          <span className="rh-line rh-line--last">
+            Belong.
+            <svg className="rh-scribble" viewBox="0 0 300 18" preserveAspectRatio="none" aria-hidden="true">
+              <path d="M3 12 C 60 2, 120 17, 180 7 S 270 4, 297 10" />
+            </svg>
+          </span>
+        </span>
+      }
+      lead={AUTH.REGISTER.BRAND_SUBHEADLINE}
+      hideBrand
+      visual={
+        <div className="rc">
+          <div className="rc-card" aria-label="Membership card preview">
+            <div className="rc-sheen" aria-hidden="true" />
+            <div className="rc-top">
+              <span className="rc-brand">ACM · XIM</span>
+              <span className="rc-chip" aria-hidden="true" />
             </div>
-            <p className="register-eyebrow">{AUTH.REGISTER.BRAND_EYEBROW}</p>
-            <h2 className="register-headline">{AUTH.REGISTER.BRAND_HEADLINE}</h2>
-            <p className="register-subheadline">
-              {AUTH.REGISTER.BRAND_SUBHEADLINE}
+            <p className="rc-label">Member</p>
+            <p className={`rc-name ${formData.name.trim() ? "" : "is-empty"}`}>
+              {formData.name.trim() || "Your name here"}
             </p>
-
-            <ul className="register-value-props">
-              <li className="register-value-prop">
-                <span className="register-value-icon" aria-hidden="true">
-                  <CalendarIcon size={16} />
-                </span>
-                <span className="register-value-text">
-                  <strong>{AUTH.REGISTER.VALUE_1_TITLE}</strong>
-                  <span>{AUTH.REGISTER.VALUE_1_DESC}</span>
-                </span>
-              </li>
-              <li className="register-value-prop">
-                <span className="register-value-icon" aria-hidden="true">
-                  <MessageCircleIcon size={16} />
-                </span>
-                <span className="register-value-text">
-                  <strong>{AUTH.REGISTER.VALUE_2_TITLE}</strong>
-                  <span>{AUTH.REGISTER.VALUE_2_DESC}</span>
-                </span>
-              </li>
-              <li className="register-value-prop">
-                <span className="register-value-icon" aria-hidden="true">
-                  <ShieldIcon size={16} />
-                </span>
-                <span className="register-value-text">
-                  <strong>{AUTH.REGISTER.VALUE_3_TITLE}</strong>
-                  <span>{AUTH.REGISTER.VALUE_3_DESC}</span>
-                </span>
-              </li>
-            </ul>
-
-            <p className="register-legal">{AUTH.REGISTER.BRAND_LEGAL}</p>
+            <div className="rc-bottom">
+              <div>
+                <p className="rc-label">Student chapter</p>
+                <p className="rc-meta">XIM University · {new Date().getFullYear()}</p>
+              </div>
+              <span className="rc-bars" aria-hidden="true" />
+            </div>
           </div>
-        </aside>
 
-        {/* ── Form panel ── */}
-        <main className="register-form-panel">
-          <div className="register-form-card">
-            <header className="register-form-header">
-              <h1>{AUTH.REGISTER.HEADING}</h1>
-              <p>{AUTH.REGISTER.SUBHEADING}</p>
-            </header>
-
+          <ul className="rc-perks" aria-label="Member benefits">
+            {PERKS.map((p) => (
+              <li key={p.title}>
+                <span className="rc-check" aria-hidden="true">✓</span>
+                <span className="rc-perk-text"><strong>{p.title}</strong><span>{p.desc}</span></span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      }
+      visualFoot={
+        <>
+          <span>© {new Date().getFullYear()} ACM XIM Student Chapter</span>
+          <span className="rf-links">
+            <Link to="/privacy">Privacy</Link>
+            <Link to="/terms">Terms</Link>
+            <Link to="/conduct">Conduct</Link>
+          </span>
+        </>
+      }
+      eyebrow="Join the chapter"
+      title={AUTH.REGISTER.HEADING}
+      subtitle={AUTH.REGISTER.SUBHEADING}
+      aside={<>Already a member?<Link to="/login">Sign in</Link></>}
+      footer={
+        <p className="al-footnote">
+          Chapter admin? <Link to="/admin-login">Admin access →</Link>
+        </p>
+      }
+    >
             {/* Form */}
             <form
               onSubmit={handleSubmit}
-              className="register-form"
+              className="al-form al-form--register"
               noValidate
               aria-label="Account creation form"
             >
@@ -462,24 +479,33 @@ const Register = () => {
               {/* ACM Membership Section */}
               <FormSection heading="Chapter Membership">
                 {/* ACM Member Status */}
-                <FormRow className="two-col">
-                  <SelectField
-                    label={AUTH.REGISTER.LABEL_ACM_MEMBER}
-                    id="register-acm"
-                    value={formData.isAcmMember}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        isAcmMember: e.target.value,
-                      })
-                    }
-                    options={[
-                      { value: "no", label: AUTH.REGISTER.OPTION_NOT_YET },
-                      { value: "yes", label: AUTH.REGISTER.OPTION_YES },
-                    ]}
-                    required
-                    disabled={loading}
-                  />
+                <FormRow className="full-width">
+                  <fieldset className="acm-choice" disabled={loading}>
+                    <legend>
+                      {AUTH.REGISTER.LABEL_ACM_MEMBER} <span className="form-field-required">*</span>
+                    </legend>
+                    <div className="acm-choice-grid" role="radiogroup" aria-label={AUTH.REGISTER.LABEL_ACM_MEMBER}>
+                      {[
+                        { value: "no", label: AUTH.REGISTER.OPTION_NOT_YET, hint: "I'm new to ACM" },
+                        { value: "yes", label: AUTH.REGISTER.OPTION_YES, hint: "I have an ACM membership" },
+                      ].map((o) => (
+                        <button
+                          key={o.value}
+                          type="button"
+                          role="radio"
+                          aria-checked={formData.isAcmMember === o.value}
+                          className={`acm-option ${formData.isAcmMember === o.value ? "selected" : ""}`}
+                          onClick={() => setFormData({ ...formData, isAcmMember: o.value })}
+                        >
+                          <span className="acm-radio" aria-hidden="true" />
+                          <span className="acm-option-text">
+                            <strong>{o.label}</strong>
+                            <span>{o.hint}</span>
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  </fieldset>
 
                   {/* ACM ID (conditional) */}
                   {formData.isAcmMember === "yes" && (
@@ -505,7 +531,7 @@ const Register = () => {
               <button
                 ref={submitButtonRef}
                 type="submit"
-                className="auth-submit-btn"
+                className="al-submit"
                 disabled={loading}
                 aria-busy={loading}
                 aria-label={
@@ -516,44 +542,17 @@ const Register = () => {
               >
                 {loading
                   ? "Creating account..."
-                  : AUTH.REGISTER.BUTTON_SUBMIT}
+                  : <>{AUTH.REGISTER.BUTTON_SUBMIT} <span aria-hidden="true">→</span></>}
               </button>
             </form>
+            <p className="al-legal">
+              By creating an account you agree to our <Link to="/terms">Terms &amp; Conditions</Link>,{" "}
+              <Link to="/privacy">Privacy Policy</Link> and <Link to="/conduct">Code of Conduct</Link>.
+            </p>
 
-            {/* Footer */}
-            <div className="register-footer">
-              <p>
-                Already have an account?{" "}
-                <button
-                  type="button"
-                  className="auth-link"
-                  onClick={() => navigate("/login")}
-                  aria-label="Go to sign in page"
-                >
-                  Sign in
-                </button>
-              </p>
-              <p className="register-footer-alt">
-                Chapter admin?{" "}
-                <button
-                  type="button"
-                  className="auth-link"
-                  onClick={() => navigate("/admin-login")}
-                  aria-label="Go to admin access page"
-                >
-                  Admin access →
-                </button>
-              </p>
-            </div>
-          </div>
-        </main>
-      </div>
-
-      {/* Toast Notification */}
       <Toast toast={toast} onClose={() => setToast(null)} />
-    </div>
+    </AuthLayout>
   );
 };
 
 export default Register;
-

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, useContext } from "react";
+import { Link } from "react-router-dom";
 import {
   fetchThreads,
   fetchThread,
@@ -21,6 +22,7 @@ import Toast from "../components/Toast";
 import ConfirmDialog from "../components/ConfirmDialog";
 import { HeartIcon, MessageCircleIcon, PlusIcon, TrashIcon, XIcon } from "../components/ui/Icons";
 import "../styles/forum.css";
+import "../styles/forum-layout.css";
 
 // ─── Module-scope helpers (pure, stable across renders) ─────────────────────
 
@@ -624,15 +626,36 @@ const Forum = () => {
     <div className="community-page">
       {/* Hero */}
       <header className="community-hero">
-        <div>
+        <div className="community-hero-copy">
           <span className="community-eyebrow">Live Community</span>
           <h1>{FORUM.HEADING}</h1>
           <p>{FORUM.SUBHEADING}</p>
         </div>
-        <ConnectionBadge isConnected={isConnected} />
+        <div className="community-hero-actions">
+          <svg className="hero-scissors" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <circle cx="6" cy="6" r="3" /><circle cx="6" cy="18" r="3" /><line x1="20" y1="4" x2="8.1" y2="15.9" /><line x1="14.5" y1="14.5" x2="20" y2="20" /><line x1="8.1" y1="8.1" x2="12" y2="12" />
+          </svg>
+          <span className="hero-stub-label">Community pass</span>
+          <ConnectionBadge isConnected={isConnected} />
+          {user ? (
+            <button
+              type="button"
+              className="hero-cta"
+              onClick={() => {
+                setShowComposer(true);
+                document.getElementById("forum-composer")?.scrollIntoView({ behavior: "smooth", block: "center" });
+              }}
+            >
+              <PlusIcon size={16} /> Start a discussion
+            </button>
+          ) : (
+            <Link to="/login" className="hero-cta">Sign in to post</Link>
+          )}
+          <span className="hero-stub-note">{user ? "Your voice counts here" : "Free for every XIM student"}</span>
+        </div>
       </header>
 
-      <div className="community-shell">
+      <div className={`community-shell ${activeDiscussion || activeId ? "has-thread" : ""}`}>
         {/* Sidebar: filters + composer */}
         <aside className="community-sidebar">
           <section className="filter-panel" aria-label="Filter discussions">
@@ -661,7 +684,7 @@ const Forum = () => {
           </section>
 
           {user && (
-            <section className="discussion-composer" aria-label="Create new discussion">
+            <section id="forum-composer" className="discussion-composer" aria-label="Create new discussion">
               <button
                 type="button"
                 className="composer-toggle"
@@ -772,8 +795,20 @@ const Forum = () => {
             </div>
           ) : threads.length === 0 ? (
             <div className="forum-empty">
-              <MessageCircleIcon size={40} />
+              <span className="forum-empty-icon"><MessageCircleIcon size={28} /></span>
+              <h3>{search || category !== "All" ? "No matching discussions" : "No discussions yet"}</h3>
               <p>{FORUM.EMPTY}</p>
+              {(search || category !== "All") ? (
+                <button type="button" className="forum-empty-btn" onClick={() => { setCategory("All"); setSearchInput(""); }}>
+                  Clear filters
+                </button>
+              ) : user ? (
+                <button type="button" className="forum-empty-btn" onClick={() => setShowComposer(true)}>
+                  <PlusIcon size={15} /> Start the first discussion
+                </button>
+              ) : (
+                <Link to="/login" className="forum-empty-btn">Sign in to start one</Link>
+              )}
             </div>
           ) : (
             <div className="feed-list">
