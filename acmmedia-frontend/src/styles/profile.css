@@ -191,7 +191,7 @@
   padding: var(--spacing-8) var(--spacing-20);
   border-radius: var(--radius-md);
   border: none;
-  background: var(--color-neon-lime);
+  background: var(--color-accent);
   color: var(--color-pitch-black);
   font-weight: 590;
   font-size: 13px;
@@ -236,7 +236,7 @@
   padding: var(--spacing-8) var(--spacing-20);
   border-radius: var(--radius-md);
   border: none;
-  background: var(--color-neon-lime);
+  background: var(--color-accent);
   color: var(--color-pitch-black);
   font-weight: 590;
   font-size: 13px;
@@ -286,9 +286,9 @@
 }
 
 .role-badge.admin {
-  background: rgba(228, 242, 34, 0.08);
-  color: var(--color-neon-lime);
-  border: 1px solid rgba(228, 242, 34, 0.2);
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--color-accent);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .role-badge.member {

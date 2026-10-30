@@ -349,7 +349,7 @@ export const getPasswordStrength = (password) => {
     0: { label: "Enter a password", color: "var(--color-fog-grey)", percentage: 0 },
     1: { label: "Weak", color: "#f87171", percentage: 33 }, // red-400
     2: { label: "Good", color: "#fbbf24", percentage: 66 }, // amber-400
-    3: { label: "Strong", color: "var(--color-neon-lime)", percentage: 100 },
+    3: { label: "Strong", color: "var(--color-accent)", percentage: 100 },
   };
 
   return { level, ...levels[level] };

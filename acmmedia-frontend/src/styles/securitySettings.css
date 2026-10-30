@@ -54,7 +54,7 @@
 }
 
 .security-tabs .tab.active {
-  color: var(--color-neon-lime);
+  color: var(--color-accent);
 }
 
 .security-tabs .tab.active::after {
@@ -64,7 +64,7 @@
   left: 0;
   right: 0;
   height: 2px;
-  background: var(--color-neon-lime);
+  background: var(--color-accent);
 }
 
 /* ─── Content ────────────────────────────────────────────────────────────── */
@@ -144,7 +144,7 @@
 .form-group input:focus {
   outline: none;
   background: rgba(255, 255, 255, 0.08);
-  border-color: var(--color-neon-lime);
+  border-color: var(--color-accent);
 }
 
 .password-toggle {
@@ -162,7 +162,7 @@
 }
 
 .password-toggle:hover {
-  color: var(--color-neon-lime);
+  color: var(--color-accent);
 }
 
 /* ─── Password Strength ──────────────────────────────────────────────────── */
@@ -221,7 +221,7 @@
 
 .btn-primary {
   padding: 12px 28px;
-  background: var(--color-neon-lime);
+  background: var(--color-accent);
   color: var(--color-pitch-black);
   border: none;
   border-radius: 8px;
@@ -233,7 +233,7 @@
 
 .btn-primary:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 8px 16px rgba(228, 242, 34, 0.2);
+  box-shadow: 0 8px 16px rgba(255, 255, 255, 0.2);
 }
 
 .btn-primary:disabled {
