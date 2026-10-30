@@ -3,13 +3,51 @@
 
 <head>
   <meta charset="UTF-8" />
-  <link rel="icon" type="image/svg+xml" href="/vite.svg" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ACM XIM ENVOY</title>
-  <!-- Google Fonts: Inter -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <!--
+    Static head defaults.
+
+    These are what crawlers and scrapers that do not execute JavaScript will
+    see. The <Seo> component (src/components/Seo.jsx) overwrites these per
+    route at runtime, so keep the values here accurate but generic.
+  -->
+  <title>ACM XIM | Events, Workshops &amp; Student Community</title>
+  <meta name="description"
+    content="The official platform of the ACM Student Chapter at XIM University. Browse upcoming events and workshops, read chapter announcements, and join member discussions." />
+  <meta name="robots" content="index, follow, max-image-preview:large" />
+  <meta name="theme-color" content="#08090a" />
+  <meta name="color-scheme" content="dark" />
+  <link rel="canonical" href="https://acmmedia-frontend.vercel.app/" />
+
+  <!-- Icons -->
+  <link rel="icon" type="image/png" href="/favicon.png" />
+  <link rel="apple-touch-icon" href="/favicon.png" />
+
+  <!-- Open Graph -->
+  <meta property="og:site_name" content="ACM XIM" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="ACM XIM | Events, Workshops &amp; Student Community" />
+  <meta property="og:description"
+    content="The official platform of the ACM Student Chapter at XIM University. Browse upcoming events and workshops, read chapter announcements, and join member discussions." />
+  <meta property="og:url" content="https://acmmedia-frontend.vercel.app/" />
+  <meta property="og:image" content="https://acmmedia-frontend.vercel.app/og-image.png" />
+  <meta property="og:image:alt" content="ACM Student Chapter, XIM University" />
+  <meta property="og:locale" content="en_IN" />
+
+  <!-- Twitter / X -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="ACM XIM | Events, Workshops &amp; Student Community" />
+  <meta name="twitter:description"
+    content="The official platform of the ACM Student Chapter at XIM University. Browse upcoming events and workshops, read chapter announcements, and join member discussions." />
+  <meta name="twitter:image" content="https://acmmedia-frontend.vercel.app/og-image.png" />
+
+  <!-- Fonts: preconnect early, then load Inter. Weights match the design tokens. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet" />
 </head>
 
 <body>

@@ -1,0 +1,14 @@
+# robots.txt — ACM XIM
+# Public content (home, events, news, forum) is open to crawlers.
+# Authenticated and administrative areas are excluded: they hold no
+# indexable content and should never surface in search results.
+
+User-agent: *
+Allow: /
+
+Disallow: /admin
+Disallow: /admin-login
+Disallow: /profile
+Disallow: /security
+
+Sitemap: https://acmmedia-frontend.vercel.app/sitemap.xml

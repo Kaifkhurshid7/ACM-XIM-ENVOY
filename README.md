@@ -1,232 +1,592 @@
 # ACM-XIM-ENVOY
 
-A production-grade, full-stack community platform built for the **ACM Student Chapter at XIM University**. Provides real-time news, event management, a modern Community Hub, profile management, and administrative tools — engineered for **100+ concurrent users** with security hardening, rate limiting, and optimized database performance.
+A full-stack community platform for the **ACM Student Chapter at XIM University**: chapter news, events, a real-time Community Hub, profiles, and admin tooling. It is hardened with standard security middleware and tuned for 100+ concurrent users.
 
-**Live Demo:** [Frontend](https://acmmedia-frontend.vercel.app) | [Backend API](https://acmmedia-backend.onrender.com) | [API Docs](https://acmmedia-backend.onrender.com/api-docs)
+**Live:** [Frontend](https://acmmedia-frontend.vercel.app) · [Backend API](https://acmmedia-backend.onrender.com) · [API Docs (Swagger)](https://acmmedia-backend.onrender.com/api-docs)
 
----
-
-## Architecture Overview
-
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│                     CLIENT (React 18 SPA)                            │
-│  Vercel CDN → React Router → Axios (interceptors) → Socket.IO       │
-└────────────────────────────────┬────────────────────────────────────┘
-                                 │ HTTPS / WSS
-┌────────────────────────────────▼────────────────────────────────────┐
-│                  SERVER (Express.js + Socket.IO)                      │
-│                                                                      │
-│  ┌─────────┐  ┌──────────┐  ┌───────────┐  ┌──────────────────┐    │
-│  │ Helmet  │→ │   CORS   │→ │Rate Limit │→ │  Mongo Sanitize  │    │
-│  └─────────┘  └──────────┘  └───────────┘  └──────────────────┘    │
-│       ↓                                                              │
-│  ┌─────────┐  ┌──────────┐  ┌───────────┐  ┌──────────────────┐    │
-│  │  HPP    │→ │Compress  │→ │  Routes   │→ │  Error Handler   │    │
-│  └─────────┘  └──────────┘  └───────────┘  └──────────────────┘    │
-│                                                                      │
-│  Database: MongoDB Atlas (indexed, paginated, lean queries)          │
-│  Real-time: Socket.IO (debounced, room-scoped)                       │
-│  Logging: Pino (structured JSON, redacted secrets)                   │
-│  External: NewsAPI (cached 30min, graceful fallback)                 │
-└─────────────────────────────────────────────────────────────────────┘
-```
+![React](https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-4-646CFF?logo=vite&logoColor=white)
+![Node](https://img.shields.io/badge/Node.js-18%2B-339933?logo=node.js&logoColor=white)
+![Express](https://img.shields.io/badge/Express-4-000000?logo=express&logoColor=white)
+![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-47A248?logo=mongodb&logoColor=white)
+![Socket.IO](https://img.shields.io/badge/Socket.IO-4-010101?logo=socket.io&logoColor=white)
+![License](https://img.shields.io/badge/License-MIT-blue)
 
 ---
 
-## Monorepo Structure
+## Table of Contents
 
-```
-ACM-XIM-ENVOY/
-├── acmmedia-backend/              # Express.js REST API + Socket.IO
-│   ├── server.js                  # Entry point (deployment target)
-│   ├── src/
-│   │   ├── config/                # Database, JWT, indexes, app config
-│   │   ├── constants/             # Enums, magic strings, shared values
-│   │   ├── docs/                  # Swagger/OpenAPI specification
-│   │   ├── middlewares/           # Security, auth, RBAC, validation, rate limiting, errors
-│   │   ├── models/                # Mongoose schemas (User, Post, Event, Forum, Comment)
-│   │   ├── routes/                # Express route handlers (paginated)
-│   │   ├── services/              # Business logic (analytics, news caching)
-│   │   ├── socket.js              # Socket.IO (debounced, room-scoped)
-│   │   └── utils/                 # Logger, pagination, response helpers
-│   ├── uploads/                   # User-uploaded images (gitignored)
-│   ├── vercel.json                # Vercel serverless config
-│   └── package.json
-│
-├── acmmedia-frontend/             # React + Vite SPA
-│   ├── src/
-│   │   ├── api/                   # Axios API modules (auth, posts, events, profile, etc.)
-│   │   ├── components/            # Reusable UI components
-│   │   │   └── ui/                # Generic UI primitives (ConnectionBadge)
-│   │   ├── constants/             # Frontend constants & enums
-│   │   ├── context/               # React Context providers (Auth, Socket)
-│   │   ├── hooks/                 # Custom React hooks (useConnectionStatus)
-│   │   ├── pages/                 # Route-level page components
-│   │   ├── styles/                # CSS stylesheets
-│   │   └── utils/                 # Helper functions (extractArray, extractToken, etc.)
-│   ├── vercel.json                # Vercel SPA rewrite config
-│   └── package.json
-│
-└── README.md
-```
-
----
-
-## Tech Stack
-
-| Layer | Technology | Purpose |
-|-------|-----------|---------|
-| Frontend | React 18, Vite 4, React Router 6 | SPA with client-side routing |
-| State | React Context API | Auth state, Socket connection |
-| Real-time | Socket.IO Client | Live discussions, replies, likes, typing, analytics |
-| HTTP | Axios | API communication with JWT interceptors |
-| Backend | Express.js 4 | REST API server |
-| Security | Helmet, CORS, express-mongo-sanitize, HPP | Production hardening |
-| Rate Limiting | express-rate-limit | Brute-force & DDoS protection |
-| Database | MongoDB Atlas (Mongoose 7) | Document storage with indexes |
-| Auth | JWT + bcrypt | Stateless authentication |
-| Validation | express-validator | Request validation & sanitization |
-| Real-time | Socket.IO 4 | WebSocket server (debounced, room-scoped community updates) |
-| Logging | Pino | Structured JSON logging with redaction |
-| Performance | compression, lean queries, pagination | Optimized for 100+ users |
-| Docs | Swagger UI + swagger-jsdoc | Interactive API documentation |
-| External | NewsAPI | Technology news aggregation (cached) |
-| Hosting | Vercel (frontend), Render (backend) | Production deployment |
+- [Features](#features)
+- [System Architecture](#system-architecture)
+- [Request Lifecycle](#request-lifecycle)
+- [Authentication Flow](#authentication-flow)
+- [Real-Time Architecture](#real-time-architecture)
+- [Data Model](#data-model)
+- [Role-Based Access Control](#role-based-access-control)
+- [Tech Stack](#tech-stack)
+- [Project Structure](#project-structure)
+- [Getting Started](#getting-started)
+- [Environment Variables](#environment-variables)
+- [API Reference](#api-reference)
+- [Security](#security)
+- [Performance & Scalability](#performance--scalability)
+- [Deployment](#deployment)
+- [Error Handling](#error-handling)
+- [Roadmap](#roadmap)
+- [License](#license)
 
 ---
 
 ## Features
 
-### Public Features
-- **News Feed** — Chapter announcements with like/comment interactions
-- **Tech News** — Aggregated technology headlines (30-min cache, graceful fallback)
-- **Events** — Upcoming workshops, hackathons, and seminars
-- **Community Hub** — Discord/Reddit/GitHub Discussions-inspired student interaction hub
-- **Responsive Design** — Mobile-first with hamburger navigation
-
-### Authenticated Features
-- **Like Posts** — Toggle likes with real-time count updates
-- **Comment** — Participate in post discussions
-- **Create Discussions** — Ask doubts, raise concerns, share ideas, and start topic threads
-- **Threaded Replies** — Reply to discussions or nested replies with mentions and live updates
-- **Upvote Discussions & Replies** — Surface helpful questions and answers
-- **Profile Management** — Edit name, bio, department, year, social links
-- **Avatar Upload** — Profile picture upload (2MB limit, image validation)
-- **Password Change** — Secure password update with current password verification
-
-### Admin Features
-- **Content Management** — Create/delete posts and events
-- **Community Moderation** — Pin, lock, announce, delete discussions, remove replies, and mark official answers
-- **Live Analytics** — Real-time platform metrics (users, posts, likes, comments)
-- **Admin Creation** — Create additional admin accounts
-- **File Upload** — Image upload for platform content
+| Audience | Capabilities |
+|----------|--------------|
+| **Public** | News feed with likes/comments · Tech news (cached, with fallback) · Events · Community Hub (read) · Responsive, mobile-first UI |
+| **Members** | Like and comment on posts · Create discussions · Threaded replies with mentions · Upvotes · Bookmarks (posts, discussions, events, articles) · Profile, avatar and banner · Privacy and notification settings · Session management and security logs |
+| **Admins** | Create and delete posts and events · Moderate discussions (pin, lock, announce, mark official answer, remove replies) · Live analytics · Image uploads · Create other admin accounts |
 
 ---
 
-## Community Hub Architecture
+## System Architecture
 
-The old basic forum is now **ACM Connect / Community Hub**, a real-time student discussion system inspired by Discord rooms, Reddit nested threads, GitHub Discussions, and StackOverflow answer workflows.
+```mermaid
+flowchart LR
+    subgraph Client["Client · React 18 SPA (Vercel)"]
+        UI["React Router<br/>Pages & Components"]
+        CTX["AuthContext<br/>SocketContext"]
+        AX["Axios client<br/>JWT interceptor"]
+        SIO_C["Socket.IO client"]
+        UI --> CTX
+        CTX --> AX
+        CTX --> SIO_C
+    end
 
-### Discussion Workflow
+    subgraph Server["Server · Express + Socket.IO (Render)"]
+        MW["Security middleware<br/>Helmet · CORS · Sanitize · HPP · Rate limit"]
+        RT["Routes /api/v1/*"]
+        SVC["Services<br/>analytics · news · email · security"]
+        SIO_S["Socket.IO server<br/>room-scoped events"]
+        LOG["Pino logger"]
+        MW --> RT --> SVC
+        RT -.-> LOG
+        SIO_S -.-> SVC
+    end
 
-- Discussions include title, content, category, tags, author snapshot, timestamps, upvotes, views, reply count, pinned/announcement state, locked state, and resolved status.
-- The feed supports keyword search, category/tag filtering, and sort modes: `Trending`, `Latest`, `Most Active`, `Unanswered`, and `Solved`.
-- The frontend keeps the feed lightweight and loads one active discussion's reply tree at a time for better rendering performance.
+    DB[("MongoDB Atlas<br/>Mongoose")]
+    NEWS["NewsAPI"]
+    SMTP["SMTP provider"]
 
-### Threaded Replies
-
-Replies are stored in a separate `DiscussionReply` collection instead of being embedded in the discussion document. This keeps hot discussions scalable and prevents oversized MongoDB documents.
-
-- `parentReply` enables reply-to-reply conversations.
-- `path` and `depth` preserve thread structure without recursive database queries.
-- The client renders a nested tree with capped visual indentation for mobile readability.
-- Replies support mentions, likes, soft moderation removal, and official answer highlighting.
-
-### Socket.IO System
-
-- `discussions` room: new discussions, feed updates, discussion likes, moderation changes.
-- `discussion:{id}` room: live replies, reply likes, typing indicators, active reader counts.
-- `user:{id}` room: notification events for replies, mentions, likes, accepted answers, and announcements.
-- Clients join only the currently opened discussion room, reducing unnecessary socket traffic.
-
-### Search, Filtering, and Indexes
-
-- Text index: `title`, `content`, `tags`
-- Feed indexes: `pinned + lastActivityAt`, `category + lastActivityAt`, `status + replyCount + lastActivityAt`
-- Reply indexes: `discussion + createdAt`, `discussion + parentReply + createdAt`
-- Notification index: `recipient + read + createdAt`
-
-### Community API
-
-| Method | Endpoint | Purpose |
-|--------|----------|---------|
-| `GET` | `/api/v1/discussions` | Paginated feed with `search`, `category`, `tag`, and `sort` |
-| `GET` | `/api/v1/discussions/meta` | Categories and community stats |
-| `POST` | `/api/v1/discussions` | Create a discussion |
-| `GET` | `/api/v1/discussions/:id` | Load a discussion and threaded replies |
-| `POST` | `/api/v1/discussions/:id/replies` | Add top-level or nested reply |
-| `POST` | `/api/v1/discussions/:id/like` | Toggle discussion upvote |
-| `POST` | `/api/v1/discussions/replies/:replyId/like` | Toggle reply upvote |
-| `PATCH` | `/api/v1/discussions/:id/moderation` | Admin pin/lock/announcement/official-answer updates |
-| `DELETE` | `/api/v1/discussions/:id` | Admin discussion deletion |
-
-`/api/v1/forum` remains mounted as a compatibility alias so existing deployment assumptions do not break.
+    AX -- "HTTPS / REST" --> MW
+    SIO_C -- "WSS" --> SIO_S
+    SVC --> DB
+    RT --> DB
+    SVC -- "30 min cache" --> NEWS
+    SVC --> SMTP
+```
 
 ---
 
-## Security Architecture
+## Request Lifecycle
 
-### Middleware Stack (applied in order)
+Every API request passes through the middleware stack in this order before reaching business logic.
 
-| Layer | Protection | Attack Prevented |
-|-------|-----------|-----------------|
-| Helmet | 11+ secure HTTP headers | XSS, clickjacking, MIME sniffing |
+```mermaid
+flowchart TD
+    A([Incoming request]) --> B[Helmet<br/>secure headers]
+    B --> C{CORS origin<br/>whitelisted?}
+    C -- No --> X1([Blocked])
+    C -- Yes --> D[Body parser<br/>10 KB limit]
+    D --> E[Mongo Sanitize<br/>strip $ operators]
+    E --> F[HPP<br/>dedupe query params]
+    F --> G[Compression]
+    G --> H{Rate limit<br/>exceeded?}
+    H -- Yes --> X2([429 Too Many Requests])
+    H -- No --> I{Protected<br/>route?}
+    I -- No --> L
+    I -- Yes --> J{Valid JWT?}
+    J -- No --> X3([401 Unauthorized])
+    J -- Yes --> K{Role<br/>permitted?}
+    K -- No --> X4([403 Forbidden])
+    K -- Yes --> L[express-validator<br/>input validation]
+    L -- Invalid --> X5([400 Bad Request])
+    L -- Valid --> M[Route handler<br/>+ service layer]
+    M --> N[(MongoDB)]
+    N --> O([JSON response])
+    M -. error .-> P[Central error handler] --> Q([Consistent error JSON])
+```
+
+---
+
+## Authentication Flow
+
+Auth V2 adds email verification, password reset, and tracked sessions on top of the original JWT login.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor U as User
+    participant C as React Client
+    participant S as Express API
+    participant DB as MongoDB
+    participant M as SMTP
+
+    rect rgb(235, 245, 255)
+    Note over U,M: Registration and verification
+    U->>C: Fill registration form
+    C->>S: POST /auth/v2/register
+    S->>DB: Create user (bcrypt hash)
+    S->>M: Send verification email
+    U->>C: Open verification link
+    C->>S: POST /auth/v2/verify-email
+    S->>DB: Mark email verified
+    end
+
+    rect rgb(240, 255, 240)
+    Note over U,M: Login and authenticated access
+    U->>C: Submit credentials
+    C->>S: POST /auth/v2/login (rate limited 5/min)
+    S->>DB: Verify password, record session and login history
+    S-->>C: JWT
+    C->>C: Store token, attach via Axios interceptor
+    C->>S: GET /auth/v2/me (Bearer JWT)
+    S-->>C: name, email, role
+    end
+
+    rect rgb(255, 245, 235)
+    Note over U,M: Password reset
+    U->>C: Forgot password
+    C->>S: POST /auth/v2/forgot-password
+    S->>M: Email reset link
+    C->>S: POST /auth/v2/reset-password
+    S->>DB: Update hash, invalidate sessions
+    end
+```
+
+- Passwords are hashed with bcrypt (rounds set via `BCRYPT_ROUNDS`).
+- JWTs carry the user ID and role. The server fails fast if `JWT_SECRET` is unset.
+- Sessions can be listed and revoked individually (`/sessions`) or all at once (`/logout-all`).
+- Admin accounts are provisioned only through the admin-only `POST /auth/create-admin` endpoint.
+- The legacy `/auth/*` routes remain mounted for backward compatibility.
+
+---
+
+## Real-Time Architecture
+
+```mermaid
+flowchart TB
+    Client["React client<br/>SocketContext"]
+    IO{{"Socket.IO server"}}
+
+    Client <-- "WSS · auth(token)" --> IO
+
+    IO --> R1["room: discussions<br/>new threads · feed updates<br/>likes · moderation"]
+    IO --> R2["room: discussion:{id}<br/>live replies · reply likes<br/>typing · reader count"]
+    IO --> R3["room: user:{id}<br/>reply / mention / like<br/>accepted answer notices"]
+    IO --> R4["room: admins<br/>platform analytics"]
+
+    MUT["DB mutations<br/>(post, like, comment, user)"] --> DEB["Debounce 500 ms"]
+    DEB --> AN["analyticsService<br/>single aggregate query"]
+    AN --> R4
+```
+
+| Room | Who joins | Events |
+|------|-----------|--------|
+| `discussions` | Anyone on the Community Hub feed | New discussions, feed updates, discussion likes, moderation changes |
+| `discussion:{id}` | Only the discussion currently open | Live replies, reply likes, typing indicators, active reader counts |
+| `user:{id}` | The authenticated user | Notifications for replies, mentions, likes, accepted answers, announcements |
+| `admins` | Admin users | `platform:analytics:update` |
+
+Clients join only the room for the discussion they have open, which keeps socket traffic low. Rapid mutations such as a bulk delete trigger one analytics query, not N.
+
+---
+
+## Data Model
+
+```mermaid
+erDiagram
+    USER ||--o{ POST : authors
+    USER ||--o{ COMMENT : writes
+    USER ||--o{ DISCUSSIONTHREAD : starts
+    USER ||--o{ DISCUSSIONREPLY : writes
+    USER ||--o{ NOTIFICATION : receives
+    POST ||--o{ COMMENT : has
+    DISCUSSIONTHREAD ||--o{ DISCUSSIONREPLY : contains
+    DISCUSSIONREPLY ||--o{ DISCUSSIONREPLY : "parentReply"
+    USER }o--o{ POST : "likes / bookmarks"
+    USER }o--o{ EVENT : bookmarks
+    USER }o--o{ DISCUSSIONTHREAD : bookmarks
+
+    USER {
+        ObjectId _id
+        string name
+        string email
+        string role "member | admin"
+        object profile "bio, department, year, links"
+        object privacy
+        array sessions
+    }
+    POST {
+        ObjectId _id
+        string title
+        string content
+        array likes
+        date createdAt
+    }
+    COMMENT {
+        ObjectId _id
+        ObjectId postId
+        ObjectId user
+        string text
+    }
+    EVENT {
+        ObjectId _id
+        string title
+        date date
+        boolean isPast
+    }
+    DISCUSSIONTHREAD {
+        ObjectId _id
+        string title
+        string category
+        array tags
+        boolean pinned
+        boolean locked
+        boolean resolved
+        date lastActivityAt
+    }
+    DISCUSSIONREPLY {
+        ObjectId _id
+        ObjectId discussion
+        ObjectId parentReply
+        string path
+        int depth
+    }
+    NOTIFICATION {
+        ObjectId _id
+        ObjectId recipient
+        boolean read
+        date createdAt
+    }
+```
+
+> The diagram shows the relationships and key fields. See [acmmedia-backend/src/models/](acmmedia-backend/src/models/) for the full schemas.
+
+Replies live in their own `DiscussionReply` collection instead of being embedded. `parentReply`, `path`, and `depth` encode the thread tree, so rendering needs no recursive queries and hot threads cannot outgrow MongoDB's document size limit.
+
+**Indexes**
+
+| Collection | Indexes |
+|------------|---------|
+| User | `{ role, createdAt }` |
+| Post | `{ createdAt }`, `{ likes }` |
+| Comment | `{ postId, createdAt }`, `{ user }` |
+| Event | `{ date }`, `{ isPast, date }` |
+| DiscussionThread | text (`title`, `content`, `tags`) · `{ pinned, lastActivityAt }` · `{ category, lastActivityAt }` · `{ status, replyCount, lastActivityAt }` |
+| DiscussionReply | `{ discussion, createdAt }`, `{ discussion, parentReply, createdAt }` |
+| Notification | `{ recipient, read, createdAt }` |
+
+---
+
+## Role-Based Access Control
+
+| Action | Guest | Member | Admin |
+|--------|:-----:|:------:|:-----:|
+| View posts, events, discussions | ✅ | ✅ | ✅ |
+| Like and comment on posts | ❌ | ✅ | ✅ |
+| Create discussions and reply | ❌ | ✅ | ✅ |
+| Bookmarks, profile, avatar, password | ❌ | ✅ | ✅ |
+| Create posts and events | ❌ | ❌ | ✅ |
+| Moderate or delete content | ❌ | ❌ | ✅ |
+| View analytics | ❌ | ❌ | ✅ |
+| Upload files | ❌ | ❌ | ✅ |
+| Create admin accounts | ❌ | ❌ | ✅ |
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| **Frontend** | React 18, Vite 4, React Router 6, Axios, Socket.IO Client |
+| **State** | React Context (Auth, Socket) |
+| **Backend** | Node.js 18+, Express 4 |
+| **Database** | MongoDB Atlas, Mongoose 7 |
+| **Real-time** | Socket.IO 4 |
+| **Auth** | JWT, bcryptjs |
+| **Security** | Helmet, CORS whitelist, express-mongo-sanitize, HPP, express-rate-limit |
+| **Validation** | express-validator |
+| **Uploads** | Multer |
+| **Caching** | node-cache |
+| **Logging** | Pino (pino-pretty in dev) |
+| **API Docs** | swagger-jsdoc, swagger-ui-express |
+| **External** | NewsAPI, SMTP (Nodemailer-compatible provider) |
+| **Hosting** | Vercel (frontend), Render (backend) |
+
+---
+
+## Project Structure
+
+```text
+ACM-XIM-ENVOY/
+├── acmmedia-backend/              # Express REST API + Socket.IO
+│   ├── server.js                  # Entry point
+│   ├── vercel.json
+│   └── src/
+│       ├── config/                # Database, JWT, CORS origins, indexes
+│       ├── constants/             # Enums and shared values
+│       ├── docs/                  # Swagger / OpenAPI spec
+│       ├── middlewares/           # auth, role, security, validators, rateLimiter, errorHandler
+│       ├── models/                # User, Post, Comment, Event, DiscussionThread, DiscussionReply, Notification
+│       ├── routes/                # auth, authV2, profile, profileV2, posts, comments, forum, events, admin, news, upload
+│       ├── services/              # analytics, news, email, security
+│       ├── socket.js              # Socket.IO setup and room logic
+│       └── utils/                 # logger, pagination, response helpers
+│
+├── acmmedia-frontend/             # React + Vite SPA
+│   ├── vercel.json                # SPA rewrites
+│   └── src/
+│       ├── api/                   # Axios modules per resource
+│       ├── components/            # Navbar, PostCard, CommentBox, TechPulse, Toast, ...
+│       ├── constants/
+│       ├── context/               # AuthContext, SocketContext
+│       ├── hooks/                 # useSocket, useConnectionStatus
+│       ├── pages/                 # Home, News, Events, Forum, Profile, Admin, Login, ...
+│       ├── styles/
+│       └── utils/
+│
+├── .gitignore
+└── README.md
+```
+
+**Frontend routes:** `/` · `/login` · `/register` · `/forum` (alias `/discussions`) · `/events` · `/news` · `/profile` · `/profile/:username` · `/security` · `/admin` · `/admin-login`
+
+---
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js 18 or later
+- npm
+- A MongoDB instance (local or Atlas)
+
+### 1. Clone
+
+```bash
+git clone https://github.com/<your-org>/ACM-XIM-ENVOY.git
+cd ACM-XIM-ENVOY
+```
+
+### 2. Backend
+
+```bash
+cd acmmedia-backend
+npm install
+cp .env.example .env      # then set MONGO_URI and JWT_SECRET
+npm run dev
+```
+
+The API runs at `http://localhost:5000` and the docs at `http://localhost:5000/api-docs`.
+
+### 3. Frontend
+
+```bash
+cd acmmedia-frontend
+npm install
+cp .env.example .env      # point VITE_* at your backend if not using the default
+npm run dev
+```
+
+The app runs at `http://localhost:5173`.
+
+### Scripts
+
+| Package | Script | Description |
+|---------|--------|-------------|
+| backend | `npm run dev` | Start with nodemon |
+| backend | `npm start` | Start with node (production) |
+| frontend | `npm run dev` | Vite dev server |
+| frontend | `npm run build` | Production build to `dist/` |
+| frontend | `npm run preview` | Preview the production build |
+
+---
+
+## Environment Variables
+
+### Backend (`acmmedia-backend/.env`)
+
+| Variable | Required | Default | Description |
+|----------|:--------:|---------|-------------|
+| `MONGO_URI` | ✅ | n/a | MongoDB connection string |
+| `JWT_SECRET` | ✅ | n/a | JWT signing secret. The server fails fast if unset. Generate with `openssl rand -hex 32` |
+| `NEWS_API_KEY` | | n/a | [NewsAPI](https://newsapi.org) key for tech news |
+| `PORT` | | `5000` | Server port |
+| `NODE_ENV` | | `development` | `development` or `production` |
+| `LOG_LEVEL` | | `info` | `fatal` · `error` · `warn` · `info` · `debug` · `trace` |
+| `BCRYPT_ROUNDS` | | library default | bcrypt cost factor |
+| `SMTP_HOST` / `SMTP_PORT` / `SMTP_SECURE` | | n/a | SMTP server for verification and reset emails |
+| `SMTP_USER` / `SMTP_PASS` | | n/a | SMTP credentials |
+| `FROM_EMAIL` | | n/a | Sender address |
+| `APP_NAME` / `APP_URL` | | n/a | Used in email content and links |
+
+> Never commit `.env`. Only `.env.example` is tracked.
+
+### Frontend (`acmmedia-frontend/.env`)
+
+| Variable | Required | Default | Description |
+|----------|:--------:|---------|-------------|
+| `VITE_API_BASE_URL` | | auto-detected | Backend REST base URL (including `/api/v1`) |
+| `VITE_SOCKET_URL` | | auto-detected | Socket.IO server URL |
+
+---
+
+## API Reference
+
+All endpoints are prefixed with `/api/v1`. List endpoints accept `?page=1&limit=20` (default 20, max 50). Full interactive docs are available at [`/api-docs`](https://acmmedia-backend.onrender.com/api-docs).
+
+<details>
+<summary><strong>Authentication</strong> (<code>/auth/v2</code>)</summary>
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|:----:|-------------|
+| POST | `/auth/v2/register` | n/a | Register (3/min) |
+| POST | `/auth/v2/verify-email` | n/a | Verify email token |
+| POST | `/auth/v2/resend-verification` | n/a | Resend verification email |
+| POST | `/auth/v2/login` | n/a | Login, receive JWT (5/min) |
+| POST | `/auth/v2/forgot-password` | n/a | Request reset email |
+| POST | `/auth/v2/reset-password` | n/a | Reset with token |
+| GET | `/auth/v2/me` | Bearer | Current user |
+| POST | `/auth/v2/logout` | Bearer | End current session |
+| POST | `/auth/v2/logout-all` | Bearer | End all sessions |
+| POST | `/auth/v2/change-password` | Bearer | Change password |
+| GET | `/auth/v2/sessions` | Bearer | List active sessions |
+| DELETE | `/auth/v2/sessions/:sessionId` | Bearer | Revoke a session |
+| GET | `/auth/v2/login-history` | Bearer | Login history |
+| GET | `/auth/v2/security-logs` | Bearer | Security event log |
+
+Legacy `/auth/register`, `/auth/login`, `/auth/me` and admin-only `POST /auth/create-admin` are also available.
+
+</details>
+
+<details>
+<summary><strong>Profile</strong> (<code>/profile/v2</code>)</summary>
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|:----:|-------------|
+| GET | `/profile/v2` | Bearer | Own profile |
+| GET | `/profile/v2/achievements` | Bearer | Achievements |
+| GET | `/profile/v2/:username` | n/a | Public profile |
+| PATCH | `/profile/v2` | Bearer | Update profile |
+| PATCH | `/profile/v2/privacy` | Bearer | Privacy settings |
+| PATCH | `/profile/v2/notifications` | Bearer | Notification settings |
+| POST / DELETE | `/profile/v2/avatar` | Bearer | Upload or remove avatar |
+| POST / DELETE | `/profile/v2/banner` | Bearer | Upload or remove banner |
+| GET | `/profile/v2/bookmarks/all` | Bearer | All bookmarks |
+| POST / DELETE | `/profile/v2/bookmarks/post/:id` | Bearer | Bookmark a post |
+| POST / DELETE | `/profile/v2/bookmarks/discussion/:id` | Bearer | Bookmark a discussion |
+| POST / DELETE | `/profile/v2/bookmarks/event/:id` | Bearer | Bookmark an event |
+| POST / DELETE | `/profile/v2/bookmarks/article` | Bearer | Bookmark a news article |
+
+</details>
+
+<details>
+<summary><strong>Posts, Comments, Events</strong></summary>
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|:----:|-------------|
+| GET | `/posts` | n/a | List posts |
+| GET | `/posts/:id` | n/a | Get a post |
+| POST | `/posts` | Admin | Create |
+| PATCH | `/posts/:id` | Admin | Update |
+| PUT | `/posts/like/:id` | Bearer | Toggle like |
+| DELETE | `/posts/:id` | Admin | Delete |
+| GET | `/comments/:postId` | n/a | List comments |
+| POST | `/comments` | Bearer | Add comment |
+| DELETE | `/comments/:id` | Admin | Delete comment |
+| GET | `/events` | n/a | List events |
+| GET | `/events/:id` | n/a | Get an event |
+| POST | `/events` | Admin | Create |
+| PATCH | `/events/:id` | Admin | Update |
+| DELETE | `/events/:id` | Admin | Delete |
+
+</details>
+
+<details>
+<summary><strong>Community Hub</strong> (<code>/discussions</code>, alias <code>/forum</code>)</summary>
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|:----:|-------------|
+| GET | `/discussions` | n/a | Feed. Query: `search`, `category`, `tag`, `sort` (`Trending`, `Latest`, `Most Active`, `Unanswered`, `Solved`) |
+| GET | `/discussions/meta` | n/a | Categories and community stats |
+| POST | `/discussions` | Bearer | Create a discussion |
+| GET | `/discussions/:id` | n/a | Discussion with threaded replies |
+| POST | `/discussions/:id/replies` | Bearer | Reply (top-level or nested) |
+| POST | `/discussions/:id/like` | Bearer | Toggle upvote |
+| POST | `/discussions/replies/:replyId/like` | Bearer | Toggle reply upvote |
+| PATCH | `/discussions/:id/moderation` | Admin | Pin, lock, announce, official answer |
+| DELETE | `/discussions/:id` | Admin | Delete discussion |
+| DELETE | `/discussions/replies/:replyId` | Admin | Remove reply |
+
+</details>
+
+<details>
+<summary><strong>News, Admin, Upload</strong></summary>
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|:----:|-------------|
+| GET | `/news` (alias `/external-news`) | n/a | Tech news (30 min cache) |
+| GET | `/admin/stats` | Admin | Platform analytics |
+| POST | `/upload` | Admin | Upload an image (10/hour) |
+| GET | `/upload` | Admin | List uploads |
+
+</details>
+
+---
+
+## Security
+
+| Layer | Protection | Mitigates |
+|-------|-----------|-----------|
+| Helmet | Secure HTTP headers | XSS, clickjacking, MIME sniffing |
 | CORS | Origin whitelist | Unauthorized cross-origin access |
-| Body Limits | 10KB max JSON payload | Payload-based DoS |
-| Mongo Sanitize | Strips `$` operators from input | NoSQL injection |
-| HPP | Deduplicates query params | HTTP parameter pollution |
-| Rate Limiting | IP-based request throttling | Brute-force, DDoS, spam |
-| Input Validation | express-validator chains | Invalid data, injection |
-| JWT Auth | Token verification middleware | Unauthorized access |
-| Role Check | Role-based access control | Privilege escalation |
+| Body limit | 10 KB JSON | Payload DoS |
+| Mongo Sanitize | Strips `$` operators | NoSQL injection |
+| HPP | Dedupes query params | Parameter pollution |
+| Rate limiting | Per-IP throttling | Brute force, spam, DDoS |
+| express-validator | Schema validation | Malformed or malicious input |
+| JWT + RBAC | Token and role checks | Unauthorized access, privilege escalation |
+| Pino redaction | Hides passwords, tokens, auth headers | Secret leakage in logs |
 
-### Rate Limiting Strategy
+**Rate limits**
 
-| Endpoint | Limit | Window | Rationale |
-|----------|-------|--------|-----------|
-| `POST /auth/login` | 5 requests | 1 minute | Prevents brute-force password attacks |
-| `POST /auth/register` | 3 requests | 1 minute | Prevents mass account creation |
-| `POST /upload` | 10 requests | 1 hour | Prevents storage abuse |
-| All `/api/*` routes | 100 requests | 15 minutes | General abuse prevention |
+| Scope | Limit | Window |
+|-------|-------|--------|
+| Login (`/auth/login`, `/auth/v2/login`) | 5 | 1 minute |
+| Register (`/auth/register`, `/auth/v2/register`) | 3 | 1 minute |
+| Upload (`/upload`) | 10 | 1 hour |
+| All `/api/*` | 100 | 15 minutes |
 
 ---
 
-## Scalability Design (100+ Concurrent Users)
+## Performance & Scalability
 
-### Database Optimization
+| Technique | Effect |
+|-----------|--------|
+| **Compound indexes** | Index lookups instead of collection scans |
+| **Pagination** (`skip/limit`, indexed sort) | Never loads whole collections |
+| **`.lean()` reads** | Plain objects instead of Mongoose documents: faster serialization, less memory |
+| **gzip compression** | Smaller JSON payloads, helpful on mobile |
+| **Debounced analytics** (500 ms) | One aggregate query per burst of mutations |
+| **Room-scoped sockets** | Clients receive only relevant events |
+| **Socket tuning** | 1 MB max buffer, 2-minute connection-state recovery |
+| **NewsAPI caching** | 30 min TTL (5 min after an error), placeholder fallback |
+| **Graceful shutdown** | `SIGTERM`/`SIGINT` drain in-flight requests for zero-downtime deploys |
 
-```
-Indexes Created:
-├── User:    { role: 1, createdAt: -1 }
-├── Post:    { createdAt: -1 }, { likes: 1 }
-├── Comment: { postId: 1, createdAt: -1 }, { user: 1 }
-├── Forum:   { createdAt: -1 }
-└── Event:   { date: 1 }, { isPast: 1, date: 1 }
-```
+Paginated response shape:
 
-**Impact:** Query time reduced from O(n) collection scans to O(log n) index lookups.
-
-### Pagination
-
-All list endpoints support pagination to prevent loading entire collections:
-
-```
-GET /api/v1/posts?page=1&limit=20
-
-Response:
+```json
 {
-  "data": [...],
+  "data": [],
   "pagination": {
     "page": 1,
     "limit": 20,
@@ -238,337 +598,67 @@ Response:
 }
 ```
 
-- Default: 20 items/page, max 50
-- Uses MongoDB `skip/limit` with indexed sort
-- Frontend `extractArray()` handles both paginated and direct responses
-
-### Lean Queries
-
-All read-only endpoints use `.lean()` which returns plain JavaScript objects instead of Mongoose documents — **3x faster serialization** and lower memory usage.
-
-### Response Compression
-
-Gzip compression applied to all responses > 1KB. Reduces JSON payload sizes by **60-80%**, critical for mobile users.
-
-### Socket.IO Optimization
-
-- **Debounced analytics**: Rapid mutations (bulk delete) trigger only 1 DB query instead of N
-- **Room-scoped events**: Analytics only sent to admin room (not all clients)
-- **Connection tuning**: Optimized ping intervals for mobile/unstable connections
-- **Max buffer size**: 1MB limit prevents memory abuse
-- **Connection recovery**: 2-minute window for reconnection without data loss
-
-### Graceful Shutdown
-
-Server handles `SIGTERM`/`SIGINT` signals to complete in-flight requests before exiting — enables zero-downtime deployments on Render.
-
----
-
-## Authentication Flow
-
-```
-┌─────────┐     POST /auth/login      ┌─────────┐
-│  Client │ ─────────────────────────► │  Server │
-│         │ ◄───────────────────────── │         │
-│         │     { token: "jwt..." }    │         │
-│         │                            │         │
-│         │  GET /auth/me              │         │
-│         │  Authorization: Bearer jwt │         │
-│         │ ─────────────────────────► │         │
-│         │ ◄───────────────────────── │         │
-│         │     { name, email, role }  │         │
-└─────────┘                            └─────────┘
-```
-
-- Passwords hashed with bcrypt (10 rounds)
-- JWT tokens contain user ID and role (stateless)
-- Admin registration requires a secret key
-- University email domain restriction (client + server)
-- Rate limited: 5 login attempts/minute per IP
-
----
-
-## Role-Based Access Control
-
-| Action | Guest | Member | Admin |
-|--------|-------|--------|-------|
-| View posts/events/forum | ✓ | ✓ | ✓ |
-| Like posts | ✗ | ✓ | ✓ |
-| Comment on posts | ✗ | ✓ | ✓ |
-| Create forum threads | ✗ | ✓ | ✓ |
-| Reply to threads | ✗ | ✓ | ✓ |
-| Edit own profile | ✗ | ✓ | ✓ |
-| Change password | ✗ | ✓ | ✓ |
-| Upload avatar | ✗ | ✓ | ✓ |
-| Create posts/events | ✗ | ✗ | ✓ |
-| Delete any content | ✗ | ✗ | ✓ |
-| View analytics | ✗ | ✗ | ✓ |
-| Upload files | ✗ | ✗ | ✓ |
-| Create admin accounts | ✗ | ✗ | ✓ |
-
----
-
-## API Endpoints
-
-All endpoints prefixed with `/api/v1`. Paginated endpoints accept `?page=1&limit=20`.
-
-### Authentication
-| Method | Endpoint | Auth | Rate Limit | Description |
-|--------|----------|------|-----------|-------------|
-| POST | /auth/register | — | 3/min | Register new user |
-| POST | /auth/login | — | 5/min | Login, receive JWT |
-| GET | /auth/me | Bearer | General | Get current user profile |
-| POST | /auth/create-admin | Admin | General | Create admin account |
-
-### Profile
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| GET | /profile | Bearer | Get full profile |
-| PATCH | /profile | Bearer | Update profile fields |
-| POST | /profile/avatar | Bearer | Upload avatar (2MB max) |
-| DELETE | /profile/avatar | Bearer | Remove avatar |
-| POST | /profile/password | Bearer | Change password |
-
-### Posts
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| GET | /posts | — | List posts (paginated) |
-| GET | /posts/:id | — | Get single post |
-| POST | /posts | Admin | Create post |
-| PATCH | /posts/:id | Admin | Update post |
-| PUT | /posts/like/:id | Bearer | Toggle like |
-| DELETE | /posts/:id | Admin | Delete post |
-
-### Comments
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| GET | /comments/:postId | — | Get post comments (paginated) |
-| POST | /comments | Bearer | Add comment |
-| DELETE | /comments/:id | Admin | Delete comment |
-
-### Events
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| GET | /events | — | List events (paginated) |
-| GET | /events/:id | — | Get single event |
-| POST | /events | Admin | Create event |
-| PATCH | /events/:id | Admin | Update event |
-| DELETE | /events/:id | Admin | Delete event |
-
-### Forum
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| GET | /forum | — | List threads (paginated) |
-| POST | /forum | Bearer | Create thread |
-| POST | /forum/reply/:id | Bearer | Reply to thread |
-| DELETE | /forum/:id | Admin | Delete thread |
-
-### Other
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| GET | /external-news | — | Tech news (cached 30min) |
-| GET | /admin/stats | Admin | Platform analytics |
-| POST | /upload | Admin | Upload image (5MB max) |
-
-Interactive documentation: [/api-docs](https://acmmedia-backend.onrender.com/api-docs)
-
----
-
-## Environment Variables
-
-### Backend (`acmmedia-backend/.env`)
-
-| Variable | Required | Default | Description |
-|----------|----------|---------|-------------|
-| MONGO_URI | Yes | — | MongoDB connection string |
-| JWT_SECRET | Yes (prod) | dev fallback | JWT signing secret |
-| ADMIN_SECRET | No | ADMIN_2026 | Secret for admin registration |
-| NEWS_API_KEY | No | — | NewsAPI.org API key |
-| PORT | No | 5000 | Server port |
-| NODE_ENV | No | development | Environment mode |
-| LOG_LEVEL | No | info | Pino log level |
-
-### Frontend (`acmmedia-frontend/.env`)
-
-| Variable | Required | Default | Description |
-|----------|----------|---------|-------------|
-| VITE_API_BASE_URL | No | Auto-detected | Backend API URL |
-| VITE_SOCKET_URL | No | Auto-detected | Socket.IO server URL |
-
----
-
-## Local Development Setup
-
-### Prerequisites
-- Node.js 18+
-- MongoDB (local or Atlas)
-- npm
-
-### Backend
-
-```bash
-cd acmmedia-backend
-npm install
-cp .env.example .env
-# Configure MONGO_URI and JWT_SECRET
-npm run dev
-```
-
-Server starts at `http://localhost:5000`
-API docs at `http://localhost:5000/api-docs`
-
-### Frontend
-
-```bash
-cd acmmedia-frontend
-npm install
-cp .env.example .env
-npm run dev
-```
-
-App starts at `http://localhost:5173`
-Vite proxies `/api` requests to the backend automatically.
-
 ---
 
 ## Deployment
 
-### Backend (Render)
-- **Build Command:** `npm install`
-- **Start Command:** `npm start`
-- **Entry Point:** `server.js`
-- **Health Check:** `GET /` returns "Server: Health OK"
-- Graceful shutdown on SIGTERM (zero-downtime deploys)
-
-### Frontend (Vercel)
-- **Build Command:** `npm run build`
-- **Output Directory:** `dist`
-- **Framework:** Vite
-- SPA routing via `vercel.json` rewrites
-
-Both services are independently deployable. The frontend communicates with the backend via the configured API URL.
-
----
-
-## Logging & Monitoring
-
-### Structured Logging (Pino)
-
-```json
-{
-  "level": "error",
-  "time": "2026-05-26T10:30:00.000Z",
-  "msg": "Unhandled server error",
-  "err": "Connection timeout",
-  "method": "GET",
-  "url": "/api/v1/posts",
-  "ip": "192.168.1.1"
-}
+```mermaid
+flowchart LR
+    DEV["Developer<br/>git push"] --> GH[("GitHub<br/>main")]
+    GH -- "auto-deploy" --> V["Vercel<br/>npm run build → dist/"]
+    GH -- "auto-deploy" --> R["Render<br/>npm install · npm start"]
+    V --> USER(("Users"))
+    USER -- "REST + WSS" --> R
+    R --> ATLAS[("MongoDB Atlas")]
+    R --> EXT["NewsAPI · SMTP"]
 ```
 
-- **Production:** JSON format for log aggregation (Datadog, CloudWatch, etc.)
-- **Development:** Pretty-printed with colors
-- **Redaction:** Passwords, tokens, and authorization headers are never logged
-- **Levels:** fatal → error → warn → info → debug → trace
+| Service | Platform | Build | Start / Output |
+|---------|----------|-------|----------------|
+| Backend | Render | `npm install` | `npm start` (`server.js`). Health check: `GET /` |
+| Frontend | Vercel (Vite) | `npm run build` | Output `dist`, SPA rewrites via `vercel.json` |
 
----
-
-## Real-Time Architecture
-
-```
-┌──────────┐                    ┌──────────────┐
-│  Client  │◄──── WSS ────────►│  Socket.IO   │
-│ (React)  │                    │   Server     │
-└──────────┘                    └──────┬───────┘
-                                       │
-                    ┌──────────────────┼──────────────────┐
-                    │                  │                   │
-              ┌─────▼─────┐    ┌──────▼──────┐    ┌──────▼──────┐
-              │ All Rooms  │    │ Admin Room  │    │  Debounce   │
-              │            │    │             │    │   Layer     │
-              │ • Likes    │    │ • Analytics │    │             │
-              │ • Replies  │    │ • Stats     │    │ 500ms wait  │
-              └────────────┘    └─────────────┘    └─────────────┘
-```
-
-- **Post Likes:** Broadcast to all connected clients instantly
-- **Forum Replies:** Broadcast to all clients for live thread updates
-- **Admin Analytics:** Scoped to "admins" room only (security)
-- **Debounced Emissions:** Rapid mutations trigger 1 DB query, not N
+Set the backend environment variables in the Render dashboard, and add your frontend's origin to the CORS whitelist ([frontendOrigins.js](acmmedia-backend/src/config/frontendOrigins.js)).
 
 ---
 
 ## Error Handling
 
-Centralized error handler with category-specific formatting:
+A central handler returns a consistent shape:
 
-| Error Type | Status | Example |
-|-----------|--------|---------|
-| Validation | 400 | Missing required field |
-| Duplicate Key | 400 | Email already exists |
-| Cast Error | 400 | Invalid ObjectId format |
-| Authentication | 401 | Invalid/expired token |
-| Authorization | 403 | Insufficient permissions |
-| Not Found | 404 | Resource doesn't exist |
-| Rate Limited | 429 | Too many requests |
-| Server Error | 500 | Unexpected failure |
-
-All errors return consistent JSON:
 ```json
-{
-  "success": false,
-  "message": "Human-readable error description"
-}
+{ "success": false, "message": "Human-readable error description" }
 ```
 
+| Type | Status |
+|------|:------:|
+| Validation, duplicate key, invalid ObjectId | 400 |
+| Invalid or expired token | 401 |
+| Insufficient permissions | 403 |
+| Resource not found | 404 |
+| Rate limited | 429 |
+| Unexpected failure | 500 |
+
 ---
 
-## Caching Strategy
+## Roadmap
 
-| Data | TTL | Fallback | Rationale |
-|------|-----|----------|-----------|
-| Tech News | 30 minutes | Placeholder article | Reduces NewsAPI calls, graceful degradation |
-| Error News | 5 minutes | Same placeholder | Short TTL for retry on transient failures |
-| Analytics | Debounced 500ms | Client-side calculation | Prevents DB flooding on rapid mutations |
-
----
-
-## Future Improvements
-
-- [ ] Password reset via email (nodemailer)
-- [ ] Email verification on registration
+- [x] Email verification and password reset (Auth V2)
+- [x] Notification system (in-app, via Socket.IO)
+- [x] Bookmarks and session management
 - [ ] Post image attachments
-- [ ] Notification system (in-app + push)
-- [ ] Full-text search (MongoDB Atlas Search)
-- [ ] Cursor-based pagination (for infinite scroll)
-- [ ] Redis caching layer (when scale demands it)
-- [ ] Automated testing suite (Jest + Supertest)
-- [ ] CI/CD pipeline (GitHub Actions)
+- [ ] Push notifications
+- [ ] Atlas Search for full-text search
+- [ ] Cursor-based pagination for infinite scroll
+- [ ] Redis caching layer
+- [ ] Automated tests (Jest + Supertest)
+- [ ] CI/CD with GitHub Actions
 - [ ] Dark/light theme toggle
-- [ ] User activity feed
-- [ ] Post categories/tags
-
----
-
-## How This System Handles 100+ Concurrent Users
-
-1. **Database indexes** ensure queries complete in <5ms regardless of collection size
-2. **Lean queries** reduce memory per request by 3x (no Mongoose document overhead)
-3. **Pagination** limits data transfer to 20 items/request (not entire collections)
-4. **Response compression** reduces bandwidth by 60-80% (critical for mobile)
-5. **Rate limiting** prevents any single user from exhausting server resources
-6. **Debounced Socket.IO** prevents N analytics queries during rapid activity
-7. **Room-scoped events** ensure only relevant clients receive broadcasts
-8. **Graceful shutdown** enables zero-downtime deployments under load
-9. **Structured logging** enables rapid debugging without performance impact
-10. **Security middleware** prevents malicious requests from reaching business logic
 
 ---
 
 ## License
 
-MIT
+[MIT](https://opensource.org/licenses/MIT)
 
----
-
-Built with care by the ACM Student Chapter, XIM University.
+Built by the ACM Student Chapter, XIM University.
